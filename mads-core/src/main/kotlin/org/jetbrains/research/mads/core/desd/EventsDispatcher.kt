@@ -1,5 +1,7 @@
-package org.jetbrains.research.mads.desd
+package org.jetbrains.research.mads.core.desd
 
+import org.jetbrains.research.mads.core.types.ModelObject
+import org.jetbrains.research.mads.core.types.Response
 import java.util.*
 import java.util.stream.Collectors
 
@@ -9,7 +11,7 @@ class EventsDispatcher<M : ModelObject> {
     private val eventsDic: MutableMap<Long, MutableList<ModelEvent<M>>> = mutableMapOf()
     private val eventTime: Queue<Long> = PriorityQueue()
 
-    private val emptyAnswer: Array<EventResponse> = emptyArray()
+    private val emptyAnswer: Array<Response> = emptyArray()
 
     fun getCurrentTick(): Long {
         return currentTick
@@ -33,7 +35,7 @@ class EventsDispatcher<M : ModelObject> {
         eventTime.addAll(ticks)
     }
 
-    fun calculateNextTick(): Array<EventResponse> {
+    fun calculateNextTick(): Array<Response> {
         if (eventTime.isEmpty()) return emptyAnswer
 
         currentTick = eventTime.remove()

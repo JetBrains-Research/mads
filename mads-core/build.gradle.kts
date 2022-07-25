@@ -2,9 +2,10 @@ plugins {
     kotlin("jvm")
 }
 
-description = "Discrete Event System Dispatcher"
+description = "Core types for MADS"
 
 //dependencies {
+//    implementation(project(":mads-desd"))
 //}
 
 //readme {

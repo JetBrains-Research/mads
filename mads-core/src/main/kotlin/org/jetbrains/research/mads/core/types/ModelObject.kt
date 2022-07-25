@@ -1,4 +1,5 @@
 package org.jetbrains.research.mads.core.types
 
-class ApplicableResponse {
+interface ModelObject {
+    val type : String
 }

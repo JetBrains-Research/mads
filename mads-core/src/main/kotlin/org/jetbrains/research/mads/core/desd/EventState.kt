@@ -1,4 +1,4 @@
-package org.jetbrains.research.mads.desd
+package org.jetbrains.research.mads.core.desd
 
 enum class EventState {
     Waiting,

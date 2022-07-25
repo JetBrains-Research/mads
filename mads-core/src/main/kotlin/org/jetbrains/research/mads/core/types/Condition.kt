@@ -1,4 +1,3 @@
 package org.jetbrains.research.mads.core.types
 
-class Condition {
-}
+typealias Condition = (ModelObject) -> Boolean

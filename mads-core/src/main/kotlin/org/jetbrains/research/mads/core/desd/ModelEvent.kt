@@ -1,20 +1,23 @@
-package org.jetbrains.research.mads.desd
+package org.jetbrains.research.mads.core.desd
 
+import org.jetbrains.research.mads.core.types.ModelObject
+import org.jetbrains.research.mads.core.types.Response
 import java.util.*
 
-typealias ProcessState = () -> EventResponse
-typealias ExecuteEvent<M> = (M, Long) -> EventResponse
+typealias ProcessState = () -> Response
+typealias ModelFunction<T> = T.(Long) -> Response
 
-object EmptyResponse : EventResponse
+object EmptyResponse : Response
 
-class ModelEvent<M : ModelObject>(
-    private val reference: ExecuteEvent<M>,
+class ModelEvent<M: ModelObject>(
+    private val reference: ModelFunction<M>,
     private val eventObject: M,
     private val duration: Int,
-    private val rnd: Random,
+    seed: Long,
     rangePercent: Double = 0.1
 ) {
 
+    private val rnd: Random
     private val deltaRange: Double
     private var eventTime: Long
     private var postponeTime: Long
@@ -27,15 +30,16 @@ class ModelEvent<M : ModelObject>(
             EventState.WaitingInQueue to this::processWaitingInQueueEvent))
 
     init {
+        rnd = Random(seed)
+        deltaRange = duration * rangePercent
         eventTime = 0
         postponeTime = 0
-        deltaRange = duration * rangePercent
         eventState = EventState.Waiting
     }
 
     fun getEventTime(): Long = eventTime
 
-    fun executeEvent(): EventResponse = stateProcessorMap[eventState]!!.invoke()
+    fun executeEvent(): Response = stateProcessorMap[eventState]!!.invoke()
 
     fun updateTime(tick: Long): Boolean {
         var result = true
@@ -62,18 +66,18 @@ class ModelEvent<M : ModelObject>(
             eventState = EventState.Waiting
     }
 
-    private fun processActiveEvent(): EventResponse {
+    private fun processActiveEvent(): Response {
         eventState = EventState.Waiting
         return reference.invoke(eventObject, eventTime)
     }
 
-    private fun processPostponedEvent(): EventResponse {
+    private fun processPostponedEvent(): Response {
         eventTime = postponeTime
         eventState = EventState.Active
         return EmptyResponse
     }
 
-    private fun processWaitingInQueueEvent(): EventResponse {
+    private fun processWaitingInQueueEvent(): Response {
         eventState = EventState.Waiting
         return EmptyResponse
     }
