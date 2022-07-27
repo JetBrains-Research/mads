@@ -1,6 +1,6 @@
 rootProject.name = "mads"
 
 include(
-    ":mads-desd",
-    ":mads-core"
+    ":mads-core",
+    ":mads-ns"
 )

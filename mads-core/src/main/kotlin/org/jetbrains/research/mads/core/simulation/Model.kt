@@ -1,12 +1,10 @@
 package org.jetbrains.research.mads.core.simulation
 
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
-import org.jetbrains.research.mads.core.domain.DummyObject
-import org.jetbrains.research.mads.core.domain.SimpleObject
-import org.jetbrains.research.mads.core.domain.SimpleParameters
-import org.jetbrains.research.mads.core.domain.simpleMechanism
+import org.jetbrains.research.mads.core.domain.*
 import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.parametrize
+import org.jetbrains.research.mads.core.types.wrapMechanism
+
 
 fun main() {
     val s = Model()
@@ -22,14 +20,17 @@ class Model {
     public fun simulate(/*TODO insert stopCondition*/) {
         val simple = SimpleObject()
         val dummy = DummyObject()
-        val mech1 = parametrize(::simpleMechanism, SimpleParameters(0.5))
-        val mech2 = parametrize(::simpleMechanism, SimpleParameters(0.8))
-        mech1(simple)
-        mech2(dummy)
+        wrapMechanism(simple, SimpleObject::simpleMechanism, SimpleParameters(0.5))
+        wrapMechanism(dummy, DummyObject::simpleMechanism, SimpleParameters(0.8))
 
-//        val mech = parametrizeI(::simpleMechanism, SimpleParameters(0.4))
+        val dispatcher = EventsDispatcher<ModelObject>()
+        simple.events.forEach { it.prepareEvent() }
+        dummy.events.forEach { it.prepareEvent() }
 
-        EventsDispatcher<ModelObject>()
+        dispatcher.addEvents(arrayOf(simple.events.toTypedArray(), dummy.events.toTypedArray()).flatten().toTypedArray())
+        val responses = dispatcher.calculateNextTick()
+        responses.forEach { println( (it as SimpleResponse).response) }
+
         //TODO: steps
         // 1. process events from queue -> get responses
         // 2. group responses by objects -> map of responses

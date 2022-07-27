@@ -4,16 +4,17 @@ import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.Response
 import java.util.*
 
-typealias ProcessState = () -> Response
-typealias ModelFunction<T> = T.(Long) -> Response
+typealias ProcessState = () -> Array<Response>
 
-object EmptyResponse : Response
+object EmptyResponse {
+    val value : Array<Response> = arrayOf()
+}
 
-class ModelEvent<M: ModelObject>(
-    private val reference: ModelFunction<M>,
-    private val eventObject: M,
+class ModelEvent<out MO : ModelObject>(
+    private val reference: (MO) -> Array<Response>,
+    private val eventObject: MO,
     private val duration: Int,
-    seed: Long,
+    seed: Long = 12345L,
     rangePercent: Double = 0.1
 ) {
 
@@ -39,7 +40,7 @@ class ModelEvent<M: ModelObject>(
 
     fun getEventTime(): Long = eventTime
 
-    fun executeEvent(): Response = stateProcessorMap[eventState]!!.invoke()
+    fun executeEvent(): Array<Response> = stateProcessorMap[eventState]!!.invoke()
 
     fun updateTime(tick: Long): Boolean {
         var result = true
@@ -66,20 +67,20 @@ class ModelEvent<M: ModelObject>(
             eventState = EventState.Waiting
     }
 
-    private fun processActiveEvent(): Response {
+    private fun processActiveEvent(): Array<Response> {
         eventState = EventState.Waiting
-        return reference.invoke(eventObject, eventTime)
+        return reference(eventObject)
     }
 
-    private fun processPostponedEvent(): Response {
+    private fun processPostponedEvent(): Array<Response> {
         eventTime = postponeTime
         eventState = EventState.Active
-        return EmptyResponse
+        return EmptyResponse.value
     }
 
-    private fun processWaitingInQueueEvent(): Response {
+    private fun processWaitingInQueueEvent(): Array<Response> {
         eventState = EventState.Waiting
-        return EmptyResponse
+        return EmptyResponse.value
     }
 
     private fun withDelta(tick: Long): Long {

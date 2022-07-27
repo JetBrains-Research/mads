@@ -43,8 +43,8 @@ class EventsDispatcher<M : ModelObject> {
 
         return currentEvents.parallelStream()
             .map(ModelEvent<M>::executeEvent)
-            .filter { it != EmptyResponse }
-            .toArray { arrayOf() }
+            .toArray<Array<Response>?> { length -> arrayOfNulls(length) }
+            .flatten().toTypedArray()
     }
 
     fun peekHead(): Long {
