@@ -1,4 +1,4 @@
-package org.jetbrains.research.mads.core.domain
+package domain
 
 import org.jetbrains.research.mads.core.types.MechanismParameters
 

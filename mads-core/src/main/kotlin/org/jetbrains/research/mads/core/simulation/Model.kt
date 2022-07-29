@@ -1,46 +1,33 @@
 package org.jetbrains.research.mads.core.simulation
 
-import org.jetbrains.research.mads.core.configuration.Pathway
+import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
-import org.jetbrains.research.mads.core.domain.*
-import org.jetbrains.research.mads.core.types.parametrize
+import org.jetbrains.research.mads.core.types.ModelObject
 
+class Model(private val objects : ArrayList<ModelObject>, private val configuration: Configuration<ModelObject>) {
 
-fun main() {
-    val s = Model()
-    s.simulate()
-}
-
-class Model {
     public fun init() {
         //TODO: here we process initial responses and create initial model state from Ø to S_0
         // Should be constructor
     }
 
     public fun simulate(/*TODO insert stopCondition*/) {
-        val simple = SimpleObject()
-        val dummy = DummyObject()
-
-        val pathwaySimple : Pathway<SimpleObject> = Pathway()
-        val pathwayDummy : Pathway<DummyObject> = Pathway()
-        val paramsForSimple = SimpleParameters(0.5)
-        val paramsForDummy = SimpleParameters(0.8)
-        val mechanismSimple = parametrize(SimpleObject::simpleMechanism, paramsForSimple)
-        val mechanismDummy = parametrize(DummyObject::simpleMechanism, paramsForDummy)
-        pathwaySimple.add(mechanismSimple, paramsForSimple.duration, SimpleObject::simpleCondition)
-        pathwayDummy.add(mechanismDummy, paramsForDummy.duration, DummyObject::dummyCondition)
-
-        simple.addEvents(pathwaySimple.createEvents(simple))
-        dummy.addEvents(pathwayDummy.createEvents(dummy))
-
         val dispatcher = EventsDispatcher()
-        simple.checkConditions()
-        dummy.checkConditions()
+        objects.forEach { configuration.createEvents(it) }
+        objects.forEach { it.checkConditions() }
 
-        dispatcher.addEvents(arrayOf(simple.events.toTypedArray(), dummy.events.toTypedArray()).flatten().toTypedArray())
-        println(dispatcher.peekHead())
+        val allEvents = objects.map { it.events.toTypedArray() }.toTypedArray().flatten().toTypedArray()
+        dispatcher.addEvents(allEvents)
+
+//        simple.addEvents(pathwaySimple.createEvents(simple))
+//        dummy.addEvents(pathwayDummy.createEvents(dummy))
+//        simple.checkConditions()
+//        dummy.checkConditions()
+
+//        dispatcher.addEvents(arrayOf(simple.events.toTypedArray(), dummy.events.toTypedArray()).flatten().toTypedArray())
+//        println(dispatcher.peekHead())
         val responses = dispatcher.calculateNextTick()
-        responses.forEach { println( (it as SimpleResponse).response) }
+        responses.forEach { println( it.response) }
 
         //TODO: steps
         // 1. process events from queue -> get responses

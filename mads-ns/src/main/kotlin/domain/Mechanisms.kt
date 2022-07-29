@@ -1,4 +1,4 @@
-package org.jetbrains.research.mads.core.domain
+package domain
 
 import org.jetbrains.research.mads.core.types.Response
 
@@ -7,7 +7,7 @@ fun SimpleObject.simpleMechanism(params: SimpleParameters) : Array<Response> {
 }
 
 fun SimpleObject.simpleCondition() : Boolean {
-    return true
+    return this.forCondition
 }
 
 fun DummyObject.simpleMechanism(params: SimpleParameters) : Array<Response> {
@@ -15,5 +15,5 @@ fun DummyObject.simpleMechanism(params: SimpleParameters) : Array<Response> {
 }
 
 fun DummyObject.dummyCondition() : Boolean {
-    return true
+    return this.forCondition
 }

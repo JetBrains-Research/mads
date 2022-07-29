@@ -1,6 +1,9 @@
 package org.jetbrains.research.mads.core.configuration
 
-class Configuration {
+import org.jetbrains.research.mads.core.types.ModelObject
+import kotlin.reflect.KClass
+
+class Configuration<MO : ModelObject> {
     /* 1. Эксперимент определяется конфигурацией
        2. Набор типов объектов, с которыми мы работаем в эксперименте, мы прописываем в конфигурации
        3. Механизмы и их параметры над конкретными типами объектов мы прописываем в конфигурации (соотношение 1 тип объекта -> много механизмов)
@@ -13,4 +16,15 @@ class Configuration {
        с типом таким-то (например, клетка)необходимо весь набор событий копировать.
        Используем шаблон с заранее созданными событиями
     */
+
+    private val objPathways: HashMap<KClass<out ModelObject>, ArrayList<Pathway<out ModelObject>>> = HashMap()
+
+    fun add(objectType: KClass<out ModelObject>, pathways: ArrayList<Pathway<out ModelObject>>) {
+        objPathways[objectType] = pathways
+    }
+
+    fun <MO: ModelObject> createEvents(obj: MO) {
+        objPathways[obj::class]!!.forEach {
+            obj.createEvents(it) }
+    }
 }
