@@ -9,10 +9,7 @@ package org.jetbrains.research.mads.core.types
 //    }
 //}
 
-fun <MO, MP> parametrize(mechanism: (MO, MP) -> Array<Response>, params: MP) : ((MO) -> Array<Response>)
-        where MO : ModelObject,
-              MP : MechanismParameters {
-
+fun <MO : ModelObject, MP : MechanismParameters> parametrize(mechanism: (MO, MP) -> Array<Response>, params: MP) : ((MO) -> Array<Response>) {
     return fun(o: MO): Array<Response> {
         return mechanism(o, params)
     }

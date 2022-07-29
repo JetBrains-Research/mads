@@ -5,11 +5,13 @@ import org.jetbrains.research.mads.core.desd.ModelEvent
 abstract class ModelObject {
     open val type = "Model Object"
 
-    val events : ArrayList<ModelEvent<ModelObject>> = ArrayList()
-}
+    var events : List<ModelEvent<*>> = ArrayList()
 
-fun <MO: ModelObject, MP: MechanismParameters> wrapMechanism(obj: MO,
-                                                             mechanism: (MO, MP) -> Array<Response>,
-                                                             params: MP) {
-    obj.events.add(ModelEvent(parametrize(mechanism, params), obj, params.duration))
+    fun addEvents(e : List<ModelEvent<*>>) {
+        events = e
+    }
+
+    fun checkConditions() {
+        events.forEach { if (it.checkCondition()) it.prepareEvent() else it.disruptEvent() }
+    }
 }

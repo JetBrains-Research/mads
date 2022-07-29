@@ -10,8 +10,9 @@ object EmptyResponse {
     val value : Array<Response> = arrayOf()
 }
 
-class ModelEvent<out MO : ModelObject>(
-    private val reference: (MO) -> Array<Response>,
+class ModelEvent<MO : ModelObject>(
+    private val mechanism: (MO) -> Array<Response>,
+    private val condition: (MO) -> Boolean,
     private val eventObject: MO,
     private val duration: Int,
     seed: Long = 12345L,
@@ -56,6 +57,10 @@ class ModelEvent<out MO : ModelObject>(
         return result
     }
 
+    fun checkCondition(): Boolean {
+        return condition(eventObject)
+    }
+
     fun prepareEvent() {
         if (eventState === EventState.Waiting) eventState = EventState.Ready
     }
@@ -69,7 +74,7 @@ class ModelEvent<out MO : ModelObject>(
 
     private fun processActiveEvent(): Array<Response> {
         eventState = EventState.Waiting
-        return reference(eventObject)
+        return mechanism(eventObject)
     }
 
     private fun processPostponedEvent(): Array<Response> {

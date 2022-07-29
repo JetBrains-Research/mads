@@ -1,9 +1,9 @@
 package org.jetbrains.research.mads.core.simulation
 
+import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
 import org.jetbrains.research.mads.core.domain.*
-import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.wrapMechanism
+import org.jetbrains.research.mads.core.types.parametrize
 
 
 fun main() {
@@ -20,14 +20,25 @@ class Model {
     public fun simulate(/*TODO insert stopCondition*/) {
         val simple = SimpleObject()
         val dummy = DummyObject()
-        wrapMechanism(simple, SimpleObject::simpleMechanism, SimpleParameters(0.5))
-        wrapMechanism(dummy, DummyObject::simpleMechanism, SimpleParameters(0.8))
 
-        val dispatcher = EventsDispatcher<ModelObject>()
-        simple.events.forEach { it.prepareEvent() }
-        dummy.events.forEach { it.prepareEvent() }
+        val pathwaySimple : Pathway<SimpleObject> = Pathway()
+        val pathwayDummy : Pathway<DummyObject> = Pathway()
+        val paramsForSimple = SimpleParameters(0.5)
+        val paramsForDummy = SimpleParameters(0.8)
+        val mechanismSimple = parametrize(SimpleObject::simpleMechanism, paramsForSimple)
+        val mechanismDummy = parametrize(DummyObject::simpleMechanism, paramsForDummy)
+        pathwaySimple.add(mechanismSimple, paramsForSimple.duration, SimpleObject::simpleCondition)
+        pathwayDummy.add(mechanismDummy, paramsForDummy.duration, DummyObject::dummyCondition)
+
+        simple.addEvents(pathwaySimple.createEvents(simple))
+        dummy.addEvents(pathwayDummy.createEvents(dummy))
+
+        val dispatcher = EventsDispatcher()
+        simple.checkConditions()
+        dummy.checkConditions()
 
         dispatcher.addEvents(arrayOf(simple.events.toTypedArray(), dummy.events.toTypedArray()).flatten().toTypedArray())
+        println(dispatcher.peekHead())
         val responses = dispatcher.calculateNextTick()
         responses.forEach { println( (it as SimpleResponse).response) }
 

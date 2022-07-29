@@ -1,18 +1,21 @@
 package org.jetbrains.research.mads.core.configuration
 
 import org.jetbrains.research.mads.core.desd.ModelEvent
-import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.Response
-import kotlin.reflect.KClass
+import org.jetbrains.research.mads.core.types.*
 
-class Pathway<MO : ModelObject>(val objectType : KClass<MO>) {
-    val mechanismConditions : HashMap<((MO) -> Array<Response>), ((MO) -> Boolean)> = HashMap()
+class Pathway<MO : ModelObject> {
+    private val mocRecords = ArrayList<MocRecord<MO>>()
 
-    fun add(mechanism: (MO) -> Array<Response>, condition: (MO) -> Boolean) {
-        mechanismConditions[mechanism] = condition
+    fun add(mechanism: (MO) -> Array<Response>, duration: Int, condition: (MO) -> Boolean) {
+        mocRecords.add(MocRecord(mechanism, duration, condition))
     }
 
-//    fun createEvents() : List<ModelEvent<MO>> {
-//        mechanismConditions.forEach {  }
-//    }
+    fun createEvents(obj: MO): List<ModelEvent<MO>> {
+        val events = ArrayList<ModelEvent<MO>>()
+        mocRecords.forEach {
+            val event = ModelEvent(it.mechanism, it.condition, obj, it.duration)
+            events.add(event) }
+
+        return events
+    }
 }
