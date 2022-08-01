@@ -9,6 +9,7 @@ abstract class ModelObject(id: Long) {
     var events : ArrayList<ModelEvent> = ArrayList()
     var id: Long = id
 
+    @Suppress("UNCHECKED_CAST")
     fun <MO : ModelObject> createEvents(pathway: Pathway<MO>) {
         pathway.mocRecords.forEach {
             val thisMO = this as MO
