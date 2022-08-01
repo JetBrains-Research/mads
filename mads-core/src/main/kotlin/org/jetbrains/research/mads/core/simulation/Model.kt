@@ -2,9 +2,12 @@ package org.jetbrains.research.mads.core.simulation
 
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
+import org.jetbrains.research.mads.core.desd.ModelEvent
 import org.jetbrains.research.mads.core.types.ModelObject
+import org.jetbrains.research.mads.core.types.applyObjectToCondition
+import org.jetbrains.research.mads.core.types.applyObjectToMechanism
 
-class Model(private val objects : ArrayList<ModelObject>, private val configuration: Configuration<ModelObject>) {
+class Model(private val objects : ArrayList<ModelObject>, private val configuration: Configuration) {
 
     public fun init() {
         //TODO: here we process initial responses and create initial model state from Ø to S_0

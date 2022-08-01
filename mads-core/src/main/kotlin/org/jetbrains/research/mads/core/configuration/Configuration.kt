@@ -3,7 +3,7 @@ package org.jetbrains.research.mads.core.configuration
 import org.jetbrains.research.mads.core.types.ModelObject
 import kotlin.reflect.KClass
 
-class Configuration<MO : ModelObject> {
+class Configuration {
     /* 1. Эксперимент определяется конфигурацией
        2. Набор типов объектов, с которыми мы работаем в эксперименте, мы прописываем в конфигурации
        3. Механизмы и их параметры над конкретными типами объектов мы прописываем в конфигурации (соотношение 1 тип объекта -> много механизмов)
@@ -23,7 +23,7 @@ class Configuration<MO : ModelObject> {
         objPathways[objectType] = pathways
     }
 
-    fun <MO: ModelObject> createEvents(obj: MO) {
+    fun createEvents(obj: ModelObject) {
         objPathways[obj::class]!!.forEach {
             obj.createEvents(it)
         }

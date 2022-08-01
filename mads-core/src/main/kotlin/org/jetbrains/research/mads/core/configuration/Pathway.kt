@@ -1,21 +1,15 @@
 package org.jetbrains.research.mads.core.configuration
 
-import org.jetbrains.research.mads.core.desd.ModelEvent
-import org.jetbrains.research.mads.core.types.*
+import org.jetbrains.research.mads.core.types.MechanismParameters
+import org.jetbrains.research.mads.core.types.ModelObject
+import org.jetbrains.research.mads.core.types.Response
+import org.jetbrains.research.mads.core.types.applyParametersToMechanism
 
-class Pathway<MO : ModelObject> {
+class Pathway<MO: ModelObject> {
     val mocRecords = ArrayList<MocRecord<MO>>()
 
-    fun add(mechanism: (MO) -> Array<Response>, duration: Int, condition: (MO) -> Boolean) {
-        mocRecords.add(MocRecord(mechanism, duration, condition))
+    fun <MP : MechanismParameters> add(mechanism: (MO, MP) -> Array<Response>, parameters: MP, duration: Int, condition: (MO) -> Boolean) {
+        val mch = applyParametersToMechanism(mechanism, parameters)
+        mocRecords.add(MocRecord(mch, duration, condition))
     }
-
-//    fun createEvents(obj: MO): List<ModelEvent<MO>> {
-//        val events = ArrayList<ModelEvent<MO>>()
-//        mocRecords.forEach {
-//            val event = ModelEvent(it.mechanism, it.condition, obj, it.duration)
-//            events.add(event) }
-//
-//        return events
-//    }
 }

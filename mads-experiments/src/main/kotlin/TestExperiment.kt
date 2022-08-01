@@ -3,22 +3,19 @@ package domain
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.simulation.Model
-import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.parametrize
 
 fun main() {
-    val simple = SimpleObject()
-    val dummy = DummyObject()
+    val simple = SimpleObject(1L)
+    val dummy = DummyObject(2L)
 
-    val config : Configuration<ModelObject> = Configuration()
+    val config = Configuration()
 
     val pathwaySimple : Pathway<SimpleObject> = Pathway()
     val pathwayDummy : Pathway<DummyObject> = Pathway()
-    pathwaySimple.add(
-        parametrize(SimpleObject::simpleMechanism, SimpleParameters(0.5)),
+    pathwaySimple.add(SimpleObject::simpleMechanism, SimpleParameters(0.5),
         10, SimpleObject::simpleCondition)
     pathwayDummy.add(
-        parametrize(DummyObject::simpleMechanism, SimpleParameters(0.8)),
+        DummyObject::simpleMechanism, SimpleParameters(0.8),
         10, DummyObject::dummyCondition)
 
     config.add(SimpleObject::class, arrayListOf(pathwaySimple))
