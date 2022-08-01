@@ -25,6 +25,7 @@ class Configuration<MO : ModelObject> {
 
     fun <MO: ModelObject> createEvents(obj: MO) {
         objPathways[obj::class]!!.forEach {
-            obj.createEvents(it) }
+            obj.createEvents(it)
+        }
     }
 }
