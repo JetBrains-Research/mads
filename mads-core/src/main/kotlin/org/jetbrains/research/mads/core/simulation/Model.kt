@@ -2,10 +2,7 @@ package org.jetbrains.research.mads.core.simulation
 
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
-import org.jetbrains.research.mads.core.desd.ModelEvent
 import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.applyObjectToCondition
-import org.jetbrains.research.mads.core.types.applyObjectToMechanism
 
 class Model(private val objects : ArrayList<ModelObject>, private val configuration: Configuration) {
 
@@ -22,13 +19,7 @@ class Model(private val objects : ArrayList<ModelObject>, private val configurat
         val allEvents = objects.map { it.events.toTypedArray() }.toTypedArray().flatten().toTypedArray()
         dispatcher.addEvents(allEvents)
 
-//        simple.addEvents(pathwaySimple.createEvents(simple))
-//        dummy.addEvents(pathwayDummy.createEvents(dummy))
-//        simple.checkConditions()
-//        dummy.checkConditions()
-
-//        dispatcher.addEvents(arrayOf(simple.events.toTypedArray(), dummy.events.toTypedArray()).flatten().toTypedArray())
-//        println(dispatcher.peekHead())
+        println(dispatcher.peekHead())
         val responses = dispatcher.calculateNextTick()
         responses.forEach { println( it.response) }
 
