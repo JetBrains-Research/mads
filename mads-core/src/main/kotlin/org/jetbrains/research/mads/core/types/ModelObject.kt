@@ -19,6 +19,11 @@ abstract class ModelObject(id: Long) {
             events.add(event) }
     }
 
+    fun applyResponses(responses : List<Response>): Array<ModelObject> {
+        responses.forEach { println(it.response) }
+        return arrayOf(this)
+    }
+
     fun checkConditions() {
         events.forEach { if (it.checkCondition()) it.prepareEvent() else it.disruptEvent() }
     }

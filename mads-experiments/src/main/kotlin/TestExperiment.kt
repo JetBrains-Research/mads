@@ -10,8 +10,8 @@ fun main() {
 
     val config = Configuration()
 
-    val pathwaySimple : Pathway<SimpleObject> = Pathway()
-    val pathwayDummy : Pathway<DummyObject> = Pathway()
+    val pathwaySimple: Pathway<SimpleObject> = Pathway()
+    val pathwayDummy: Pathway<DummyObject> = Pathway()
     pathwaySimple.add(SimpleObject::simpleMechanism, SimpleParameters(0.5), 10) { it.forCondition }
     pathwayDummy.add(DummyObject::simpleMechanism, SimpleParameters(0.8), 10) { it.forCondition }
 
@@ -19,5 +19,6 @@ fun main() {
     config.add(DummyObject::class, arrayListOf(pathwayDummy))
 
     val s = Model(arrayListOf(simple, dummy), config)
-    s.simulate()
+    s.init()
+    s.simulate { it.currentTime() > 100 }
 }

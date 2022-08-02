@@ -3,32 +3,52 @@ package org.jetbrains.research.mads.core.simulation
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
 import org.jetbrains.research.mads.core.types.ModelObject
+import org.jetbrains.research.mads.core.types.Response
+import java.util.*
+import java.util.stream.Collectors
 
-class Model(private val objects : ArrayList<ModelObject>, private val configuration: Configuration) {
+class Model(private val objects : List<ModelObject>, private val configuration: Configuration) {
+    private val dispatcher = EventsDispatcher()
 
-    public fun init() {
+    fun init() {
         //TODO: here we process initial responses and create initial model state from Ø to S_0
         // Should be constructor
-    }
-
-    public fun simulate(/*TODO insert stopCondition*/) {
-        val dispatcher = EventsDispatcher()
         objects.forEach { configuration.createEvents(it) }
         objects.forEach { it.checkConditions() }
 
         val allEvents = objects.map { it.events.toTypedArray() }.toTypedArray().flatten().toTypedArray()
         dispatcher.addEvents(allEvents)
+    }
 
-        println(dispatcher.peekHead())
-        val responses = dispatcher.calculateNextTick()
-        responses.forEach { println( it.response) }
+    fun simulate(stopCondition: (Model) -> Boolean) {
 
-        //TODO: steps
-        // 1. process events from queue -> get responses
-        // 2. group responses by objects -> map of responses
-        // 3. apply responses to each object independently -> S_i to S_i+1
-        // 4. calculate conditions -> map of events
-        // 5. update events in queue -> S_t
-        // 6. check S_i for stop condition -> stop or repeat from 1
+        // 0. check S_i for stop condition -> stop or repeat from 1
+        while (!stopCondition(this)) {
+
+            // 1. process events from queue -> get responses
+            val responses = dispatcher.calculateNextTick()
+
+            // 2. group responses by objects -> map of responses
+            val groupedResponses : Map<ModelObject, List<Response>> = Arrays.stream(responses)
+                .parallel()
+                .collect(Collectors.groupingBy(Response::modelObject))
+
+            // 3. apply responses to each object independently -> S_i to S_i+1
+            val updatedObjects = groupedResponses.entries.parallelStream()
+                .map { e -> e.key.applyResponses(e.value) }
+                .toArray<Array<ModelObject>?> { length -> arrayOfNulls(length) }
+                .flatten().toTypedArray()
+
+            // 4. calculate conditions -> map of events
+            updatedObjects.forEach { it.checkConditions() }
+
+            // 5. update events in queue -> S_t
+            val allEvents = updatedObjects.map { it.events.toTypedArray() }.toTypedArray().flatten().toTypedArray()
+            dispatcher.addEvents(allEvents)
+        }
+    }
+
+    fun currentTime(): Long {
+        return dispatcher.peekHead()
     }
 }

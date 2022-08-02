@@ -1,6 +1,5 @@
 package org.jetbrains.research.mads.core.desd
 
-import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.Response
 import java.util.*
 

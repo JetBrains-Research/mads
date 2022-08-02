@@ -2,6 +2,6 @@ package domain
 
 import org.jetbrains.research.mads.core.types.MechanismParameters
 
-open class SimpleParameters(p: Double) : MechanismParameters(10) {
+open class SimpleParameters(p: Double) : MechanismParameters {
     val probability = p
 }
