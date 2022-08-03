@@ -1,32 +1,32 @@
 package domain
 
 import org.jetbrains.research.mads.core.types.Connection
+import org.jetbrains.research.mads.core.types.ModelObject
+import org.jetbrains.research.mads.core.types.ObjectStorage
 import java.util.concurrent.ConcurrentHashMap
 
-object MOCVault {
-    private val logicObjects = ConcurrentHashMap<Long, SimpleObject>()
-    private val connections = ConcurrentHashMap<Long, Set<Connection>>()
+class BaseObjectStorage: ObjectStorage {
+    private val modelObjects = ConcurrentHashMap.newKeySet<ModelObject>()
+    private val connections = ConcurrentHashMap.newKeySet<Connection>()
 
-    public fun getObject(id: Long): SimpleObject? {
-        return logicObjects[id]
+    override fun addObject(obj: ModelObject) {
+        modelObjects.add(obj)
     }
 
-    public fun getObjects(): Array<SimpleObject> {
-        return logicObjects.values.toTypedArray()
+    override fun addConnection(connection: Connection) {
+        connections.add(connection)
     }
 
-    public fun addObject(newObject: SimpleObject) {
-        logicObjects[newObject.id] = newObject
+    override fun removeObject(obj: ModelObject) {
+        modelObjects.remove(obj)
     }
 
-    public fun addConnection(connection: Connection)
-    {
-
+    override fun removeConnection(connection: Connection) {
+        connections.remove(connection)
     }
 
-    public fun removeConnection(id: Long)
-    {
-        
+    override fun getObjects(): Array<ModelObject> {
+        return modelObjects.toTypedArray()
     }
 }
 

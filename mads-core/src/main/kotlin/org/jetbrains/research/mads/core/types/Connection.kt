@@ -1,23 +1,16 @@
 package org.jetbrains.research.mads.core.types
 
-class Connection(id: Long,
-                 private val objectLeft: ModelObject,
-                 private val objectRight: ModelObject) : ModelObject(id) {
-//    val objectLeft = objectLeft
-//    val objectRight = objectRight
+class Connection(
+    private val objectLeft: ModelObject,
+    private val objectRight: ModelObject
+) {
 
-    public fun getPair(id: Long) : ModelObject?
-    {
-        if(id == objectLeft.id)
-        {
-            return objectLeft
+    fun getPair(obj: ModelObject): ModelObject? {
+        return when(obj) {
+            objectLeft -> objectRight
+            objectRight -> objectLeft
+            // TODO: @vlad0922 I prefer to change null to some blank empty object
+            else -> null
         }
-        else if(id == objectRight.id)
-        {
-            return objectRight
-        }
-
-        return null
     }
-
 }
