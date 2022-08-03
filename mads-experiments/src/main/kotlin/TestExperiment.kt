@@ -3,6 +3,7 @@ package domain
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.simulation.Model
+import org.jetbrains.research.mads.core.types.BaseObjectStorage
 
 fun main() {
     val storage = BaseObjectStorage()

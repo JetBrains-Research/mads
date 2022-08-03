@@ -1,8 +1,5 @@
-package domain
+package org.jetbrains.research.mads.core.types
 
-import org.jetbrains.research.mads.core.types.Connection
-import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.ObjectStorage
 import java.util.concurrent.ConcurrentHashMap
 
 class BaseObjectStorage: ObjectStorage {
