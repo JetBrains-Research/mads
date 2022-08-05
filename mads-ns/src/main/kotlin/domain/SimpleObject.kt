@@ -1,11 +1,10 @@
 package domain
 
 import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.ObjectStorage
 import org.jetbrains.research.mads.core.types.Response
 import java.util.*
 
-open class SimpleObject(storage: ObjectStorage): ModelObject(storage) {
+open class SimpleObject : ModelObject() {
     override val type = "simple object"
     val forCondition = true
     val rnd = Random(12345L)

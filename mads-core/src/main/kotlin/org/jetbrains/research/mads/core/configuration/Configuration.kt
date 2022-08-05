@@ -24,7 +24,7 @@ class Configuration {
     }
 
     fun createEvents(obj: ModelObject) {
-        objPathways[obj::class]!!.forEach {
+        objPathways[obj::class]?.forEach {
             obj.createEvents(it)
         }
     }

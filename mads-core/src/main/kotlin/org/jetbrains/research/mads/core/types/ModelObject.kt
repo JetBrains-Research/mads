@@ -4,10 +4,15 @@ import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.desd.ModelEvent
 import kotlin.reflect.KClass
 
-abstract class ModelObject(val storage: ObjectStorage) {
+object EmptyModelObject : ModelObject()
+
+abstract class ModelObject() {
     open val type = "Model Object"
     val events : ArrayList<ModelEvent> = ArrayList()
     protected val responseMapping: MutableMap<KClass<out Response>, (Response) -> Array<ModelObject>> = mutableMapOf()
+    var parent: ModelObject = EmptyModelObject
+    val childObjects: HashSet<ModelObject> = HashSet()
+    val connections: MutableMap<ConnectionType, HashSet<ModelObject>> = mutableMapOf()
 
     init {
         responseMapping[AddObjectResponse::class] = ::addObject
@@ -29,6 +34,7 @@ abstract class ModelObject(val storage: ObjectStorage) {
     }
 
     fun applyResponses(responses : List<Response>): Array<ModelObject> {
+        // TODO: add resolve conflicts function call
         return responses.mapNotNull { this.responseMapping[it::class]?.invoke(it) }
             .toTypedArray().flatten().toTypedArray()
     }
@@ -37,10 +43,22 @@ abstract class ModelObject(val storage: ObjectStorage) {
         events.forEach { if (it.checkCondition()) it.prepareEvent() else it.disruptEvent() }
     }
 
+    fun getChildObjects(): Array<ModelObject> {
+        return childObjects.toTypedArray()
+    }
+
+    fun recursivelyGetChildObjects(): Array<ModelObject> {
+        return childObjects.asSequence()
+            .selectRecursive { getChildObjects().asSequence() }
+            .toList()
+            .toTypedArray()
+    }
+
     private fun addObject(response: Response): Array<ModelObject> {
         if (response is AddObjectResponse) {
             println(response.response)
-            storage.addObject(response.addedObject)
+            childObjects.add(response.addedObject)
+            response.addedObject.parent = this
             return arrayOf(response.sourceObject, response.addedObject)
         }
 
@@ -50,8 +68,15 @@ abstract class ModelObject(val storage: ObjectStorage) {
     private fun removeObject(response: Response): Array<ModelObject> {
         if (response is RemoveObjectResponse) {
             println(response.response)
-            storage.addObject(response.removedObject)
+            childObjects.add(response.removedObject)
         }
         return arrayOf()
+    }
+}
+
+fun <T> Sequence<T>.selectRecursive(recursiveSelector: T.() -> Sequence<T>): Sequence<T> = flatMap {
+    sequence {
+        yield(it)
+        yieldAll(it.recursiveSelector().selectRecursive(recursiveSelector))
     }
 }

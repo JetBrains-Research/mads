@@ -14,7 +14,7 @@ class ModelEvent(
     private val condition: () -> Boolean,
     private val duration: Int,
     seed: Long = 12345L,
-    rangePercent: Double = 0.1
+    rangePercent: Double = 0.0
 ) {
 
     private val rnd: Random

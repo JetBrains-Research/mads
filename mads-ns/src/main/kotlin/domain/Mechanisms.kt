@@ -9,7 +9,7 @@ fun SimpleObject.simpleMechanism(params: SimpleParameters) : Array<Response> {
 
 fun SimpleObject.simpleAddMechanism(params: SimpleParameters) : Array<Response> {
     return if (this.rnd.nextDouble() < params.probability)
-        arrayOf(AddObjectResponse("Object added", this, SimpleObject(this.storage)))
+        arrayOf(AddObjectResponse("Object added", this.parent, SimpleObject()))
     else
         arrayOf(SimpleResponse("False roll", this))
 }

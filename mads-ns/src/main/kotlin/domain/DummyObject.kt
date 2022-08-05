@@ -1,10 +1,9 @@
 package domain
 
 import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.ObjectStorage
 import org.jetbrains.research.mads.core.types.Response
 
-class DummyObject(storage: ObjectStorage) : ModelObject(storage) {
+class DummyObject : ModelObject() {
     override val type = "dummy object"
     val forCondition = true
 

@@ -3,12 +3,10 @@ package domain
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.simulation.Model
-import org.jetbrains.research.mads.core.types.BaseObjectStorage
 
 fun main() {
-    val storage = BaseObjectStorage()
-    val simple = SimpleObject(storage)
-    val dummy = DummyObject(storage)
+    val simple = SimpleObject()
+    val dummy = DummyObject()
 
     val config = Configuration()
 
@@ -21,9 +19,8 @@ fun main() {
     config.add(SimpleObject::class, arrayListOf(pathwaySimple))
     config.add(DummyObject::class, arrayListOf(pathwayDummy))
 
-    val s = Model(arrayListOf(simple, dummy), config, storage)
-    s.init()
+    val s = Model(arrayListOf(simple, dummy), config)
     s.simulate { it.currentTime() > 100 }
 
-    println(storage.getObjects().size)
+    println(s.recursivelyGetChildObjects().size)
 }

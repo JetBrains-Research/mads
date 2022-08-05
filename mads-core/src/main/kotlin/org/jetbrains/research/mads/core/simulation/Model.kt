@@ -3,21 +3,28 @@ package org.jetbrains.research.mads.core.simulation
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
 import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.ObjectStorage
 import org.jetbrains.research.mads.core.types.Response
 import java.util.*
 import java.util.stream.Collectors
 
-class Model(private val objects : List<ModelObject>,
-            private val configuration: Configuration,
-            private val objectStorage: ObjectStorage) {
+object RootObject: ModelObject()
+
+class Model(
+    objects: List<ModelObject>,
+    private val configuration: Configuration
+): ModelObject() {
+
     private val dispatcher = EventsDispatcher()
 
-    fun init() {
+    init {
         //TODO: here we process initial responses and create initial model state from Ø to S_0
         // Should be constructor
+        parent = RootObject
+        configuration.createEvents(this)
+        this.checkConditions()
         objects.forEach {
-            objectStorage.addObject(it)
+            childObjects.add(it)
+            it.parent = this
             configuration.createEvents(it)
             it.checkConditions()
         }

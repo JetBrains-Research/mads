@@ -2,7 +2,7 @@ package org.jetbrains.research.mads.core.types
 
 import java.util.concurrent.ConcurrentHashMap
 
-class BaseObjectStorage: ObjectStorage {
+open class BaseObjectStorage: ObjectStorage {
     private val modelObjects = ConcurrentHashMap.newKeySet<ModelObject>()
     private val connections = ConcurrentHashMap.newKeySet<Connection>()
 
