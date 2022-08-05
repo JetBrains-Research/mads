@@ -1,6 +1,6 @@
 package domain
 
-import org.jetbrains.research.mads.core.types.AddObjectResponse
+import org.jetbrains.research.mads.core.types.responses.AddObjectResponse
 import org.jetbrains.research.mads.core.types.Response
 
 fun SimpleObject.simpleMechanism(params: SimpleParameters) : Array<Response> {
@@ -14,14 +14,6 @@ fun SimpleObject.simpleAddMechanism(params: SimpleParameters) : Array<Response> 
         arrayOf(SimpleResponse("False roll", this))
 }
 
-fun SimpleObject.simpleCondition() : Boolean {
-    return this.forCondition
-}
-
 fun DummyObject.simpleMechanism(params: SimpleParameters) : Array<Response> {
     return arrayOf(SimpleResponse("Object: " + this.type + "; Probability: " + params.probability, this))
-}
-
-fun DummyObject.dummyCondition() : Boolean {
-    return this.forCondition
 }

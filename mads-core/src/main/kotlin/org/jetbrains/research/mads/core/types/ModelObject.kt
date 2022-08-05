@@ -2,13 +2,15 @@ package org.jetbrains.research.mads.core.types
 
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.desd.ModelEvent
+import org.jetbrains.research.mads.core.types.responses.AddObjectResponse
+import org.jetbrains.research.mads.core.types.responses.RemoveObjectResponse
 import kotlin.reflect.KClass
 
 object EmptyModelObject : ModelObject()
 
-abstract class ModelObject() {
+abstract class ModelObject {
     open val type = "Model Object"
-    val events : ArrayList<ModelEvent> = ArrayList()
+    val events: ArrayList<ModelEvent> = ArrayList()
     protected val responseMapping: MutableMap<KClass<out Response>, (Response) -> Array<ModelObject>> = mutableMapOf()
     var parent: ModelObject = EmptyModelObject
     val childObjects: HashSet<ModelObject> = HashSet()
@@ -20,7 +22,7 @@ abstract class ModelObject() {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <MO: ModelObject> createEvents(pathway: Pathway<MO>) {
+    fun <MO : ModelObject> createEvents(pathway: Pathway<MO>) {
         if (events.size > 0)
             return
 
@@ -33,10 +35,17 @@ abstract class ModelObject() {
         }
     }
 
-    fun applyResponses(responses : List<Response>): Array<ModelObject> {
-        // TODO: add resolve conflicts function call
-        return responses.mapNotNull { this.responseMapping[it::class]?.invoke(it) }
-            .toTypedArray().flatten().toTypedArray()
+    fun applyResponses(responses: List<Response>): Array<ModelObject> {
+        return resolveConflicts(responses).mapNotNull {
+            this.responseMapping[it::class]?.invoke(it)
+        }
+            .toTypedArray()
+            .flatten()
+            .toTypedArray()
+    }
+
+    protected open fun resolveConflicts(responses: List<Response>): List<Response> {
+        return responses
     }
 
     fun checkConditions() {
@@ -57,8 +66,8 @@ abstract class ModelObject() {
     private fun addObject(response: Response): Array<ModelObject> {
         if (response is AddObjectResponse) {
             println(response.response)
-            childObjects.add(response.addedObject)
             response.addedObject.parent = this
+            childObjects.add(response.addedObject)
             return arrayOf(response.sourceObject, response.addedObject)
         }
 

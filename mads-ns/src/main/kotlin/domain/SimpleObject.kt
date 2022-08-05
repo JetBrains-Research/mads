@@ -13,6 +13,10 @@ open class SimpleObject : ModelObject() {
         responseMapping[SimpleResponse::class] = ::printResponse
     }
 
+    override fun resolveConflicts(responses: List<Response>): List<Response> {
+        return responses
+    }
+
     private fun printResponse(response: Response): Array<ModelObject> {
         if (response is SimpleResponse) {
             println(response.response)

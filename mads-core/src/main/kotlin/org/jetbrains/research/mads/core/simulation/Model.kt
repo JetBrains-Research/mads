@@ -7,18 +7,16 @@ import org.jetbrains.research.mads.core.types.Response
 import java.util.*
 import java.util.stream.Collectors
 
-object RootObject: ModelObject()
+object RootObject : ModelObject()
 
 class Model(
     objects: List<ModelObject>,
     private val configuration: Configuration
-): ModelObject() {
+) : ModelObject() {
 
     private val dispatcher = EventsDispatcher()
 
     init {
-        //TODO: here we process initial responses and create initial model state from Ø to S_0
-        // Should be constructor
         parent = RootObject
         configuration.createEvents(this)
         this.checkConditions()
@@ -42,7 +40,7 @@ class Model(
             val responses = dispatcher.calculateNextTick()
 
             // 2. group responses by objects -> map of responses
-            val groupedResponses : Map<ModelObject, List<Response>> = Arrays.stream(responses)
+            val groupedResponses: Map<ModelObject, List<Response>> = Arrays.stream(responses)
                 .parallel()
                 .collect(Collectors.groupingBy(Response::sourceObject))
 
