@@ -5,6 +5,12 @@ import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.simulation.Model
 
 fun main() {
+    createCellsExperiment()
+    createHHCellsExperiment()
+}
+
+fun createCellsExperiment()
+{
     val simple = SimpleObject()
     val dummy = DummyObject()
 
@@ -23,4 +29,9 @@ fun main() {
     s.simulate { it.currentTime() > 100 }
 
     println(s.recursivelyGetChildObjects().size)
+}
+
+fun createHHCellsExperiment()
+{
+
 }

@@ -1,5 +1,7 @@
 package domain
 
+import domain.objects.PhysicalObject
+import domain.responses.DynamicResponse
 import org.jetbrains.research.mads.core.types.responses.AddObjectResponse
 import org.jetbrains.research.mads.core.types.Response
 
