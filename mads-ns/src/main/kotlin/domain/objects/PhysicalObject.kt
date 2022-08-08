@@ -21,11 +21,11 @@ open class PhysicalObject(open val signals: Signals) : SimpleObject() {
         if (response is DynamicResponse) {
             response.updateFn(response.delta)
 
-            if(this.signals is HHSignals) {
-                var signalsCopy = HHSignals((this.signals as HHSignals).I, (this.signals as HHSignals).V, (this.signals as HHSignals).N, (this.signals as HHSignals).M, (this.signals as HHSignals).H)
+//            if(this.signals is HHSignals) {
+//                var signalsCopy = HHSignals((this.signals as HHSignals).I, (this.signals as HHSignals).V, (this.signals as HHSignals).N, (this.signals as HHSignals).M, (this.signals as HHSignals).H)
 
-                history.add(signalsCopy)
-            }
+//                history.add(signalsCopy)
+//            }
         }
 
         return arrayOf(this)

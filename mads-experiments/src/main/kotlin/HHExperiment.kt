@@ -88,7 +88,7 @@ fun createHHHundredCellsExperiment()
 //    val dynamic = HHCellObject(HHSignals(I = I_exp, V = -65.0, N = 0.32, M = 0.05, H= 0.6))
 
     val cells : ArrayList<HHCellObject> = arrayListOf()
-    for (i in 0..99) {
+    for (i in 0..9) {
         cells.add(HHCellObject(HHSignals(I = I_exp, V = -65.0, N = 0.32, M = 0.05, H= 0.6)))
     }
 
@@ -104,18 +104,18 @@ fun createHHHundredCellsExperiment()
     config.add(HHCellObject::class, arrayListOf(pathwayDynamic))
 
     val s = Model(cells, config)
-    s.simulate { it.currentTime() > 100000 }
+    s.simulate { it.currentTime() > 5000 }
 
     println("Already calculated")
 
-    for (i in 0..99) {
-        val fname = "${i}th_neuron.txt"
-        File(fname).bufferedWriter().use { out ->
-            out.write("I;V;N;M;H\n")
-            cells[i].history.forEach {
-                it as HHSignals
-                out.write("${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
-            }
-        }
-    }
+//    for (i in 0..9) {
+//        val fname = "${i}th_neuron.txt"
+//        File(fname).bufferedWriter().use { out ->
+//            out.write("I;V;N;M;H\n")
+//            cells[i].history.forEach {
+//                it as HHSignals
+//                out.write("${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
+//            }
+//        }
+//    }
 }

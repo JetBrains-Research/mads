@@ -19,7 +19,8 @@ fun HHCellObject.IDynamicMechanism(params: SimpleParameters) : Array<Response>
 //    val delta = (Random.nextDouble() - 0.5)/10
 
     val responseString = String.format("Object: %s, Signal: I", this.type)
-    return arrayOf(DynamicResponse(responseString, this, delta) { this.signals.I += it })
+//    return arrayOf(DynamicResponse(responseString, this, delta) { this.signals.I += it })
+    return arrayOf(DynamicResponse(responseString, this, delta, this::updateI))
 
 }
 
@@ -40,7 +41,8 @@ fun HHCellObject.VDynamicMechanism(params: SimpleParameters) : Array<Response>
     val delta = ((I_e - IK - INa - IL) / HHConstants.C_m) * HHConstants.dt
 
     val responseString = String.format("Object: %s, Signal: V", this.type)
-    return arrayOf(DynamicResponse(responseString, this, delta) { this.signals.V += it })
+//    return arrayOf(DynamicResponse(responseString, this, delta) { this.signals.V += it })
+    return arrayOf(DynamicResponse(responseString, this, delta, this::updateV))
 
 }
 
@@ -54,7 +56,8 @@ fun HHCellObject.NDynamicMechanism(params: SimpleParameters) : Array<Response>
     val delta = ((AlphaN(V) * (1.0 - n)) - (BetaN(V) * n)) * HHConstants.dt
 
     val responseString = String.format("Object: %s, Signal: N", this.type)
-    return arrayOf(DynamicResponse(responseString, this, delta) { this.signals.N += it })
+//    return arrayOf(DynamicResponse(responseString, this, delta) { this.signals.N += it })
+    return arrayOf(DynamicResponse(responseString, this, delta, this::updateN))
 }
 
 fun HHCellObject.MDynamicMechanism(params: SimpleParameters) : Array<Response>
@@ -67,7 +70,8 @@ fun HHCellObject.MDynamicMechanism(params: SimpleParameters) : Array<Response>
     val delta = ((AlphaM(V) * (1.0 - m)) - (BetaM(V) * m)) * HHConstants.dt
 
     val responseString = String.format("Object: %s, Signal: M", this.type)
-    return arrayOf(DynamicResponse(responseString, this, delta) { this.signals.M += it })
+//    return arrayOf(DynamicResponse(responseString, this, delta) { this.signals.M += it })
+    return arrayOf(DynamicResponse(responseString, this, delta, this::updateM))
 
 }
 
@@ -81,8 +85,10 @@ fun HHCellObject.HDynamicMechanism(params: SimpleParameters) : Array<Response>
     val delta = ((AlphaH(V) * (1.0 - h)) - (BetaH(V) * h)) * HHConstants.dt
 
     val responseString = String.format("Object: %s, Signal: H", this.type)
-    return arrayOf(DynamicResponse(responseString, this, delta) { this.signals.H += it })
+//    return arrayOf(DynamicResponse(responseString, this, delta) { this.signals.H += it })
+    return arrayOf(DynamicResponse(responseString, this, delta, this::updateH))
 }
+
 
 private fun AlphaN(V: Double): Double {
     return 0.01 * (V + 55.0) / (1.0 - exp(-0.1 * (V + 55.0)))

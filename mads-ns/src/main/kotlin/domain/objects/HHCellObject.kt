@@ -9,7 +9,35 @@ import org.jetbrains.research.mads.core.types.Response
 import kotlin.math.pow
 
 class HHCellObject(override val signals: Signals) : PhysicalObject(signals) {
+    fun updateI(delta: Double)
+    {
+        this.signals as HHSignals
+        this.signals.I += delta
+    }
 
+    fun updateV(delta: Double)
+    {
+        this.signals as HHSignals
+        this.signals.V += delta
+    }
+
+    fun updateN(delta: Double)
+    {
+        this.signals as HHSignals
+        this.signals.N += delta
+    }
+
+    fun updateM(delta: Double)
+    {
+        this.signals as HHSignals
+        this.signals.M += delta
+    }
+
+    fun updateH(delta: Double)
+    {
+        this.signals as HHSignals
+        this.signals.H += delta
+    }
 }
 
 data class HHSignals(var I: Double = 8.0, var V: Double = -65.0, var N: Double = 0.32, var M: Double = 0.05, var H: Double = 0.6) : Signals
