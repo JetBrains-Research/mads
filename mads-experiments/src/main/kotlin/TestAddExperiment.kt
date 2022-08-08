@@ -1,5 +1,7 @@
 package domain
 
+import domain.mechanisms.simpleAddMechanism
+import domain.mechanisms.simpleMechanism
 import domain.objects.HHCellObject
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.Pathway
@@ -7,11 +9,9 @@ import org.jetbrains.research.mads.core.simulation.Model
 
 fun main() {
     createCellsExperiment()
-    createHHCellsExperiment()
 }
 
-fun createCellsExperiment()
-{
+fun createCellsExperiment() {
     val simple = SimpleObject()
     val dummy = DummyObject()
 
@@ -30,23 +30,4 @@ fun createCellsExperiment()
     s.simulate { it.currentTime() > 100 }
 
     println(s.recursivelyGetChildObjects().size)
-}
-
-fun createHHCellsExperiment()
-{
-    val hhCell = HHCellObject()
-
-    val config = Configuration()
-
-    val pathwayHH: Pathway<HHCellObject> = Pathway()
-    pathwayHH.add(HHCellObject::IDynamicMechanism, SimpleParameters(1.0), 10) { it.forCondition }
-    pathwayHH.add(HHCellObject::VDynamicMechanism, SimpleParameters(1.0), 10) { it.forCondition }
-    pathwayHH.add(HHCellObject::HDynamicMechanism, SimpleParameters(1.0), 10) { it.forCondition }
-    pathwayHH.add(HHCellObject::MDynamicMechanism, SimpleParameters(1.0), 10) { it.forCondition }
-    pathwayHH.add(HHCellObject::NDynamicMechanism, SimpleParameters(1.0), 10) { it.forCondition }
-
-    config.add(HHCellObject::class, arrayListOf(pathwayHH))
-
-    val s = Model(arrayListOf(hhCell), config)
-    s.simulate { it.currentTime() > 100 }
 }
