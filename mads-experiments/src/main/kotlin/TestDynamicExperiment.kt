@@ -7,6 +7,7 @@ import domain.objects.HHSignals
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.simulation.Model
+import java.io.File
 
 fun main() {
     createDynamicExperiment()
@@ -28,7 +29,16 @@ fun createDynamicExperiment() {
     config.add(HHCellObject::class, arrayListOf(pathwayDynamic))
 
     val s = Model(arrayListOf(dynamic), config)
-    s.simulate { it.currentTime() > 100 }
+    s.simulate { it.currentTime() > 100000 }
 
     println((dynamic.signals as HHSignals))
+    println((dynamic.history.size))
+
+    File("somefile.txt").bufferedWriter().use { out ->
+        out.write("I;V;N;M;H\n")
+        dynamic.history.forEach {
+            it as HHSignals
+            out.write("${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
+        }
+    }
 }

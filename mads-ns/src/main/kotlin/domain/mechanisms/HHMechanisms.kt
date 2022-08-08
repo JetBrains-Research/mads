@@ -79,7 +79,7 @@ fun HHCellObject.HDynamicMechanism(params: SimpleParameters) : Array<Response>
     val delta = ((AlphaH(V) * (1.0 - h)) - (BetaH(V) * h)) * HHConstants.dt
 
     val responseString = String.format("Object: %s, Signal: H", this.type)
-    return arrayOf(DynamicResponse(responseString, this, delta) { this.signals.M += it })
+    return arrayOf(DynamicResponse(responseString, this, delta) { this.signals.H += it })
 }
 
 private fun AlphaN(V: Double): Double {

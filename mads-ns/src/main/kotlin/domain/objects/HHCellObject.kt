@@ -12,7 +12,7 @@ class HHCellObject(override val signals: Signals) : PhysicalObject(signals) {
 
 }
 
-data class HHSignals(var I: Double = 65.0, var V: Double = 0.0, var N: Double = 0.0, var M: Double = 0.0, var H: Double = 0.0) : Signals
+data class HHSignals(var I: Double = 8.0, var V: Double = -65.0, var N: Double = 0.32, var M: Double = 0.05, var H: Double = 0.6) : Signals
 
 object HHConstants{
         // constants
