@@ -10,11 +10,13 @@ import domain.responses.IDynamicResponse
 import org.jetbrains.research.mads.core.types.Response
 import kotlin.math.exp
 import kotlin.math.pow
+import kotlin.random.Random
 
 fun HHCellObject.IDynamicMechanism(params: SimpleParameters) : Array<Response>
 {
     this.signals as HHSignals
     val delta: Double = 0.0
+//    val delta = (Random.nextDouble() - 0.5)/10
 
     val responseString = String.format("Object: %s, Signal: I", this.type)
     return arrayOf(DynamicResponse(responseString, this, delta) { this.signals.I += it })
