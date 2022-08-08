@@ -17,7 +17,7 @@ open class PhysicalObject(open val signals: Signals) : SimpleObject() {
         responseMapping[DynamicResponse::class] = ::dynamicResponse
     }
 
-    private fun dynamicResponse(response: Response): Array<ModelObject> {
+    private fun dynamicResponse(response: Response): List<ModelObject> {
         if (response is DynamicResponse) {
             response.updateFn(response.delta)
 
@@ -27,6 +27,6 @@ open class PhysicalObject(open val signals: Signals) : SimpleObject() {
 //            }
         }
 
-        return arrayOf(this)
+        return arrayListOf(this)
     }
 }

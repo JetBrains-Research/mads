@@ -2,11 +2,8 @@ package org.jetbrains.research.mads.core.simulation
 
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
-import org.jetbrains.research.mads.core.desd.ModelEvent
 import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.Response
-import java.util.*
-import java.util.stream.Collectors
+import kotlin.streams.toList
 
 object RootObject : ModelObject()
 
@@ -28,7 +25,7 @@ class Model(
             it.checkConditions()
         }
 
-        val allEvents = objects.map { it.events.toTypedArray() }.toTypedArray().flatten().toTypedArray()
+        val allEvents = objects.map { it.events }.flatten()
         dispatcher.addEvents(allEvents)
     }
 
@@ -37,35 +34,29 @@ class Model(
         // 0. check S_i for stop condition -> stop or repeat from 1
         while (!stopCondition(this)) {
 
-            // 1. process events from queue -> get responses
+            // 1. process events from queue -> get grouped responses by model object
             val responses = dispatcher.calculateNextTick()
 
-            // 2. group responses by objects -> map of responses
-//            val groupedResponses: Map<ModelObject, List<Response>> = Arrays.stream(responses)
-//                .parallel()
-//                .collect(Collectors.groupingBy(Response::sourceObject))
-
-            // 3. apply responses to each object independently -> S_i to S_i+1
+            // 2. apply responses to each object independently -> S_i to S_i+1
             val updatedObjects = responses.entries.parallelStream()
                 .map { e -> e.key.applyResponses(e.value) }
-                .toArray<Array<ModelObject>?> { length -> arrayOfNulls(length) }
-                .flatten().distinct().toTypedArray()
+                .flatMap { it.stream() }
+                .distinct()
+                .toList()
 
-            // 4. calculate conditions -> map of events
-            Arrays.stream(updatedObjects)
-                .parallel()
+            // 3. calculate conditions -> map of events
+            updatedObjects.parallelStream()
                 .forEach {
                     configuration.createEvents(it)
                     it.checkConditions()
                 }
 
-            // 5. update events in queue -> S_t
-            val allEvents = Arrays.stream(updatedObjects)
-                .parallel()
-                .map { it.events.toTypedArray() }
-                .toArray<Array<ModelEvent>?> { length -> arrayOfNulls(length) }
-                .flatten()
-                .toTypedArray()
+            // 4. update events in queue -> S_t
+            val allEvents = updatedObjects.parallelStream()
+                .map { it.events }
+                .flatMap { it.stream() }
+                .toList()
+
             dispatcher.addEvents(allEvents)
         }
     }

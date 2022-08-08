@@ -17,11 +17,11 @@ open class SimpleObject : ModelObject() {
         return responses
     }
 
-    private fun printResponse(response: Response): Array<ModelObject> {
+    private fun printResponse(response: Response): List<ModelObject> {
         if (response is SimpleResponse) {
             println(response.response)
         }
 
-        return arrayOf(this)
+        return arrayListOf(this)
     }
 }

@@ -88,7 +88,7 @@ fun createHHHundredCellsExperiment()
 //    val dynamic = HHCellObject(HHSignals(I = I_exp, V = -65.0, N = 0.32, M = 0.05, H= 0.6))
 
     val cells : ArrayList<HHCellObject> = arrayListOf()
-    val neuronCount = 100
+    val neuronCount = 10000
     for (i in 0 until neuronCount) {
         cells.add(HHCellObject(HHSignals(I = I_exp, V = -65.0, N = 0.32, M = 0.05, H= 0.6)))
     }
@@ -105,7 +105,7 @@ fun createHHHundredCellsExperiment()
     config.add(HHCellObject::class, arrayListOf(pathwayDynamic))
 
     val s = Model(cells, config)
-    s.simulate { it.currentTime() > 100_000 }
+    s.simulate { it.currentTime() > 10_000 }
 
     println("Already calculated")
 
