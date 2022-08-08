@@ -1,14 +1,9 @@
 package domain.objects
 
-import domain.Signals
-import domain.responses.DynamicResponse
-import domain.responses.IDynamicResponse
-import domain.responses.VDynamicResponse
-import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.Response
-import kotlin.math.pow
+import org.jetbrains.research.mads.core.types.Signals
+import org.jetbrains.research.mads.core.types.SignalsObject
 
-class HHCellObject(override val signals: Signals) : PhysicalObject(signals) {
+class HHCellObject(override val signals: Signals) : SignalsObject(signals) {
     fun updateI(delta: Double)
     {
         this.signals as HHSignals
@@ -40,7 +35,8 @@ class HHCellObject(override val signals: Signals) : PhysicalObject(signals) {
     }
 }
 
-data class HHSignals(var I: Double = 8.0, var V: Double = -65.0, var N: Double = 0.32, var M: Double = 0.05, var H: Double = 0.6) : Signals
+data class HHSignals(var I: Double = 8.0, var V: Double = -65.0, var N: Double = 0.32, var M: Double = 0.05, var H: Double = 0.6) :
+    Signals
 
 object HHConstants{
         // constants

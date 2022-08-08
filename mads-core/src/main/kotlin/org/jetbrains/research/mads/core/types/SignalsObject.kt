@@ -1,14 +1,8 @@
-package domain.objects
+package org.jetbrains.research.mads.core.types
 
-import domain.Signals
-import domain.SimpleObject
-import domain.SimpleResponse
-import domain.responses.DynamicResponse
-import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.Response
-import java.util.logging.Logger
+import org.jetbrains.research.mads.core.types.responses.DynamicResponse
 
-open class PhysicalObject(open val signals: Signals) : SimpleObject() {
+open class SignalsObject(open val signals: Signals) : ModelObject() {
     override val type = "physical object"
 
 //    val history = mutableListOf<Signals>()

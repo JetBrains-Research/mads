@@ -1,9 +1,9 @@
 package domain.mechanisms
 
-import domain.Signals
+import org.jetbrains.research.mads.core.types.Signals
 import domain.SimpleParameters
 import domain.objects.DynamicObject
-import domain.responses.DynamicResponse
+import org.jetbrains.research.mads.core.types.responses.DynamicResponse
 import org.jetbrains.research.mads.core.types.Response
 
 fun DynamicObject.simpleDynamicMechanism(params: SimpleParameters) : List<Response> {

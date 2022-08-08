@@ -1,16 +1,13 @@
 package domain.mechanisms
 
-import domain.Signals
 import domain.SimpleParameters
 import domain.objects.HHCellObject
 import domain.objects.HHConstants
 import domain.objects.HHSignals
-import domain.responses.DynamicResponse
-import domain.responses.IDynamicResponse
+import org.jetbrains.research.mads.core.types.responses.DynamicResponse
 import org.jetbrains.research.mads.core.types.Response
 import kotlin.math.exp
 import kotlin.math.pow
-import kotlin.random.Random
 
 fun HHCellObject.IDynamicMechanism(params: SimpleParameters) : List<Response>
 {

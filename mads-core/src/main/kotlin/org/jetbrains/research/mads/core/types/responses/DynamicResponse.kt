@@ -1,4 +1,4 @@
-package domain.responses
+package org.jetbrains.research.mads.core.types.responses
 
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.Response
