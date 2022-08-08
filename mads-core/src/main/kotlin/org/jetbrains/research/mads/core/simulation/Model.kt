@@ -2,6 +2,7 @@ package org.jetbrains.research.mads.core.simulation
 
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
+import org.jetbrains.research.mads.core.desd.ModelEvent
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.Response
 import java.util.*
@@ -40,24 +41,31 @@ class Model(
             val responses = dispatcher.calculateNextTick()
 
             // 2. group responses by objects -> map of responses
-            val groupedResponses: Map<ModelObject, List<Response>> = Arrays.stream(responses)
-                .parallel()
-                .collect(Collectors.groupingBy(Response::sourceObject))
+//            val groupedResponses: Map<ModelObject, List<Response>> = Arrays.stream(responses)
+//                .parallel()
+//                .collect(Collectors.groupingBy(Response::sourceObject))
 
             // 3. apply responses to each object independently -> S_i to S_i+1
-            val updatedObjects = groupedResponses.entries.parallelStream()
+            val updatedObjects = responses.entries.parallelStream()
                 .map { e -> e.key.applyResponses(e.value) }
                 .toArray<Array<ModelObject>?> { length -> arrayOfNulls(length) }
                 .flatten().distinct().toTypedArray()
 
             // 4. calculate conditions -> map of events
-            updatedObjects.forEach {
-                configuration.createEvents(it)
-                it.checkConditions()
-            }
+            Arrays.stream(updatedObjects)
+                .parallel()
+                .forEach {
+                    configuration.createEvents(it)
+                    it.checkConditions()
+                }
 
             // 5. update events in queue -> S_t
-            val allEvents = updatedObjects.map { it.events.toTypedArray() }.toTypedArray().flatten().toTypedArray()
+            val allEvents = Arrays.stream(updatedObjects)
+                .parallel()
+                .map { it.events.toTypedArray() }
+                .toArray<Array<ModelEvent>?> { length -> arrayOfNulls(length) }
+                .flatten()
+                .toTypedArray()
             dispatcher.addEvents(allEvents)
         }
     }

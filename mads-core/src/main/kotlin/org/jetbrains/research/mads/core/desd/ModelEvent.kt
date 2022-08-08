@@ -3,14 +3,14 @@ package org.jetbrains.research.mads.core.desd
 import org.jetbrains.research.mads.core.types.Response
 import java.util.*
 
-typealias ProcessState = () -> Array<Response>
+typealias ProcessState = () -> List<Response>
 
 object EmptyResponse {
-    val value : Array<Response> = arrayOf()
+    val value : List<Response> = arrayListOf()
 }
 
 class ModelEvent(
-    private val mechanism: () -> Array<Response>,
+    private val mechanism: () -> List<Response>,
     private val condition: () -> Boolean,
     private val duration: Int,
     seed: Long = 12345L,
@@ -39,7 +39,7 @@ class ModelEvent(
 
     fun getEventTime(): Long = eventTime
 
-    fun executeEvent(): Array<Response> = stateProcessorMap[eventState]!!.invoke()
+    fun executeEvent(): List<Response> = stateProcessorMap[eventState]!!.invoke()
 
     fun updateTime(tick: Long): Boolean {
         var result = true
@@ -70,18 +70,18 @@ class ModelEvent(
             eventState = EventState.Waiting
     }
 
-    private fun processActiveEvent(): Array<Response> {
+    private fun processActiveEvent(): List<Response> {
         eventState = EventState.Waiting
         return mechanism()
     }
 
-    private fun processPostponedEvent(): Array<Response> {
+    private fun processPostponedEvent(): List<Response> {
         eventTime = postponeTime
         eventState = EventState.Active
         return EmptyResponse.value
     }
 
-    private fun processWaitingInQueueEvent(): Array<Response> {
+    private fun processWaitingInQueueEvent(): List<Response> {
         eventState = EventState.Waiting
         return EmptyResponse.value
     }

@@ -3,19 +3,19 @@ package org.jetbrains.research.mads.core.types
 interface MechanismParameters
 
 fun <MO : ModelObject, MP : MechanismParameters> applyParametersToMechanism(
-    mechanism: (MO, MP) -> Array<Response>,
+    mechanism: (MO, MP) -> List<Response>,
     params: MP
-): ((MO) -> Array<Response>) {
-    return fun(obj: MO): Array<Response> {
+): ((MO) -> List<Response>) {
+    return fun(obj: MO): List<Response> {
         return mechanism(obj, params)
     }
 }
 
 fun <MO : ModelObject> applyObjectToMechanism(
-    mechanism: (MO) -> Array<Response>,
+    mechanism: (MO) -> List<Response>,
     obj: MO
-): () -> Array<Response> {
-    return fun(): Array<Response> {
+): () -> List<Response> {
+    return fun(): List<Response> {
         return mechanism(obj)
     }
 }

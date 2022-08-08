@@ -7,17 +7,17 @@ import domain.SimpleResponse
 import org.jetbrains.research.mads.core.types.Response
 import org.jetbrains.research.mads.core.types.responses.AddObjectResponse
 
-fun SimpleObject.simpleMechanism(params: SimpleParameters) : Array<Response> {
-    return arrayOf(SimpleResponse("Object: " + this.type + "; Probability: " + params.probability, this))
+fun SimpleObject.simpleMechanism(params: SimpleParameters) : List<Response> {
+    return arrayListOf(SimpleResponse("Object: " + this.type + "; Probability: " + params.probability, this))
 }
 
-fun SimpleObject.simpleAddMechanism(params: SimpleParameters) : Array<Response> {
+fun SimpleObject.simpleAddMechanism(params: SimpleParameters) : List<Response> {
     return if (this.rnd.nextDouble() < params.probability)
-        arrayOf(AddObjectResponse("Object added", this.parent, SimpleObject()))
+        arrayListOf(AddObjectResponse("Object added", this.parent, SimpleObject()))
     else
-        arrayOf(SimpleResponse("False roll", this))
+        arrayListOf(SimpleResponse("False roll", this))
 }
 
-fun DummyObject.simpleMechanism(params: SimpleParameters) : Array<Response> {
-    return arrayOf(SimpleResponse("Object: " + this.type + "; Probability: " + params.probability, this))
+fun DummyObject.simpleMechanism(params: SimpleParameters) : List<Response> {
+    return arrayListOf(SimpleResponse("Object: " + this.type + "; Probability: " + params.probability, this))
 }
