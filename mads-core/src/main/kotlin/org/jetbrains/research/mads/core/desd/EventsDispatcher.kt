@@ -1,5 +1,6 @@
 package org.jetbrains.research.mads.core.desd
 
+import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.Response
 import java.util.*
 import java.util.stream.Collectors
@@ -34,16 +35,28 @@ class EventsDispatcher {
         eventTime.addAll(ticks)
     }
 
-    fun calculateNextTick(): Array<Response> {
-        if (eventTime.isEmpty()) return emptyAnswer
+//    fun calculateNextTick(): Array<Response> {
+//        if (eventTime.isEmpty()) return emptyAnswer
+//
+//        currentTick = eventTime.remove()
+//        val currentEvents: MutableList<ModelEvent> = eventsDic.remove(currentTick)!!
+//
+//        return currentEvents.parallelStream()
+//            .map(ModelEvent::executeEvent)
+//            .toArray<Array<Response>?> { length -> arrayOfNulls(length) }
+//            .flatten().toTypedArray()
+//    }
+
+    fun calculateNextTick(): Map<ModelObject, List<Response>> {
+        if (eventTime.isEmpty()) return mapOf()
 
         currentTick = eventTime.remove()
         val currentEvents: MutableList<ModelEvent> = eventsDic.remove(currentTick)!!
 
         return currentEvents.parallelStream()
             .map(ModelEvent::executeEvent)
-            .toArray<Array<Response>?> { length -> arrayOfNulls(length) }
-            .flatten().toTypedArray()
+            .flatMap { it.stream() }
+            .collect(Collectors.groupingBy(Response::sourceObject))
     }
 
     fun peekHead(): Long {

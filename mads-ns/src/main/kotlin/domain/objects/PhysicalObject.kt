@@ -11,7 +11,7 @@ import java.util.logging.Logger
 open class PhysicalObject(open val signals: Signals) : SimpleObject() {
     override val type = "physical object"
 
-    val history = mutableListOf<Signals>()
+//    val history = mutableListOf<Signals>()
 
     init {
         responseMapping[DynamicResponse::class] = ::dynamicResponse
@@ -23,7 +23,6 @@ open class PhysicalObject(open val signals: Signals) : SimpleObject() {
 
 //            if(this.signals is HHSignals) {
 //                var signalsCopy = HHSignals((this.signals as HHSignals).I, (this.signals as HHSignals).V, (this.signals as HHSignals).N, (this.signals as HHSignals).M, (this.signals as HHSignals).H)
-
 //                history.add(signalsCopy)
 //            }
         }

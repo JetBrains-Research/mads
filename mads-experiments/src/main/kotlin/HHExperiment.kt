@@ -34,15 +34,15 @@ fun createHHCellsExperiment()
     val s = Model(arrayListOf(dynamic), config)
     s.simulate { it.currentTime() > 100000 }
 
-    var fname = "i_${I_exp}.txt"
-
-    File(fname).bufferedWriter().use { out ->
-        out.write("I;V;N;M;H\n")
-        dynamic.history.forEach {
-            it as HHSignals
-            out.write("${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
-        }
-    }
+//    var fname = "i_${I_exp}.txt"
+//
+//    File(fname).bufferedWriter().use { out ->
+//        out.write("I;V;N;M;H\n")
+//        dynamic.history.forEach {
+//            it as HHSignals
+//            out.write("${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
+//        }
+//    }
 }
 
 fun createDynamicExperimentMultipleI() {
@@ -70,15 +70,15 @@ fun createDynamicExperimentMultipleI() {
 //        println((dynamic.signals as HHSignals))
 //        println((dynamic.history.size))
 
-        var fname = "i_${I_exp}.txt"
-
-        File(fname).bufferedWriter().use { out ->
-            out.write("I;V;N;M;H\n")
-            dynamic.history.forEach {
-                it as HHSignals
-                out.write("${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
-            }
-        }
+//        var fname = "i_${I_exp}.txt"
+//
+//        File(fname).bufferedWriter().use { out ->
+//            out.write("I;V;N;M;H\n")
+//            dynamic.history.forEach {
+//                it as HHSignals
+//                out.write("${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
+//            }
+//        }
     }
 }
 
@@ -88,7 +88,8 @@ fun createHHHundredCellsExperiment()
 //    val dynamic = HHCellObject(HHSignals(I = I_exp, V = -65.0, N = 0.32, M = 0.05, H= 0.6))
 
     val cells : ArrayList<HHCellObject> = arrayListOf()
-    for (i in 0..9) {
+    val neuronCount = 100
+    for (i in 0 until neuronCount) {
         cells.add(HHCellObject(HHSignals(I = I_exp, V = -65.0, N = 0.32, M = 0.05, H= 0.6)))
     }
 
@@ -104,11 +105,11 @@ fun createHHHundredCellsExperiment()
     config.add(HHCellObject::class, arrayListOf(pathwayDynamic))
 
     val s = Model(cells, config)
-    s.simulate { it.currentTime() > 5000 }
+    s.simulate { it.currentTime() > 100_000 }
 
     println("Already calculated")
 
-//    for (i in 0..9) {
+//    for (i in 0 until neuronCount) {
 //        val fname = "${i}th_neuron.txt"
 //        File(fname).bufferedWriter().use { out ->
 //            out.write("I;V;N;M;H\n")
