@@ -16,7 +16,8 @@ open class PhysicalObject(open val signals: Signals) : SimpleObject() {
 
     private fun dynamicResponse(response: Response): Array<ModelObject> {
         if (response is DynamicResponse) {
-            println(String.format("Changing a signal with Id %d", response.signalId))
+            response.updateFn(response.delta)
+            println(String.format("Changing a signal: %s", response.response))
         }
 
         return arrayOf(this)
