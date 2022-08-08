@@ -20,7 +20,7 @@ fun createDynamicExperiment() {
     val config = Configuration()
 
     val pathwayDynamic: Pathway<DynamicObject> = Pathway()
-    pathwayDynamic.add(DynamicObject::simpleDynamicMechanism, SimpleParameters(0.5), 10) { it.forCondition }
+    pathwayDynamic.add(DynamicObject::simpleDynamicMechanism, SimpleParameters(0.5), 10) { true }
 
     config.add(DynamicObject::class, arrayListOf(pathwayDynamic))
 
