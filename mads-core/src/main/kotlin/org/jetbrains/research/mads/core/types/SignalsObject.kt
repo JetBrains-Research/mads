@@ -1,14 +1,17 @@
 package org.jetbrains.research.mads.core.types
 
 import org.jetbrains.research.mads.core.types.responses.DynamicResponse
+import kotlin.reflect.KClass
 
-open class SignalsObject(open val signals: Signals) : ModelObject() {
+open class SignalsObject(vararg signals: Signals) : ModelObject() {
     override val type = "physical object"
+    val signals: MutableMap<KClass<out Signals>, Signals> = mutableMapOf()
 
 //    val history = mutableListOf<Signals>()
 
     init {
         responseMapping[DynamicResponse::class] = ::dynamicResponse
+        signals.forEach { this.signals[it::class] = it }
     }
 
     private fun dynamicResponse(response: Response): List<ModelObject> {

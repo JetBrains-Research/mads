@@ -3,35 +3,35 @@ package domain.objects
 import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads.core.types.SignalsObject
 
-class HHCellObject(override val signals: Signals) : SignalsObject(signals) {
+class HHCellObject(vararg sig: Signals) : SignalsObject(*sig) {
     fun updateI(delta: Double)
     {
-        this.signals as HHSignals
-        this.signals.I += delta
+        val sig = this.signals[HHSignals::class] as HHSignals
+        sig.I += delta
     }
 
     fun updateV(delta: Double)
     {
-        this.signals as HHSignals
-        this.signals.V += delta
+        val sig = this.signals[HHSignals::class] as HHSignals
+        sig.V += delta
     }
 
     fun updateN(delta: Double)
     {
-        this.signals as HHSignals
-        this.signals.N += delta
+        val sig = this.signals[HHSignals::class] as HHSignals
+        sig.N += delta
     }
 
     fun updateM(delta: Double)
     {
-        this.signals as HHSignals
-        this.signals.M += delta
+        val sig = this.signals[HHSignals::class] as HHSignals
+        sig.M += delta
     }
 
     fun updateH(delta: Double)
     {
-        this.signals as HHSignals
-        this.signals.H += delta
+        val sig = this.signals[HHSignals::class] as HHSignals
+        sig.H += delta
     }
 }
 
