@@ -37,6 +37,12 @@ class HHCellObject(vararg sig: Signals) : SignalsObject(*sig) {
 
 data class HHSignals(var I: Double = 8.0, var V: Double = -65.0, var N: Double = 0.32, var M: Double = 0.05, var H: Double = 0.6) :
     Signals
+{
+    override fun clone() : Signals
+    {
+        return  this.copy()
+    }
+}
 
 object HHConstants{
         // constants

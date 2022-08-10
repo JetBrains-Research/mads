@@ -4,6 +4,7 @@ import domain.mechanisms.*
 import domain.objects.DynamicObject
 import domain.objects.HHCellObject
 import domain.objects.HHSignals
+import domain.objects.SynapseObject
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.simulation.Model
@@ -13,8 +14,10 @@ import kotlin.system.measureTimeMillis
 fun main() {
 //    createHHCellsExperiment()
 //    createDynamicExperimentMultipleI()
-    createHHHundredCellsExperiment()
+//    createHHHundredCellsExperiment()
+    createSynapseExperiment()
 }
+
 
 fun createHHCellsExperiment()
 {
@@ -87,7 +90,6 @@ fun createDynamicExperimentMultipleI() {
 fun createHHHundredCellsExperiment()
 {
     val I_exp = 8.0
-//    val dynamic = HHCellObject(HHSignals(I = I_exp, V = -65.0, N = 0.32, M = 0.05, H= 0.6))
 
     val cells : ArrayList<HHCellObject> = arrayListOf()
     val neuronCount = 10000
@@ -124,4 +126,61 @@ fun createHHHundredCellsExperiment()
 //            }
 //        }
 //    }
+}
+
+fun createSynapseExperiment()
+{
+    val I_exp = 8.0
+
+    var cellSource = HHCellObject(HHSignals(I = I_exp, V = 0.0, N = 0.32, M = 0.05, H= 0.6))
+    var cellDest = HHCellObject(HHSignals(I = I_exp, V = -65.0, N = 0.32, M = 0.05, H= 0.6))
+
+    var synapse = SynapseObject(cellSource, cellDest)
+
+    val config = Configuration()
+
+    val pathwayDynamic: Pathway<HHCellObject> = Pathway()
+    pathwayDynamic.add(HHCellObject::IDynamicMechanism, SimpleParameters(1.0), 2) { true }
+    pathwayDynamic.add(HHCellObject::VDynamicMechanism, SimpleParameters(1.0), 2) { true }
+    pathwayDynamic.add(HHCellObject::NDynamicMechanism, SimpleParameters(1.0), 2) { true }
+    pathwayDynamic.add(HHCellObject::MDynamicMechanism, SimpleParameters(1.0), 2) { true }
+    pathwayDynamic.add(HHCellObject::HDynamicMechanism, SimpleParameters(1.0), 2) { true }
+
+    val pathwaySynapse: Pathway<SynapseObject> = Pathway()
+    pathwaySynapse.add(SynapseObject::spikeTransferMechanism, SimpleParameters(1.0), 2) {true}
+
+    config.add(SynapseObject::class, arrayListOf(pathwaySynapse))
+    config.add(HHCellObject::class, arrayListOf(pathwayDynamic))
+
+
+    val s = Model(arrayListOf(cellSource, cellDest, synapse), config)
+
+    val elapsed = measureTimeMillis {
+        s.simulate { it.currentTime() > 100_000 }
+    }
+    println("Time taken: $elapsed")
+    println("Already calculated")
+
+    var fname = "source_neuron.txt"
+    File(fname).bufferedWriter().use { out ->
+        var cellHist = cellSource.history[HHSignals::class]
+
+        out.write("I;V;N;M;H\n")
+        cellHist?.forEach {
+            it as HHSignals
+            out.write("${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
+        }
+    }
+
+    fname = "dest_neuron.txt"
+    File(fname).bufferedWriter().use { out ->
+        var cellHist = cellDest.history[HHSignals::class]
+
+        out.write("I;V;N;M;H\n")
+        cellHist?.forEach {
+            it as HHSignals
+            out.write("${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
+        }
+    }
+
 }

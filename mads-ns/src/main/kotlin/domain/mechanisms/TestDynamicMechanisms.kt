@@ -14,3 +14,8 @@ fun DynamicObject.simpleDynamicMechanism(params: SimpleParameters) : List<Respon
 }
 
 data class DynSignals(var x: Double = 10.0) : Signals
+{
+    override fun clone(): Signals {
+        return this.copy()
+    }
+}
