@@ -11,7 +11,7 @@ object EmptyModelObject : ModelObject()
 abstract class ModelObject {
     open val type = "Model Object"
     val events: ArrayList<ModelEvent> = ArrayList()
-    protected val responseMapping: MutableMap<KClass<out Response>, (Response) -> Array<ModelObject>> = mutableMapOf()
+    protected val responseMapping: MutableMap<KClass<out Response>, (Response) -> List<ModelObject>> = mutableMapOf()
     var parent: ModelObject = EmptyModelObject
     val childObjects: HashSet<ModelObject> = HashSet()
     val connections: MutableMap<ConnectionType, HashSet<ModelObject>> = mutableMapOf()
@@ -35,13 +35,9 @@ abstract class ModelObject {
         }
     }
 
-    fun applyResponses(responses: List<Response>): Array<ModelObject> {
+    fun applyResponses(responses: List<Response>): List<ModelObject> {
         return resolveConflicts(responses).mapNotNull {
-            this.responseMapping[it::class]?.invoke(it)
-        }
-            .toTypedArray()
-            .flatten()
-            .toTypedArray()
+            this.responseMapping[it::class]?.invoke(it) }.flatten()
     }
 
     protected open fun resolveConflicts(responses: List<Response>): List<Response> {
@@ -56,30 +52,29 @@ abstract class ModelObject {
         return childObjects.toTypedArray()
     }
 
-    fun recursivelyGetChildObjects(): Array<ModelObject> {
+    fun recursivelyGetChildObjects(): List<ModelObject> {
         return childObjects.asSequence()
             .selectRecursive { getChildObjects().asSequence() }
             .toList()
-            .toTypedArray()
     }
 
-    private fun addObject(response: Response): Array<ModelObject> {
+    private fun addObject(response: Response): List<ModelObject> {
         if (response is AddObjectResponse) {
             println(response.response)
             response.addedObject.parent = this
             childObjects.add(response.addedObject)
-            return arrayOf(response.sourceObject, response.addedObject)
+            return arrayListOf(response.sourceObject, response.addedObject)
         }
 
-        return arrayOf()
+        return arrayListOf()
     }
 
-    private fun removeObject(response: Response): Array<ModelObject> {
+    private fun removeObject(response: Response): List<ModelObject> {
         if (response is RemoveObjectResponse) {
             println(response.response)
             childObjects.add(response.removedObject)
         }
-        return arrayOf()
+        return arrayListOf()
     }
 }
 

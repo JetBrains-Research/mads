@@ -1,20 +1,17 @@
 package domain.mechanisms
 
-import domain.Signals
 import domain.SimpleParameters
 import domain.objects.HHCellObject
 import domain.objects.HHConstants
 import domain.objects.HHSignals
-import domain.responses.DynamicResponse
-import domain.responses.IDynamicResponse
+import org.jetbrains.research.mads.core.types.responses.DynamicResponse
 import org.jetbrains.research.mads.core.types.Response
 import kotlin.math.exp
 import kotlin.math.pow
-import kotlin.random.Random
 
 fun HHCellObject.IDynamicMechanism(params: SimpleParameters) : List<Response>
 {
-    this.signals as HHSignals
+    val signals = this.signals[HHSignals::class] as HHSignals
     val delta: Double = 0.0
 //    val delta = (Random.nextDouble() - 0.5)/10
 
@@ -26,13 +23,13 @@ fun HHCellObject.IDynamicMechanism(params: SimpleParameters) : List<Response>
 
 fun HHCellObject.VDynamicMechanism(params: SimpleParameters) : List<Response>
 {
-    this.signals as HHSignals
+    val signals = this.signals[HHSignals::class] as HHSignals
 
-    val I_e = this.signals.I
-    val V = this.signals.V
-    val n = this.signals.N
-    val m = this.signals.M
-    val h = this.signals.H
+    val I_e = signals.I
+    val V = signals.V
+    val n = signals.N
+    val m = signals.M
+    val h = signals.H
 
     val IK = HHConstants.g_K * n.pow(4.0) * (V - HHConstants.E_K);
     val INa = HHConstants.g_Na * m.pow(3.0) * h * (V - HHConstants.E_Na);
@@ -47,10 +44,10 @@ fun HHCellObject.VDynamicMechanism(params: SimpleParameters) : List<Response>
 
 fun HHCellObject.NDynamicMechanism(params: SimpleParameters) : List<Response>
 {
-    this.signals as HHSignals
+    val signals = this.signals[HHSignals::class] as HHSignals
 
-    val V = this.signals.V
-    val n = this.signals.N
+    val V = signals.V
+    val n = signals.N
 
     val delta = ((AlphaN(V) * (1.0 - n)) - (BetaN(V) * n)) * HHConstants.dt
 
@@ -61,10 +58,10 @@ fun HHCellObject.NDynamicMechanism(params: SimpleParameters) : List<Response>
 
 fun HHCellObject.MDynamicMechanism(params: SimpleParameters) : List<Response>
 {
-    this.signals as HHSignals
+    val signals = this.signals[HHSignals::class] as HHSignals
 
-    val V = this.signals.V
-    val m = this.signals.M
+    val V = signals.V
+    val m = signals.M
 
     val delta = ((AlphaM(V) * (1.0 - m)) - (BetaM(V) * m)) * HHConstants.dt
 
@@ -75,10 +72,10 @@ fun HHCellObject.MDynamicMechanism(params: SimpleParameters) : List<Response>
 
 fun HHCellObject.HDynamicMechanism(params: SimpleParameters) : List<Response>
 {
-    this.signals as HHSignals
+    val signals = this.signals[HHSignals::class] as HHSignals
 
-    val V = this.signals.V
-    val h = this.signals.H
+    val V = signals.V
+    val h = signals.H
 
     val delta = ((AlphaH(V) * (1.0 - h)) - (BetaH(V) * h)) * HHConstants.dt
 

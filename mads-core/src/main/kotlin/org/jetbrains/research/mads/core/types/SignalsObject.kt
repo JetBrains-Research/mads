@@ -1,23 +1,20 @@
-package domain.objects
+package org.jetbrains.research.mads.core.types
 
-import domain.Signals
-import domain.SimpleObject
-import domain.SimpleResponse
-import domain.responses.DynamicResponse
-import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.Response
-import java.util.logging.Logger
+import org.jetbrains.research.mads.core.types.responses.DynamicResponse
+import kotlin.reflect.KClass
 
-open class PhysicalObject(open val signals: Signals) : SimpleObject() {
+open class SignalsObject(vararg signals: Signals) : ModelObject() {
     override val type = "physical object"
+    val signals: MutableMap<KClass<out Signals>, Signals> = mutableMapOf()
 
 //    val history = mutableListOf<Signals>()
 
     init {
         responseMapping[DynamicResponse::class] = ::dynamicResponse
+        signals.forEach { this.signals[it::class] = it }
     }
 
-    private fun dynamicResponse(response: Response): Array<ModelObject> {
+    private fun dynamicResponse(response: Response): List<ModelObject> {
         if (response is DynamicResponse) {
             response.updateFn(response.delta)
 
@@ -27,6 +24,6 @@ open class PhysicalObject(open val signals: Signals) : SimpleObject() {
 //            }
         }
 
-        return arrayOf(this)
+        return arrayListOf(this)
     }
 }

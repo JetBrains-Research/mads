@@ -1,46 +1,42 @@
 package domain.objects
 
-import domain.Signals
-import domain.responses.DynamicResponse
-import domain.responses.IDynamicResponse
-import domain.responses.VDynamicResponse
-import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.Response
-import kotlin.math.pow
+import org.jetbrains.research.mads.core.types.Signals
+import org.jetbrains.research.mads.core.types.SignalsObject
 
-class HHCellObject(override val signals: Signals) : PhysicalObject(signals) {
+class HHCellObject(vararg sig: Signals) : SignalsObject(*sig) {
     fun updateI(delta: Double)
     {
-        this.signals as HHSignals
-        this.signals.I += delta
+        val sig = this.signals[HHSignals::class] as HHSignals
+        sig.I += delta
     }
 
     fun updateV(delta: Double)
     {
-        this.signals as HHSignals
-        this.signals.V += delta
+        val sig = this.signals[HHSignals::class] as HHSignals
+        sig.V += delta
     }
 
     fun updateN(delta: Double)
     {
-        this.signals as HHSignals
-        this.signals.N += delta
+        val sig = this.signals[HHSignals::class] as HHSignals
+        sig.N += delta
     }
 
     fun updateM(delta: Double)
     {
-        this.signals as HHSignals
-        this.signals.M += delta
+        val sig = this.signals[HHSignals::class] as HHSignals
+        sig.M += delta
     }
 
     fun updateH(delta: Double)
     {
-        this.signals as HHSignals
-        this.signals.H += delta
+        val sig = this.signals[HHSignals::class] as HHSignals
+        sig.H += delta
     }
 }
 
-data class HHSignals(var I: Double = 8.0, var V: Double = -65.0, var N: Double = 0.32, var M: Double = 0.05, var H: Double = 0.6) : Signals
+data class HHSignals(var I: Double = 8.0, var V: Double = -65.0, var N: Double = 0.32, var M: Double = 0.05, var H: Double = 0.6) :
+    Signals
 
 object HHConstants{
         // constants

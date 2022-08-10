@@ -1,7 +1,6 @@
 package domain.objects
 
-import domain.Signals
+import org.jetbrains.research.mads.core.types.Signals
+import org.jetbrains.research.mads.core.types.SignalsObject
 
-class DynamicObject(override val signals: Signals) : PhysicalObject(signals) {
-
-}
+class DynamicObject(vararg signals: Signals) : SignalsObject(*signals)
