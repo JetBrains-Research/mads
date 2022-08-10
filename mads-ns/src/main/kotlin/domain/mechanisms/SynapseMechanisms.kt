@@ -5,6 +5,7 @@ import domain.SimpleResponse
 import domain.objects.HHCellObject
 import domain.objects.HHSignals
 import domain.objects.SynapseObject
+import domain.responses.SynapseDecayResponse
 import domain.responses.SynapseResponse
 import org.jetbrains.research.mads.core.types.Response
 import org.jetbrains.research.mads.core.types.SignalsObject
@@ -29,5 +30,11 @@ fun SynapseObject.spikeTransferMechanism(params: SimpleParameters) : List<Respon
         spiked = false
     }
 
-    return arrayListOf(SynapseResponse("didnt spike", this, 0.0))
+    return arrayListOf(SimpleResponse("didnt spike", this))
+//    return arrayListOf(SynapseResponse("didnt spike", this, 0.0))
+}
+
+fun SynapseObject.synapseDecayMechanism(params: SimpleParameters) : List<Response>
+{
+    return arrayListOf(SynapseDecayResponse("decaying", this))
 }
