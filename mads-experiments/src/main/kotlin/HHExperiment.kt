@@ -8,6 +8,7 @@ import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.simulation.Model
 import java.io.File
+import kotlin.system.measureTimeMillis
 
 fun main() {
 //    createHHCellsExperiment()
@@ -32,6 +33,7 @@ fun createHHCellsExperiment()
     config.add(HHCellObject::class, arrayListOf(pathwayDynamic))
 
     val s = Model(arrayListOf(dynamic), config)
+
     s.simulate { it.currentTime() > 100000 }
 
 //    var fname = "i_${I_exp}.txt"
@@ -105,8 +107,11 @@ fun createHHHundredCellsExperiment()
     config.add(HHCellObject::class, arrayListOf(pathwayDynamic))
 
     val s = Model(cells, config)
-    s.simulate { it.currentTime() > 100_000 }
 
+    val elapsed = measureTimeMillis {
+        s.simulate { it.currentTime() > 100_000 }
+    }
+    println("Time taken: $elapsed")
     println("Already calculated")
 
 //    for (i in 0 until neuronCount) {
