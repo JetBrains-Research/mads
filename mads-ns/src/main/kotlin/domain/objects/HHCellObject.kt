@@ -3,7 +3,7 @@ package domain.objects
 import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads.core.types.SignalsObject
 
-class HHCellObject(vararg sig: Signals) : SignalsObject(*sig) {
+class HHCellObject(vararg sig: Signals, val constantCurrent: Boolean = true) : SignalsObject(*sig) {
     fun updateI(delta: Double)
     {
         val sig = this.signals[HHSignals::class] as HHSignals

@@ -11,15 +11,15 @@ import kotlin.math.sqrt
 
 class SynapseObject(var objectLeft: HHCellObject,
                     var objectRight: HHCellObject,
+                    private var weight: Double = 1.0,
+                    private val spikeWeight: Double = 1.0,
                     private val isInhibitory: Boolean=false) : ModelObject() {
-    var spiked = false
-    var weight = 0.0
-    val spikeThreshold = 25.0
+    private var spiked = false
+    private val spikeThreshold = 25.0
 
-    private val spikeWeight = 1.0
     private val weightDecayCoefficient = 0.99
     private var synapseSign = 1.0
-
+    
     init {
         responseMapping[SynapseResponse::class] = ::synapseResponse
         responseMapping[SynapseDecayResponse::class] = ::weightDecayResponse
@@ -32,8 +32,9 @@ class SynapseObject(var objectLeft: HHCellObject,
 
     private fun synapseResponse(response: Response): List<ModelObject> {
         if (response is SynapseResponse) {
-            weight = sqrt(weight + spikeWeight)
-            objectRight.updateV(response.delta*synapseSign*weight)
+//            weight = sqrt(weight + spikeWeight)
+//            println(response.delta*synapseSign)
+            objectRight.updateV(response.delta*synapseSign)
         }
 
         return arrayListOf(this)

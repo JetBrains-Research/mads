@@ -30,8 +30,8 @@ fun SynapseObject.spikeTransferMechanism(params: SimpleParameters) : List<Respon
         spiked = false
     }
 
-    return arrayListOf(SimpleResponse("didnt spike", this))
-//    return arrayListOf(SynapseResponse("didnt spike", this, 0.0))
+//    return arrayListOf(SimpleResponse("didnt spike", this))
+    return arrayListOf(SynapseResponse("didnt spike", this, 0.0))
 }
 
 fun SynapseObject.synapseDecayMechanism(params: SimpleParameters) : List<Response>

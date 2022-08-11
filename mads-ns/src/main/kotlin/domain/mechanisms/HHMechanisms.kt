@@ -13,7 +13,13 @@ import kotlin.random.Random
 fun HHCellObject.IDynamicMechanism(params: SimpleParameters) : List<Response>
 {
     val signals = this.signals[HHSignals::class] as HHSignals
-    val delta = (Random.nextDouble() - 0.5)/5
+
+    var delta = 0.0
+    if(!constantCurrent)
+    {
+        delta = (Random.nextDouble() - 0.5) / 10
+    }
+
 
     val responseString = String.format("Object: %s, Signal: I", this.type)
     return arrayListOf(DynamicResponse(responseString, this, delta, this::updateI))
