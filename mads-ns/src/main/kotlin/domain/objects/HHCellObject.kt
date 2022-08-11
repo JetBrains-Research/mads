@@ -33,9 +33,15 @@ class HHCellObject(vararg sig: Signals, val constantCurrent: Boolean = true) : S
         val sig = this.signals[HHSignals::class] as HHSignals
         sig.H += delta
     }
+
+    fun updateIexternal(delta: Double)
+    {
+        val sig = this.signals[HHSignals::class] as HHSignals
+        sig.I_ext += delta
+    }
 }
 
-data class HHSignals(var I: Double = 8.0, var V: Double = -65.0, var N: Double = 0.32, var M: Double = 0.05, var H: Double = 0.6) :
+data class HHSignals(var I: Double = 8.0, var V: Double = -65.0, var N: Double = 0.32, var M: Double = 0.05, var H: Double = 0.6, var I_ext: Double = 0.0) :
     Signals
 {
     override fun clone() : Signals

@@ -55,8 +55,7 @@ fun createHHCellsExperiment()
 }
 
 fun createDynamicExperimentMultipleI() {
-    for(iv in 2 .. 30 step 1)
-    {
+    for(iv in 2 .. 30 step 1) {
         println(iv)
         val I_exp = iv / 2.0
         val dynamic = HHCellObject(HHSignals(I = I_exp, V = -65.0, N = 0.32, M = 0.05, H= 0.6))
@@ -74,20 +73,7 @@ fun createDynamicExperimentMultipleI() {
         config.add(HHCellObject::class, arrayListOf(pathwayDynamic))
 
         val s = Model(arrayListOf(dynamic), config)
-        s.simulate { it.currentTime() > 100000 }
-//
-//        println((dynamic.signals as HHSignals))
-//        println((dynamic.history.size))
-
-//        var fname = "i_${I_exp}.txt"
-//
-//        File(fname).bufferedWriter().use { out ->
-//            out.write("I;V;N;M;H\n")
-//            dynamic.history.forEach {
-//                it as HHSignals
-//                out.write("${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
-//            }
-//        }
+        s.simulate { it.currentTime() > 100_000 }
     }
 }
 
@@ -119,17 +105,6 @@ fun createHHHundredCellsExperiment()
     }
     println("Time taken: $elapsed")
     println("Already calculated")
-
-//    for (i in 0 until neuronCount) {
-//        val fname = "${i}th_neuron.txt"
-//        File(fname).bufferedWriter().use { out ->
-//            out.write("I;V;N;M;H\n")
-//            cells[i].history.forEach {
-//                it as HHSignals
-//                out.write("${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
-//            }
-//        }
-//    }
 }
 
 fun createSynapseExperiment()
@@ -164,12 +139,9 @@ fun createSynapseExperiment()
     }
     println("Time taken: $elapsed")
     println("Already calculated")
-
-    println(synapse.weight)
 }
 
-fun createTwoPopulationsExperiment()
-{
+fun createTwoPopulationsExperiment() {
     val I_exp = 8.0
     val excCount = 80
     val inhCount = 20
@@ -202,21 +174,16 @@ fun createTwoPopulationsExperiment()
         }
     }
 
-    for(i in 0 until excCount)
-    {
-        for(j in 0 until inhCount)
-        {
+    for(i in 0 until excCount) {
+        for(j in 0 until inhCount) {
             val synapse = SynapseObject(excCells[i], inhibCells[j])
             synapses.add(synapse)
         }
     }
 
-    for(i in 0 until inhCount)
-    {
-        for(j in 0 until inhCount)
-        {
-            if(i != j)
-            {
+    for(i in 0 until inhCount) {
+        for(j in 0 until inhCount) {
+            if(i != j) {
                 val synapse = SynapseObject(inhibCells[i], inhibCells[j], isInhibitory = true)
                 synapses.add(synapse)
             }
@@ -245,6 +212,7 @@ fun createTwoPopulationsExperiment()
     pathwayDynamic.add(HHCellObject::NDynamicMechanism, SimpleParameters(1.0), 2) { true }
     pathwayDynamic.add(HHCellObject::MDynamicMechanism, SimpleParameters(1.0), 2) { true }
     pathwayDynamic.add(HHCellObject::HDynamicMechanism, SimpleParameters(1.0), 2) { true }
+    pathwayDynamic.add(HHCellObject::IExternalDecayMechanism, SimpleParameters(1.0), 50) { true }
 
     val pathwaySynapse: Pathway<SynapseObject> = Pathway()
     pathwaySynapse.add(SynapseObject::spikeTransferMechanism, SimpleParameters(1.0), 2) {true}
@@ -261,17 +229,16 @@ fun createTwoPopulationsExperiment()
     println("Time taken: $elapsed")
     println("Already calculated")
 
-
     for (i in 0 until excCount) {
         val fname = "mads_data//exc_${i}th_neuron.txt"
         File(fname).bufferedWriter().use { out ->
-            out.write("I;V;N;M;H\n")
+            out.write("I_ext;I;V;N;M;H\n")
 
             var cellHist = excCells[i].history[HHSignals::class]
 
             cellHist?.forEach {
                 it as HHSignals
-                out.write("${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
+                out.write("${it.I_ext};${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
             }
         }
     }
@@ -279,13 +246,13 @@ fun createTwoPopulationsExperiment()
     for (i in 0 until inhCount) {
         val fname = "mads_data//inh_${i}th_neuron.txt"
         File(fname).bufferedWriter().use { out ->
-            out.write("I;V;N;M;H\n")
+            out.write("I_ext;I;V;N;M;H\n")
 
             var cellHist = inhibCells[i].history[HHSignals::class]
 
             cellHist?.forEach {
                 it as HHSignals
-                out.write("${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
+                out.write("${it.I_ext};${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
             }
         }
     }

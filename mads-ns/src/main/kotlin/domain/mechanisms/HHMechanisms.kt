@@ -12,25 +12,21 @@ import kotlin.random.Random
 
 fun HHCellObject.IDynamicMechanism(params: SimpleParameters) : List<Response>
 {
-    val signals = this.signals[HHSignals::class] as HHSignals
-
     var delta = 0.0
     if(!constantCurrent)
     {
         delta = (Random.nextDouble() - 0.5) / 10
     }
 
-
     val responseString = String.format("Object: %s, Signal: I", this.type)
     return arrayListOf(DynamicResponse(responseString, this, delta, this::updateI))
-
 }
 
 fun HHCellObject.VDynamicMechanism(params: SimpleParameters) : List<Response>
 {
     val signals = this.signals[HHSignals::class] as HHSignals
 
-    val I_e = signals.I
+    val I_e = signals.I + signals.I_ext
     val V = signals.V
     val n = signals.N
     val m = signals.M
@@ -84,6 +80,15 @@ fun HHCellObject.HDynamicMechanism(params: SimpleParameters) : List<Response>
 
     val responseString = String.format("Object: %s, Signal: H", this.type)
     return arrayListOf(DynamicResponse(responseString, this, delta, this::updateH))
+}
+
+fun HHCellObject.IExternalDecayMechanism(params: SimpleParameters) : List<Response> {
+    val signals = this.signals[HHSignals::class] as HHSignals
+
+    val delta = -signals.I_ext*0.1
+
+    val responseString = String.format("Object: %s, Signal: I_external", this.type)
+    return arrayListOf(DynamicResponse(responseString, this, delta, this::updateIexternal))
 }
 
 
