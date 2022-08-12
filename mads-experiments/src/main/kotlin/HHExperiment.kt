@@ -7,6 +7,8 @@ import domain.objects.HHSignals
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.simulation.Model
+import org.jetbrains.research.mads.core.telemetry.DataBroker
+import org.jetbrains.research.mads.core.types.responses.DynamicResponse
 import java.io.File
 
 fun main() {
@@ -84,6 +86,7 @@ fun createDynamicExperimentMultipleI() {
 
 fun createHHHundredCellsExperiment()
 {
+    DataBroker.INSTANCE.initModelWriters("log/", setOf(DynamicResponse::class))
     val I_exp = 8.0
 //    val dynamic = HHCellObject(HHSignals(I = I_exp, V = -65.0, N = 0.32, M = 0.05, H= 0.6))
 
@@ -106,8 +109,6 @@ fun createHHHundredCellsExperiment()
 
     val s = Model(cells, config)
     s.simulate { it.currentTime() > 10_000 }
-
-    println("Already calculated")
 
 //    for (i in 0 until neuronCount) {
 //        val fname = "${i}th_neuron.txt"

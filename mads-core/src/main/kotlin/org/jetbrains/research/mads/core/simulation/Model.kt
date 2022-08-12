@@ -1,9 +1,16 @@
 package org.jetbrains.research.mads.core.simulation
 
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.LoggerContext
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.FileAppender
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
 import org.jetbrains.research.mads.core.types.ModelObject
+import org.slf4j.LoggerFactory
 import kotlin.streams.toList
+
 
 object RootObject : ModelObject()
 
@@ -13,6 +20,40 @@ class Model(
 ) : ModelObject() {
 
     private val dispatcher = EventsDispatcher()
+//    private val progressBar: ProgressBar = ProgressBarBuilder()
+//        .setStyle(ProgressBarStyle.ASCII)
+//        .setTaskName("Simulation")
+//        .continuousUpdate()
+//        .setConsumer(ConsoleProgressBarConsumer(System.out))
+//        .build()
+
+//    companion object {
+//        internal val LOG = LoggerFactory.getLogger("ROOT") as Logger
+//
+//        init {
+//            val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
+//            val fileAppender = FileAppender<ILoggingEvent>()
+//            fileAppender.context = loggerContext
+//            fileAppender.name = "file"
+//            // set the file name
+//            fileAppender.file = "log/" + System.currentTimeMillis() + ".log"
+//
+//            val encoder = PatternLayoutEncoder()
+//            encoder.context = loggerContext
+//            encoder.pattern = "[%d{HH:mm:ss.SSS}] %level: %msg%n"
+//            encoder.start()
+//
+//            fileAppender.encoder = encoder
+//            fileAppender.start()
+//
+//            // attach the rolling file appender to the logger of your choice
+////            val logbackLogger = loggerContext.getLogger("ROOT")
+//            LOG.detachAndStopAllAppenders()
+//            LOG.addAppender(fileAppender)
+//
+//            LOG.iteratorForAppenders().asSequence().forEach { println(it.name) }
+//        }
+//    }
 
     init {
         parent = RootObject
@@ -27,6 +68,9 @@ class Model(
 
         val allEvents = objects.map { it.events }.flatten()
         dispatcher.addEvents(allEvents)
+
+        // log something
+//        LOG.info("hello")
     }
 
     fun simulate(stopCondition: (Model) -> Boolean) {
@@ -58,7 +102,11 @@ class Model(
                 .toList()
 
             dispatcher.addEvents(allEvents)
+
+//            progressBar.stepTo(currentTime())
         }
+//        progressBar.extraMessage = "Done"
+//        progressBar.close()
     }
 
     fun currentTime(): Long {

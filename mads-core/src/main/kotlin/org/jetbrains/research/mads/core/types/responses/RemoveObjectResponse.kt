@@ -5,5 +5,6 @@ import org.jetbrains.research.mads.core.types.Response
 
 data class RemoveObjectResponse(override val response: String,
                                 override val sourceObject: ModelObject,
+                                override val log: (Long, Response) -> Response,
                                 val removedObject: ModelObject
 ): Response

@@ -37,7 +37,7 @@ abstract class ModelObject {
 
     fun applyResponses(responses: List<Response>): List<ModelObject> {
         return resolveConflicts(responses).mapNotNull {
-            this.responseMapping[it::class]?.invoke(it) }.flatten()
+            this.responseMapping[it::class]?.invoke(it.log(0, it)) }.flatten()
     }
 
     protected open fun resolveConflicts(responses: List<Response>): List<Response> {
