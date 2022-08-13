@@ -63,8 +63,10 @@ enum class DataBroker {
 //    }
 
     fun logResponse(tick: Long, response: Response): Response {
-        scope.launch {
-            modelWriters[response::class]?.flow?.emit(listOf(response.response))
+        if (modelWriters.containsKey(response::class) && response.logResponse) {
+            scope.launch {
+                modelWriters[response::class]!!.flow.emit(response.response)
+            }
         }
         return response
     }

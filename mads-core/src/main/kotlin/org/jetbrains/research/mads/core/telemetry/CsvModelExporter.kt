@@ -11,7 +11,7 @@ class CsvModelExporter {
     private val scope = CoroutineScope(Dispatchers.IO + Job() + SupervisorJob())
 
     //lateinit
-    lateinit var flow: MutableSharedFlow<List<String>>
+    lateinit var flow: MutableSharedFlow<String>
     private lateinit var fileWriter: OutputStreamWriter
     private lateinit var jobCollect: Deferred<Unit>
 
@@ -29,12 +29,6 @@ class CsvModelExporter {
         isClosed = true
     }
 
-    fun writeSync(data: List<String>) {
-        data.forEach {
-            write(it)
-        }
-    }
-
     //region Private
     private fun openFile(path: Path, fileName: String, header: String) {
         flow = MutableSharedFlow()
@@ -43,7 +37,7 @@ class CsvModelExporter {
 
         jobCollect = scope.async {
             flow.collect {
-                writeSync(it)
+                write(it)
             }
         }
     }

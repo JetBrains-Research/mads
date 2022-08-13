@@ -25,11 +25,11 @@ fun createHHCellsExperiment()
     val config = Configuration()
 
     val pathwayDynamic: Pathway<HHCellObject> = Pathway()
-    pathwayDynamic.add(HHCellObject::IDynamicMechanism, SimpleParameters(1.0), 2) { true }
-    pathwayDynamic.add(HHCellObject::VDynamicMechanism, SimpleParameters(1.0), 2) { true }
-    pathwayDynamic.add(HHCellObject::NDynamicMechanism, SimpleParameters(1.0), 2) { true }
-    pathwayDynamic.add(HHCellObject::MDynamicMechanism, SimpleParameters(1.0), 2) { true }
-    pathwayDynamic.add(HHCellObject::HDynamicMechanism, SimpleParameters(1.0), 2) { true }
+    pathwayDynamic.add(HHCellObject::IDynamicMechanism, SimpleParameters(1.0, false), 2) { true }
+    pathwayDynamic.add(HHCellObject::VDynamicMechanism, SimpleParameters(1.0, true), 2) { true }
+    pathwayDynamic.add(HHCellObject::NDynamicMechanism, SimpleParameters(1.0, false), 2) { true }
+    pathwayDynamic.add(HHCellObject::MDynamicMechanism, SimpleParameters(1.0, false), 2) { true }
+    pathwayDynamic.add(HHCellObject::HDynamicMechanism, SimpleParameters(1.0, false), 2) { true }
 
     config.add(HHCellObject::class, arrayListOf(pathwayDynamic))
 
@@ -57,11 +57,11 @@ fun createDynamicExperimentMultipleI() {
         val config = Configuration()
 
         val pathwayDynamic: Pathway<HHCellObject> = Pathway()
-        pathwayDynamic.add(HHCellObject::IDynamicMechanism, SimpleParameters(1.0), 2) { true }
-        pathwayDynamic.add(HHCellObject::VDynamicMechanism, SimpleParameters(1.0), 2) { true }
-        pathwayDynamic.add(HHCellObject::NDynamicMechanism, SimpleParameters(1.0), 2) { true }
-        pathwayDynamic.add(HHCellObject::MDynamicMechanism, SimpleParameters(1.0), 2) { true }
-        pathwayDynamic.add(HHCellObject::HDynamicMechanism, SimpleParameters(1.0), 2) { true }
+        pathwayDynamic.add(HHCellObject::IDynamicMechanism, SimpleParameters(1.0, false), 2) { true }
+        pathwayDynamic.add(HHCellObject::VDynamicMechanism, SimpleParameters(1.0, true), 2) { true }
+        pathwayDynamic.add(HHCellObject::NDynamicMechanism, SimpleParameters(1.0, false), 2) { true }
+        pathwayDynamic.add(HHCellObject::MDynamicMechanism, SimpleParameters(1.0, false), 2) { true }
+        pathwayDynamic.add(HHCellObject::HDynamicMechanism, SimpleParameters(1.0, false), 2) { true }
 
 
         config.add(HHCellObject::class, arrayListOf(pathwayDynamic))
@@ -86,7 +86,7 @@ fun createDynamicExperimentMultipleI() {
 
 fun createHHHundredCellsExperiment()
 {
-    DataBroker.INSTANCE.initModelWriters("log/", setOf(DynamicResponse::class))
+    DataBroker.INSTANCE.initModelWriters("log/${System.currentTimeMillis()}/", setOf(DynamicResponse::class))
     val I_exp = 8.0
 //    val dynamic = HHCellObject(HHSignals(I = I_exp, V = -65.0, N = 0.32, M = 0.05, H= 0.6))
 
@@ -99,11 +99,11 @@ fun createHHHundredCellsExperiment()
     val config = Configuration()
 
     val pathwayDynamic: Pathway<HHCellObject> = Pathway()
-    pathwayDynamic.add(HHCellObject::IDynamicMechanism, SimpleParameters(1.0), 2) { true }
-    pathwayDynamic.add(HHCellObject::VDynamicMechanism, SimpleParameters(1.0), 2) { true }
-    pathwayDynamic.add(HHCellObject::NDynamicMechanism, SimpleParameters(1.0), 2) { true }
-    pathwayDynamic.add(HHCellObject::MDynamicMechanism, SimpleParameters(1.0), 2) { true }
-    pathwayDynamic.add(HHCellObject::HDynamicMechanism, SimpleParameters(1.0), 2) { true }
+    pathwayDynamic.add(HHCellObject::IDynamicMechanism, SimpleParameters(1.0, false), 2) { true }
+    pathwayDynamic.add(HHCellObject::VDynamicMechanism, SimpleParameters(1.0, true), 2) { true }
+    pathwayDynamic.add(HHCellObject::NDynamicMechanism, SimpleParameters(1.0, false), 2) { true }
+    pathwayDynamic.add(HHCellObject::MDynamicMechanism, SimpleParameters(1.0, false), 2) { true }
+    pathwayDynamic.add(HHCellObject::HDynamicMechanism, SimpleParameters(1.0, false), 2) { true }
 
     config.add(HHCellObject::class, arrayListOf(pathwayDynamic))
 

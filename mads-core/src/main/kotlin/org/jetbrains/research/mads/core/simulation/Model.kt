@@ -1,14 +1,13 @@
 package org.jetbrains.research.mads.core.simulation
 
-import ch.qos.logback.classic.Logger
-import ch.qos.logback.classic.LoggerContext
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder
-import ch.qos.logback.classic.spi.ILoggingEvent
-import ch.qos.logback.core.FileAppender
+import me.tongfei.progressbar.ConsoleProgressBarConsumer
+import me.tongfei.progressbar.ProgressBar
+import me.tongfei.progressbar.ProgressBarBuilder
+import me.tongfei.progressbar.ProgressBarStyle
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
+import org.jetbrains.research.mads.core.telemetry.DataBroker
 import org.jetbrains.research.mads.core.types.ModelObject
-import org.slf4j.LoggerFactory
 import kotlin.streams.toList
 
 
@@ -20,12 +19,12 @@ class Model(
 ) : ModelObject() {
 
     private val dispatcher = EventsDispatcher()
-//    private val progressBar: ProgressBar = ProgressBarBuilder()
-//        .setStyle(ProgressBarStyle.ASCII)
-//        .setTaskName("Simulation")
-//        .continuousUpdate()
-//        .setConsumer(ConsoleProgressBarConsumer(System.out))
-//        .build()
+    private val progressBar: ProgressBar = ProgressBarBuilder()
+        .setStyle(ProgressBarStyle.ASCII)
+        .setTaskName("Simulation")
+        .continuousUpdate()
+        .setConsumer(ConsoleProgressBarConsumer(System.out))
+        .build()
 
 //    companion object {
 //        internal val LOG = LoggerFactory.getLogger("ROOT") as Logger
@@ -80,10 +79,11 @@ class Model(
 
             // 1. process events from queue -> get grouped responses by model object
             val responses = dispatcher.calculateNextTick()
+            val currentTime = currentTime()
 
             // 2. apply responses to each object independently -> S_i to S_i+1
             val updatedObjects = responses.entries.parallelStream()
-                .map { e -> e.key.applyResponses(e.value) }
+                .map { e -> e.key.applyResponses(currentTime,e.value) }
                 .flatMap { it.stream() }
                 .distinct()
                 .toList()
@@ -103,10 +103,11 @@ class Model(
 
             dispatcher.addEvents(allEvents)
 
-//            progressBar.stepTo(currentTime())
+            progressBar.stepTo(currentTime())
         }
-//        progressBar.extraMessage = "Done"
-//        progressBar.close()
+        progressBar.extraMessage = "Done"
+        progressBar.close()
+        DataBroker.INSTANCE.closeModelWriters()
     }
 
     fun currentTime(): Long {

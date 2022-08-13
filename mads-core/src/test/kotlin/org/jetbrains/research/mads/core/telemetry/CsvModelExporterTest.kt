@@ -40,7 +40,7 @@ class CsvModelExporterTest {
         println("String builder len is %s".format(texts.sumOf { s -> s.length }))
         val time = measureTimeMillis {
             scope.launch {
-                csvModelExporter.flow.emit(texts)
+                texts.forEach { csvModelExporter.flow.emit(it) }
             }
         }
         println("Data write time: $time ms")
