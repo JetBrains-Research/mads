@@ -19,40 +19,13 @@ class Model(
 ) : ModelObject() {
 
     private val dispatcher = EventsDispatcher()
+    // TODO: proper use of progress bar, maybe spinner instead: we don't know when stop condition will be true
     private val progressBar: ProgressBar = ProgressBarBuilder()
         .setStyle(ProgressBarStyle.ASCII)
         .setTaskName("Simulation")
         .continuousUpdate()
         .setConsumer(ConsoleProgressBarConsumer(System.out))
         .build()
-
-//    companion object {
-//        internal val LOG = LoggerFactory.getLogger("ROOT") as Logger
-//
-//        init {
-//            val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
-//            val fileAppender = FileAppender<ILoggingEvent>()
-//            fileAppender.context = loggerContext
-//            fileAppender.name = "file"
-//            // set the file name
-//            fileAppender.file = "log/" + System.currentTimeMillis() + ".log"
-//
-//            val encoder = PatternLayoutEncoder()
-//            encoder.context = loggerContext
-//            encoder.pattern = "[%d{HH:mm:ss.SSS}] %level: %msg%n"
-//            encoder.start()
-//
-//            fileAppender.encoder = encoder
-//            fileAppender.start()
-//
-//            // attach the rolling file appender to the logger of your choice
-////            val logbackLogger = loggerContext.getLogger("ROOT")
-//            LOG.detachAndStopAllAppenders()
-//            LOG.addAppender(fileAppender)
-//
-//            LOG.iteratorForAppenders().asSequence().forEach { println(it.name) }
-//        }
-//    }
 
     init {
         parent = RootObject
@@ -67,9 +40,6 @@ class Model(
 
         val allEvents = objects.map { it.events }.flatten()
         dispatcher.addEvents(allEvents)
-
-        // log something
-//        LOG.info("hello")
     }
 
     fun simulate(stopCondition: (Model) -> Boolean) {
@@ -78,12 +48,12 @@ class Model(
         while (!stopCondition(this)) {
 
             // 1. process events from queue -> get grouped responses by model object
-            val responses = dispatcher.calculateNextTick()
             val currentTime = currentTime()
+            val responses = dispatcher.calculateNextTick()
 
             // 2. apply responses to each object independently -> S_i to S_i+1
             val updatedObjects = responses.entries.parallelStream()
-                .map { e -> e.key.applyResponses(currentTime,e.value) }
+                .map { e -> e.key.applyResponses(currentTime, e.value) }
                 .flatMap { it.stream() }
                 .distinct()
                 .toList()
