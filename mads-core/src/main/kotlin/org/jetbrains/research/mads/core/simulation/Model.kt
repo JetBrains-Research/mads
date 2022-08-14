@@ -6,10 +6,8 @@ import me.tongfei.progressbar.ProgressBarBuilder
 import me.tongfei.progressbar.ProgressBarStyle
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
-import org.jetbrains.research.mads.core.telemetry.DataBroker
 import org.jetbrains.research.mads.core.types.ModelObject
 import kotlin.streams.toList
-
 
 object RootObject : ModelObject()
 
@@ -19,6 +17,7 @@ class Model(
 ) : ModelObject() {
 
     private val dispatcher = EventsDispatcher()
+
     // TODO: proper use of progress bar, maybe spinner instead: we don't know when stop condition will be true
     private val progressBar: ProgressBar = ProgressBarBuilder()
         .setStyle(ProgressBarStyle.ASCII)
@@ -77,7 +76,6 @@ class Model(
         }
         progressBar.extraMessage = "Done"
         progressBar.close()
-        DataBroker.INSTANCE.closeModelWriters()
     }
 
     fun currentTime(): Long {

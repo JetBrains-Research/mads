@@ -11,13 +11,13 @@ class CsvModelExporterTest {
     lateinit var csvModelExporter: CsvModelExporter
     lateinit var texts: MutableList<String>
 
-    private val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+    private val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
 
 
     private fun prepare() {
         csvModelExporter = CsvModelExporter()
         csvModelExporter.open(
-                Path(System.getProperty("user.dir") + "/" + "results" + File.separator),
+            Path(System.getProperty("user.dir") + "/" + "results" + File.separator),
             "KotlinTEST_CSV_EXPORTER2.csv",
             "Output,Output1,Output2,Output3,Output4\n"
         )
@@ -46,7 +46,7 @@ class CsvModelExporterTest {
         println("Data write time: $time ms")
     }
 
-//    @Test
+    //    @Test
     fun runAll() {
         prepare()
 
@@ -71,7 +71,7 @@ class CsvModelExporterTest {
         return stringBuilder.toString()
     }
 
-//    @Test
+    //    @Test
     fun doubleToString() {
         var TEST_LEN = 1_000_000
         val data = mutableListOf<Double>()

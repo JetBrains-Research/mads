@@ -1,7 +1,8 @@
 package org.jetbrains.research.mads.core.types
 
 interface MechanismParameters {
-    val logResponse: Boolean
+    val savingParameters: SavingParameters
+    val constants: Constants
 }
 
 fun <MO : ModelObject, MP : MechanismParameters> applyParametersToMechanism(

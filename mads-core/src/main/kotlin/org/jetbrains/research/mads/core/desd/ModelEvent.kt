@@ -6,7 +6,7 @@ import java.util.*
 typealias ProcessState = () -> List<Response>
 
 object EmptyResponse {
-    val value : List<Response> = arrayListOf()
+    val value: List<Response> = arrayListOf()
 }
 
 class ModelEvent(
@@ -24,10 +24,13 @@ class ModelEvent(
     private var eventState: EventState
 
     private val stateProcessorMap: EnumMap<EventState, ProcessState> =
-        EnumMap<EventState, ProcessState>(mapOf<EventState, ProcessState>(
-            EventState.Active to this::processActiveEvent,
-            EventState.Postponed to this::processPostponedEvent,
-            EventState.WaitingInQueue to this::processWaitingInQueueEvent))
+        EnumMap<EventState, ProcessState>(
+            mapOf<EventState, ProcessState>(
+                EventState.Active to this::processActiveEvent,
+                EventState.Postponed to this::processPostponedEvent,
+                EventState.WaitingInQueue to this::processWaitingInQueueEvent
+            )
+        )
 
     init {
         rnd = Random(seed)

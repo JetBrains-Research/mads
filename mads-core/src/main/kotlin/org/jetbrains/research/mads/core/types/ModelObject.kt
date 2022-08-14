@@ -21,8 +21,18 @@ abstract class ModelObject {
         responseMapping[RemoveObjectResponse::class] = ::removeObject
     }
 
+    fun getChildObjects(): Array<ModelObject> {
+        return childObjects.toTypedArray()
+    }
+
+    fun recursivelyGetChildObjects(): List<ModelObject> {
+        return childObjects.asSequence()
+            .selectRecursive { getChildObjects().asSequence() }
+            .toList()
+    }
+
     @Suppress("UNCHECKED_CAST")
-    fun <MO : ModelObject> createEvents(pathway: Pathway<MO>) {
+    internal fun <MO : ModelObject> createEvents(pathway: Pathway<MO>) {
         if (events.size > 0)
             return
 
@@ -35,27 +45,18 @@ abstract class ModelObject {
         }
     }
 
-    fun applyResponses(tick: Long, responses: List<Response>): List<ModelObject> {
+    internal fun applyResponses(tick: Long, responses: List<Response>): List<ModelObject> {
         return resolveConflicts(responses).mapNotNull {
-            this.responseMapping[it::class]?.invoke(it.logFunction(tick, it)) }.flatten()
+            this.responseMapping[it::class]?.invoke(it.logFunction(tick, it))
+        }.flatten()
+    }
+
+    internal fun checkConditions() {
+        events.forEach { if (it.checkCondition()) it.prepareEvent() else it.disruptEvent() }
     }
 
     protected open fun resolveConflicts(responses: List<Response>): List<Response> {
         return responses
-    }
-
-    fun checkConditions() {
-        events.forEach { if (it.checkCondition()) it.prepareEvent() else it.disruptEvent() }
-    }
-
-    fun getChildObjects(): Array<ModelObject> {
-        return childObjects.toTypedArray()
-    }
-
-    fun recursivelyGetChildObjects(): List<ModelObject> {
-        return childObjects.asSequence()
-            .selectRecursive { getChildObjects().asSequence() }
-            .toList()
     }
 
     private fun addObject(response: Response): List<ModelObject> {

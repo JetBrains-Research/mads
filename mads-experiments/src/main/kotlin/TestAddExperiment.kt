@@ -2,10 +2,11 @@ package domain
 
 import domain.mechanisms.simpleAddMechanism
 import domain.mechanisms.simpleMechanism
-import domain.objects.HHCellObject
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.simulation.Model
+import org.jetbrains.research.mads.core.types.EmptyConstants
+import org.jetbrains.research.mads.core.types.EmptySavingParameters
 
 fun main() {
     createCellsExperiment()
@@ -19,9 +20,21 @@ fun createCellsExperiment() {
 
     val pathwaySimple: Pathway<SimpleObject> = Pathway()
     val pathwayDummy: Pathway<DummyObject> = Pathway()
-    pathwaySimple.add(SimpleObject::simpleMechanism, SimpleParameters(0.5, true), 10) { it.forCondition }
-    pathwaySimple.add(SimpleObject::simpleAddMechanism, SimpleParameters(0.5, true), 10) { it.forCondition }
-    pathwayDummy.add(DummyObject::simpleMechanism, SimpleParameters(0.8, true), 10) { it.forCondition }
+    pathwaySimple.add(
+        SimpleObject::simpleMechanism,
+        SimpleParameters(EmptySavingParameters, EmptyConstants, 0.5),
+        10
+    ) { it.forCondition }
+    pathwaySimple.add(
+        SimpleObject::simpleAddMechanism,
+        SimpleParameters(EmptySavingParameters, EmptyConstants, 0.5),
+        10
+    ) { it.forCondition }
+    pathwayDummy.add(
+        DummyObject::simpleMechanism,
+        SimpleParameters(EmptySavingParameters, EmptyConstants, 0.8),
+        10
+    ) { it.forCondition }
 
     config.add(SimpleObject::class, arrayListOf(pathwaySimple))
     config.add(DummyObject::class, arrayListOf(pathwayDummy))

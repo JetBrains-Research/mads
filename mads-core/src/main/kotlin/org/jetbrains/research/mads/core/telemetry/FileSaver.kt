@@ -2,13 +2,12 @@ package org.jetbrains.research.mads.core.telemetry
 
 import kotlinx.coroutines.*
 import org.jetbrains.research.mads.core.types.Response
+import org.jetbrains.research.mads.core.types.ResponseSaver
 import java.io.File
 import java.nio.file.Paths
-import java.util.*
 import kotlin.reflect.KClass
 
-enum class DataBroker {
-    INSTANCE;
+object FileSaver : ResponseSaver {
     private val scope = CoroutineScope(Dispatchers.IO + Job() + SupervisorJob())
     private val modelWriters = HashMap<KClass<out Response>, CsvModelExporter>()
 
@@ -25,7 +24,7 @@ enum class DataBroker {
         }
     }
 
-    fun logResponse(tick: Long, response: Response): Response {
+    override fun logResponse(tick: Long, response: Response): Response {
         if (modelWriters.containsKey(response::class) && response.logResponse) {
             scope.launch {
                 modelWriters[response::class]!!.flow.emit("${tick}, " + response.response)
@@ -44,7 +43,6 @@ enum class DataBroker {
         return (modelWriters.values.map { it.isClosed }.toList())
             .reduceOrNull { acc, next -> acc && next }
             ?: true
-
     }
 
     private fun mkdirs(dir: String) {
