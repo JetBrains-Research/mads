@@ -26,7 +26,6 @@ fun HHCellObject.IDynamicMechanism(params: HHParameters): List<Response> {
             this::updateI
         )
     )
-
 }
 
 fun HHCellObject.VDynamicMechanism(params: HHParameters): List<Response> {

@@ -54,6 +54,7 @@ fun createHHCellsExperiment() {
     config.add(HHCellObject::class, arrayListOf(pathwayDynamic))
 
     val s = Model(arrayListOf(dynamic), config)
+
     s.simulate { it.currentTime() > 100000 }
     FileSaver.closeModelWriters()
 }
