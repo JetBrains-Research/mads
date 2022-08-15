@@ -1,5 +1,9 @@
 package org.jetbrains.research.mads.core.simulation
 
+import me.tongfei.progressbar.ConsoleProgressBarConsumer
+import me.tongfei.progressbar.ProgressBar
+import me.tongfei.progressbar.ProgressBarBuilder
+import me.tongfei.progressbar.ProgressBarStyle
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
 import org.jetbrains.research.mads.core.types.ModelObject
@@ -13,6 +17,14 @@ class Model(
 ) : ModelObject() {
 
     private val dispatcher = EventsDispatcher()
+
+    // TODO: proper use of progress bar, maybe spinner instead: we don't know when stop condition will be true
+    private val progressBar: ProgressBar = ProgressBarBuilder()
+        .setStyle(ProgressBarStyle.ASCII)
+        .setTaskName("Simulation")
+        .continuousUpdate()
+        .setConsumer(ConsoleProgressBarConsumer(System.out))
+        .build()
 
     init {
         parent = RootObject
@@ -35,11 +47,12 @@ class Model(
         while (!stopCondition(this)) {
 
             // 1. process events from queue -> get grouped responses by model object
+            val currentTime = currentTime()
             val responses = dispatcher.calculateNextTick()
 
             // 2. apply responses to each object independently -> S_i to S_i+1
             val updatedObjects = responses.entries.parallelStream()
-                .map { e -> e.key.applyResponses(e.value) }
+                .map { e -> e.key.applyResponses(currentTime, e.value) }
                 .flatMap { it.stream() }
                 .distinct()
                 .toList()
@@ -58,7 +71,11 @@ class Model(
                 .toList()
 
             dispatcher.addEvents(allEvents)
+
+            progressBar.stepTo(currentTime())
         }
+        progressBar.extraMessage = "Done"
+        progressBar.close()
     }
 
     fun currentTime(): Long {

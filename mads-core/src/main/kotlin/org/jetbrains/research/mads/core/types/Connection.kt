@@ -6,7 +6,7 @@ class Connection(
 ) {
 
     fun getPair(obj: ModelObject): ModelObject? {
-        return when(obj) {
+        return when (obj) {
             objectLeft -> objectRight
             objectRight -> objectLeft
             // TODO: @vlad0922 I prefer to change null to some blank empty object

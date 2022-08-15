@@ -4,10 +4,7 @@ import org.jetbrains.research.mads.core.types.Constants
 import org.jetbrains.research.mads.core.types.MechanismParameters
 import org.jetbrains.research.mads.core.types.SavingParameters
 
-open class SimpleParameters(
+data class HHParameters(
     override val savingParameters: SavingParameters,
-    override val constants: Constants,
-    p: Double,
-) : MechanismParameters {
-    val probability = p
-}
+    override val constants: Constants
+) : MechanismParameters

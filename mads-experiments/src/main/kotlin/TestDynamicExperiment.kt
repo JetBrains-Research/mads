@@ -1,7 +1,6 @@
 package domain
 
 import domain.mechanisms.DynSignals
-import domain.mechanisms.simpleAddMechanism
 import domain.mechanisms.simpleDynamicMechanism
 import domain.mechanisms.simpleMechanism
 import domain.objects.DynamicObject
@@ -9,6 +8,8 @@ import domain.objects.HHCellObject
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.simulation.Model
+import org.jetbrains.research.mads.core.types.EmptyConstants
+import org.jetbrains.research.mads.core.types.EmptySavingParameters
 
 fun main() {
     createDynamicExperiment()
@@ -20,7 +21,11 @@ fun createDynamicExperiment() {
     val config = Configuration()
 
     val pathwayDynamic: Pathway<DynamicObject> = Pathway()
-    pathwayDynamic.add(DynamicObject::simpleDynamicMechanism, SimpleParameters(0.5), 10) { true }
+    pathwayDynamic.add(
+        DynamicObject::simpleDynamicMechanism,
+        SimpleParameters(EmptySavingParameters, EmptyConstants, 0.5),
+        10
+    ) { true }
 
     config.add(DynamicObject::class, arrayListOf(pathwayDynamic))
 

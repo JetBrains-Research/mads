@@ -1,6 +1,9 @@
 package org.jetbrains.research.mads.core.types
 
-interface MechanismParameters
+interface MechanismParameters {
+    val savingParameters: SavingParameters
+    val constants: Constants
+}
 
 fun <MO : ModelObject, MP : MechanismParameters> applyParametersToMechanism(
     mechanism: (MO, MP) -> List<Response>,

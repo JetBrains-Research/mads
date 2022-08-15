@@ -11,10 +11,6 @@ class EventsDispatcher {
     private val eventsDic: MutableMap<Long, MutableList<ModelEvent>> = mutableMapOf()
     private val eventTime: Queue<Long> = PriorityQueue()
 
-    fun getCurrentTick(): Long {
-        return currentTick
-    }
-
     fun addEvents(modelEvents: List<ModelEvent>) {
         val groupedEvents: Map<Long, List<ModelEvent>> = modelEvents.parallelStream()
             .filter { it.updateTime(currentTick) }

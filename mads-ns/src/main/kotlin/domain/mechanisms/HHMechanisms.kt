@@ -1,49 +1,58 @@
 package domain.mechanisms
 
-import domain.SimpleParameters
+import domain.HHConstants
+import domain.HHParameters
 import domain.objects.HHCellObject
-import domain.objects.HHConstants
 import domain.objects.HHSignals
-import org.jetbrains.research.mads.core.types.responses.DynamicResponse
 import org.jetbrains.research.mads.core.types.Response
+import org.jetbrains.research.mads.core.types.responses.DynamicResponse
 import kotlin.math.exp
 import kotlin.math.pow
 
-fun HHCellObject.IDynamicMechanism(params: SimpleParameters) : List<Response>
-{
+fun HHCellObject.IDynamicMechanism(params: HHParameters): List<Response> {
     val signals = this.signals[HHSignals::class] as HHSignals
     val delta: Double = 0.0
 //    val delta = (Random.nextDouble() - 0.5)/10
 
     val responseString = String.format("Object: %s, Signal: I", this.type)
-    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.I += it })
-//    return arrayListOf(DynamicResponse(responseString, this, delta, this::updateI))
-
+//    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.I += it })
+    return arrayListOf(
+        DynamicResponse(
+            responseString,
+            this,
+            params.savingParameters.saver::logResponse,
+            params.savingParameters.saveResponse,
+            delta,
+            this::updateI
+        )
+    )
 }
 
-fun HHCellObject.VDynamicMechanism(params: SimpleParameters) : List<Response>
-{
-    val signals = this.signals[HHSignals::class] as HHSignals
+fun HHCellObject.VDynamicMechanism(params: HHParameters): List<Response> {
+    val s = this.signals[HHSignals::class] as HHSignals
+    val c = params.constants as HHConstants
 
-    val I_e = signals.I
-    val V = signals.V
-    val n = signals.N
-    val m = signals.M
-    val h = signals.H
+    val IK = c.g_K * s.N.pow(4.0) * (s.V - c.E_K);
+    val INa = c.g_Na * s.M.pow(3.0) * s.H * (s.V - c.E_Na);
+    val IL = c.g_L * (s.V - c.E_L);
 
-    val IK = HHConstants.g_K * n.pow(4.0) * (V - HHConstants.E_K);
-    val INa = HHConstants.g_Na * m.pow(3.0) * h * (V - HHConstants.E_Na);
-    val IL = HHConstants.g_L * (V - HHConstants.E_L);
+    val delta = ((s.I_e - IK - INa - IL) / c.C_m) * c.dt
 
-    val delta = ((I_e - IK - INa - IL) / HHConstants.C_m) * HHConstants.dt
-
-    val responseString = String.format("Object: %s, Signal: V", this.type)
-    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.V += it })
-//    return arrayListOf(DynamicResponse(responseString, this, delta, this::updateV))
+    val responseString = "${this.hashCode()}, dV, ${delta}\n"
+//    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.V += it })
+    return arrayListOf(
+        DynamicResponse(
+            responseString,
+            this,
+            params.savingParameters.saver::logResponse,
+            params.savingParameters.saveResponse,
+            delta,
+            this::updateV
+        )
+    )
 }
 
-fun HHCellObject.NDynamicMechanism(params: SimpleParameters) : List<Response>
-{
+fun HHCellObject.NDynamicMechanism(params: HHParameters): List<Response> {
     val signals = this.signals[HHSignals::class] as HHSignals
 
     val V = signals.V
@@ -52,12 +61,20 @@ fun HHCellObject.NDynamicMechanism(params: SimpleParameters) : List<Response>
     val delta = ((AlphaN(V) * (1.0 - n)) - (BetaN(V) * n)) * HHConstants.dt
 
     val responseString = String.format("Object: %s, Signal: N", this.type)
-    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.N += it })
-//    return arrayListOf(DynamicResponse(responseString, this, delta, this::updateN))
+//    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.N += it })
+    return arrayListOf(
+        DynamicResponse(
+            responseString,
+            this,
+            params.savingParameters.saver::logResponse,
+            params.savingParameters.saveResponse,
+            delta,
+            this::updateN
+        )
+    )
 }
 
-fun HHCellObject.MDynamicMechanism(params: SimpleParameters) : List<Response>
-{
+fun HHCellObject.MDynamicMechanism(params: HHParameters): List<Response> {
     val signals = this.signals[HHSignals::class] as HHSignals
 
     val V = signals.V
@@ -66,12 +83,20 @@ fun HHCellObject.MDynamicMechanism(params: SimpleParameters) : List<Response>
     val delta = ((AlphaM(V) * (1.0 - m)) - (BetaM(V) * m)) * HHConstants.dt
 
     val responseString = String.format("Object: %s, Signal: M", this.type)
-    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.M += it })
-//    return arrayListOf(DynamicResponse(responseString, this, delta, this::updateM))
+//    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.M += it })
+    return arrayListOf(
+        DynamicResponse(
+            responseString,
+            this,
+            params.savingParameters.saver::logResponse,
+            params.savingParameters.saveResponse,
+            delta,
+            this::updateM
+        )
+    )
 }
 
-fun HHCellObject.HDynamicMechanism(params: SimpleParameters) : List<Response>
-{
+fun HHCellObject.HDynamicMechanism(params: HHParameters): List<Response> {
     val signals = this.signals[HHSignals::class] as HHSignals
 
     val V = signals.V
@@ -80,8 +105,17 @@ fun HHCellObject.HDynamicMechanism(params: SimpleParameters) : List<Response>
     val delta = ((AlphaH(V) * (1.0 - h)) - (BetaH(V) * h)) * HHConstants.dt
 
     val responseString = String.format("Object: %s, Signal: H", this.type)
-    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.H += it })
-//    return arrayListOf(DynamicResponse(responseString, this, delta, this::updateH))
+//    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.H += it })
+    return arrayListOf(
+        DynamicResponse(
+            responseString,
+            this,
+            params.savingParameters.saver::logResponse,
+            params.savingParameters.saveResponse,
+            delta,
+            this::updateH
+        )
+    )
 }
 
 
