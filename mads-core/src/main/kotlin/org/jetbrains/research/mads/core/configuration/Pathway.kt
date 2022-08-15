@@ -14,4 +14,14 @@ class Pathway<MO : ModelObject> {
         val mch = applyParametersToMechanism(mechanism, parameters)
         mocRecords.add(MocRecord(mch, duration, condition))
     }
+
+    fun <MP : MechanismParameters> add(lambda: MocRecordBuilder<MO, MP>.() -> Unit): MocRecord<MO> {
+        return MocRecordBuilder<MO, MP>().apply(lambda).build()
+    }
+}
+
+fun <MO : ModelObject> pathway(init: Pathway<MO>.() -> Unit): Pathway<MO> {
+    val pathway = Pathway<MO>()
+    pathway.init()
+    return pathway
 }
