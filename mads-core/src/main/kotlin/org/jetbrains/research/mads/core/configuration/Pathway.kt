@@ -1,31 +1,28 @@
 package org.jetbrains.research.mads.core.configuration
 
-import org.jetbrains.research.mads.core.types.*
+import org.jetbrains.research.mads.core.types.MechanismParameters
+import org.jetbrains.research.mads.core.types.ModelObject
+import org.jetbrains.research.mads.core.types.Response
+import kotlin.reflect.KClass
 
-class Pathway<MO : ModelObject> {
-    val mocRecords = ArrayList<MocRecord<MO>>()
+class Pathway<MO : ModelObject>(val type: KClass<MO>) {
+    val configuredMechanisms = ArrayList<ConfiguredMechanism<MO>>()
 
-    fun <MP : MechanismParameters> add(
+    fun <MP : MechanismParameters> mechanism(
         mechanism: (MO, MP) -> List<Response>,
         parameters: MP,
-        duration: Int,
-        condition: (MO) -> Boolean
+        lambda: MocRecordBuilder<MO, MP>.() -> Unit
     ) {
-        val mch = applyParametersToMechanism(mechanism, parameters)
-        mocRecords.add(MocRecord(mch, duration, condition))
+        configuredMechanisms.add(MocRecordBuilder(mechanism, parameters).apply(lambda).build())
     }
 
-//    fun <MP : MechanismParameters> add(lambda: MocRecordBuilder<MO, MP>.() -> Unit): MocRecord<MO> {
-//        return MocRecordBuilder<MO, MP>().apply(lambda).build()
-//    }
-
-    fun mechanism(init: MocRecordBuilder.() -> MocRecord<MO>) {
-        mocRecords.add(MocRecordBuilder().init())
+    companion object {
+        inline operator fun <reified MO : ModelObject> invoke(): Pathway<MO> = Pathway(MO::class)
     }
 }
 
-fun <MO : ModelObject> pathway(init: Pathway<MO>.() -> Unit): Pathway<MO> {
-    val pathway = Pathway<MO>()
+inline fun <reified MO : ModelObject> pathway(init: Pathway<MO>.() -> Unit): Pathway<MO> {
+    val pathway: Pathway<MO> = Pathway()
     pathway.init()
     return pathway
 }

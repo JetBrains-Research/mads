@@ -3,6 +3,7 @@ package domain
 import domain.objects.HHCellObject
 import domain.objects.HHSignals
 import org.jetbrains.research.mads.core.configuration.Configuration
+import org.jetbrains.research.mads.core.configuration.configure
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.responses.DynamicResponse
@@ -21,8 +22,9 @@ fun createHHCellsExperiment() {
         cells.add(HHCellObject(HHSignals(I_e = I_exp, V = -65.0, N = 0.32, M = 0.05, H = 0.6)))
     }
 
-    val config = Configuration()
-    config.add(HHCellObject::class, arrayListOf(hhPathway()))
+    val config = configure {
+        addPathway(hhPathway())
+    }
 
     val s = Model(cells, config)
     s.simulate { it.currentTime() > 10_000 }
