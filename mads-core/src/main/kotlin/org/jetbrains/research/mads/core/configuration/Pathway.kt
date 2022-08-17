@@ -15,8 +15,12 @@ class Pathway<MO : ModelObject> {
         mocRecords.add(MocRecord(mch, duration, condition))
     }
 
-    fun <MP : MechanismParameters> add(lambda: MocRecordBuilder<MO, MP>.() -> Unit): MocRecord<MO> {
-        return MocRecordBuilder<MO, MP>().apply(lambda).build()
+//    fun <MP : MechanismParameters> add(lambda: MocRecordBuilder<MO, MP>.() -> Unit): MocRecord<MO> {
+//        return MocRecordBuilder<MO, MP>().apply(lambda).build()
+//    }
+
+    fun mechanism(init: MocRecordBuilder.() -> MocRecord<MO>) {
+        mocRecords.add(MocRecordBuilder().init())
     }
 }
 

@@ -7,7 +7,7 @@ interface MechanismParameters {
 
 object EmptyParameters : MechanismParameters {
     override val savingParameters: SavingParameters
-        get() = EmptySavingParameters
+        get() = SkipSaving
     override val constants: Constants
         get() = EmptyConstants
 }

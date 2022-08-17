@@ -6,7 +6,7 @@ import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.types.EmptyConstants
-import org.jetbrains.research.mads.core.types.EmptySavingParameters
+import org.jetbrains.research.mads.core.types.SkipSaving
 
 fun main() {
     createCellsExperiment()
@@ -22,17 +22,17 @@ fun createCellsExperiment() {
     val pathwayDummy: Pathway<DummyObject> = Pathway()
     pathwaySimple.add(
         SimpleObject::simpleMechanism,
-        SimpleParameters(EmptySavingParameters, EmptyConstants, 0.5),
+        SimpleParameters(SkipSaving, EmptyConstants, 0.5),
         10
     ) { it.forCondition }
     pathwaySimple.add(
         SimpleObject::simpleAddMechanism,
-        SimpleParameters(EmptySavingParameters, EmptyConstants, 0.5),
+        SimpleParameters(SkipSaving, EmptyConstants, 0.5),
         10
     ) { it.forCondition }
     pathwayDummy.add(
         DummyObject::simpleMechanism,
-        SimpleParameters(EmptySavingParameters, EmptyConstants, 0.8),
+        SimpleParameters(SkipSaving, EmptyConstants, 0.8),
         10
     ) { it.forCondition }
 
