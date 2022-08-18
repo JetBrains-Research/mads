@@ -37,7 +37,7 @@ abstract class ModelObject {
             return
 
         this as MO
-        pathway.mocRecords.forEach {
+        pathway.configuredMechanisms.forEach {
             val mch = applyObjectToMechanism(it.mechanism, this)
             val cnd = applyObjectToCondition(it.condition, this)
             val event = ModelEvent(mch, cnd, it.duration)

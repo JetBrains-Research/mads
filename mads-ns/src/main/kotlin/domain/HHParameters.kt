@@ -1,10 +1,12 @@
 package domain
 
-import org.jetbrains.research.mads.core.types.Constants
-import org.jetbrains.research.mads.core.types.MechanismParameters
-import org.jetbrains.research.mads.core.types.SavingParameters
+import org.jetbrains.research.mads.core.types.*
 
-data class HHParameters(
+open class HHParameters(
     override val savingParameters: SavingParameters,
     override val constants: Constants
 ) : MechanismParameters
+
+object HHParamsNoSave : HHParameters(SkipSaving, HHConstants)
+
+object HHParamsSaveToFile : HHParameters(SaveToFile, HHConstants)

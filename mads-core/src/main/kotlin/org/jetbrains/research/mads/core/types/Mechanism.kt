@@ -5,6 +5,13 @@ interface MechanismParameters {
     val constants: Constants
 }
 
+object EmptyParameters : MechanismParameters {
+    override val savingParameters: SavingParameters
+        get() = SkipSaving
+    override val constants: Constants
+        get() = EmptyConstants
+}
+
 fun <MO : ModelObject, MP : MechanismParameters> applyParametersToMechanism(
     mechanism: (MO, MP) -> List<Response>,
     params: MP

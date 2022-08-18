@@ -9,6 +9,14 @@ import org.jetbrains.research.mads.core.types.responses.DynamicResponse
 import kotlin.math.exp
 import kotlin.math.pow
 
+object HHMechanisms {
+    val IDynamic = HHCellObject::IDynamicMechanism
+    val VDynamic = HHCellObject::VDynamicMechanism
+    val HDynamic = HHCellObject::HDynamicMechanism
+    val NDynamic = HHCellObject::NDynamicMechanism
+    val MDynamic = HHCellObject::MDynamicMechanism
+}
+
 fun HHCellObject.IDynamicMechanism(params: HHParameters): List<Response> {
     val signals = this.signals[HHSignals::class] as HHSignals
     val delta: Double = 0.0
