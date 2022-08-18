@@ -5,7 +5,7 @@ import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.pathway
 
 fun hhPathway() = pathway {
-    mechanism(mechanism = HHMechanisms.IDynamic, parameters = HHParamsNoSave) {
+    mechanism(mechanism = HHMechanisms.IDynamic, parameters = HHParamsSaveToFile) {
         duration = 2
         condition = Always
     }

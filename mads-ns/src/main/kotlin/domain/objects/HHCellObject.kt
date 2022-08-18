@@ -45,6 +45,6 @@ data class HHSignals(
 ) : Signals {
     override fun clone() : Signals
     {
-        return  this.copy()
+        return this.copy()
     }
 }

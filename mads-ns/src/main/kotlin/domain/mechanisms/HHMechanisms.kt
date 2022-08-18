@@ -22,7 +22,7 @@ fun HHCellObject.IDynamicMechanism(params: HHParameters): List<Response> {
     val delta: Double = 0.0
 //    val delta = (Random.nextDouble() - 0.5)/10
 
-    val responseString = String.format("Object: %s, Signal: I", this.type)
+    val responseString = "${this.hashCode()}, dI, ${delta}\n"
 //    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.I += it })
     return arrayListOf(
         DynamicResponse(
@@ -68,7 +68,7 @@ fun HHCellObject.NDynamicMechanism(params: HHParameters): List<Response> {
 
     val delta = ((AlphaN(V) * (1.0 - n)) - (BetaN(V) * n)) * HHConstants.dt
 
-    val responseString = String.format("Object: %s, Signal: N", this.type)
+    val responseString = "${this.hashCode()}, dN, ${delta}\n"
 //    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.N += it })
     return arrayListOf(
         DynamicResponse(
@@ -90,7 +90,7 @@ fun HHCellObject.MDynamicMechanism(params: HHParameters): List<Response> {
 
     val delta = ((AlphaM(V) * (1.0 - m)) - (BetaM(V) * m)) * HHConstants.dt
 
-    val responseString = String.format("Object: %s, Signal: M", this.type)
+    val responseString = "${this.hashCode()}, dM, ${delta}\n"
 //    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.M += it })
     return arrayListOf(
         DynamicResponse(
@@ -112,7 +112,7 @@ fun HHCellObject.HDynamicMechanism(params: HHParameters): List<Response> {
 
     val delta = ((AlphaH(V) * (1.0 - h)) - (BetaH(V) * h)) * HHConstants.dt
 
-    val responseString = String.format("Object: %s, Signal: H", this.type)
+    val responseString = "${this.hashCode()}, dH, ${delta}\n"
 //    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.H += it })
     return arrayListOf(
         DynamicResponse(

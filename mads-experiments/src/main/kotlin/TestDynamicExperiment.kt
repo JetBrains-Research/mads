@@ -33,5 +33,5 @@ fun createDynamicExperiment() {
     val s = Model(arrayListOf(dynamic), config)
     s.simulate { it.currentTime() > 100 }
 
-    println((dynamic.signals as DynSignals).x)
+    println((dynamic.signals[DynSignals::class] as DynSignals).x)
 }
