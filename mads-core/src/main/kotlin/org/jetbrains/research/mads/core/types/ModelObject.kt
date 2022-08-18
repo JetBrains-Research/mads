@@ -21,33 +21,6 @@ abstract class ModelObject {
         responseMapping[RemoveObjectResponse::class] = ::removeObject
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <MO : ModelObject> createEvents(pathway: Pathway<MO>) {
-        if (events.size > 0)
-            return
-
-        this as MO
-        pathway.mocRecords.forEach {
-            val mch = applyObjectToMechanism(it.mechanism, this)
-            val cnd = applyObjectToCondition(it.condition, this)
-            val event = ModelEvent(mch, cnd, it.duration)
-            events.add(event)
-        }
-    }
-
-    fun applyResponses(responses: List<Response>): List<ModelObject> {
-        return resolveConflicts(responses).mapNotNull {
-            this.responseMapping[it::class]?.invoke(it) }.flatten()
-    }
-
-    protected open fun resolveConflicts(responses: List<Response>): List<Response> {
-        return responses
-    }
-
-    fun checkConditions() {
-        events.forEach { if (it.checkCondition()) it.prepareEvent() else it.disruptEvent() }
-    }
-
     fun getChildObjects(): Array<ModelObject> {
         return childObjects.toTypedArray()
     }
@@ -56,6 +29,34 @@ abstract class ModelObject {
         return childObjects.asSequence()
             .selectRecursive { getChildObjects().asSequence() }
             .toList()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    internal fun <MO : ModelObject> createEvents(pathway: Pathway<MO>) {
+        if (events.size > 0)
+            return
+
+        this as MO
+        pathway.configuredMechanisms.forEach {
+            val mch = applyObjectToMechanism(it.mechanism, this)
+            val cnd = applyObjectToCondition(it.condition, this)
+            val event = ModelEvent(mch, cnd, it.duration)
+            events.add(event)
+        }
+    }
+
+    internal fun applyResponses(tick: Long, responses: List<Response>): List<ModelObject> {
+        return resolveConflicts(responses).mapNotNull {
+            this.responseMapping[it::class]?.invoke(it.logFunction(tick, it))
+        }.flatten()
+    }
+
+    internal fun checkConditions() {
+        events.forEach { if (it.checkCondition()) it.prepareEvent() else it.disruptEvent() }
+    }
+
+    protected open fun resolveConflicts(responses: List<Response>): List<Response> {
+        return responses
     }
 
     private fun addObject(response: Response): List<ModelObject> {

@@ -1,16 +1,22 @@
 package domain.mechanisms
 
-import org.jetbrains.research.mads.core.types.Signals
 import domain.SimpleParameters
 import domain.objects.DynamicObject
-import org.jetbrains.research.mads.core.types.responses.DynamicResponse
 import org.jetbrains.research.mads.core.types.Response
+import org.jetbrains.research.mads.core.types.Signals
+import org.jetbrains.research.mads.core.types.responses.DynamicResponse
 
-fun DynamicObject.simpleDynamicMechanism(params: SimpleParameters) : List<Response> {
-    this.signals as DynSignals
-    val delta: Double = this.signals.x + this.signals.x / 2
+fun DynamicObject.simpleDynamicMechanism(params: SimpleParameters): List<Response> {
+    val s = this.signals[DynSignals::class] as DynSignals
+    val delta: Double = s.x + s.x / 2
     return arrayListOf(
-        DynamicResponse("Object: " + this.type + "; Probability: " + params.probability, this, delta) { this.signals.x += it })
+        DynamicResponse(
+            "Object: " + this.type + "; Probability: " + params.probability,
+            this,
+            params.savingParameters.saver::logResponse,
+            params.savingParameters.saveResponse,
+            delta
+        ) { s.x += it })
 }
 
 data class DynSignals(var x: Double = 10.0) : Signals

@@ -1,110 +1,43 @@
 package domain
 
 import domain.mechanisms.*
-import domain.objects.DynamicObject
 import domain.objects.HHCellObject
 import domain.objects.HHSignals
 import domain.objects.SynapseObject
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.Pathway
+import org.jetbrains.research.mads.core.configuration.configure
 import org.jetbrains.research.mads.core.simulation.Model
+import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
+import org.jetbrains.research.mads.core.types.responses.DynamicResponse
 import java.io.File
 import kotlin.random.Random
 import kotlin.system.measureTimeMillis
 
 fun main() {
 //    createHHCellsExperiment()
-//    createDynamicExperimentMultipleI()
-//    createHHHundredCellsExperiment()
 //    createSynapseExperiment()
     createTwoPopulationsExperiment()
 }
 
-
-
-fun createHHCellsExperiment()
-{
-    val I_exp = 8.0
-    val dynamic = HHCellObject(HHSignals(I = I_exp, V = -65.0, N = 0.32, M = 0.05, H= 0.6))
-
-    val config = Configuration()
-
-    val pathwayDynamic: Pathway<HHCellObject> = Pathway()
-    pathwayDynamic.add(HHCellObject::IDynamicMechanism, SimpleParameters(1.0), 2) { true }
-    pathwayDynamic.add(HHCellObject::VDynamicMechanism, SimpleParameters(1.0), 2) { true }
-    pathwayDynamic.add(HHCellObject::NDynamicMechanism, SimpleParameters(1.0), 2) { true }
-    pathwayDynamic.add(HHCellObject::MDynamicMechanism, SimpleParameters(1.0), 2) { true }
-    pathwayDynamic.add(HHCellObject::HDynamicMechanism, SimpleParameters(1.0), 2) { true }
-
-    config.add(HHCellObject::class, arrayListOf(pathwayDynamic))
-
-    val s = Model(arrayListOf(dynamic), config)
-
-    s.simulate { it.currentTime() > 100000 }
-
-//    var fname = "i_${I_exp}.txt"
-//
-//    File(fname).bufferedWriter().use { out ->
-//        out.write("I;V;N;M;H\n")
-//        dynamic.history.forEach {
-//            it as HHSignals
-//            out.write("${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
-//        }
-//    }
-}
-
-fun createDynamicExperimentMultipleI() {
-    for(iv in 2 .. 30 step 1) {
-        println(iv)
-        val I_exp = iv / 2.0
-        val dynamic = HHCellObject(HHSignals(I = I_exp, V = -65.0, N = 0.32, M = 0.05, H= 0.6))
-
-        val config = Configuration()
-
-        val pathwayDynamic: Pathway<HHCellObject> = Pathway()
-        pathwayDynamic.add(HHCellObject::IDynamicMechanism, SimpleParameters(1.0), 2) { true }
-        pathwayDynamic.add(HHCellObject::VDynamicMechanism, SimpleParameters(1.0), 2) { true }
-        pathwayDynamic.add(HHCellObject::NDynamicMechanism, SimpleParameters(1.0), 2) { true }
-        pathwayDynamic.add(HHCellObject::MDynamicMechanism, SimpleParameters(1.0), 2) { true }
-        pathwayDynamic.add(HHCellObject::HDynamicMechanism, SimpleParameters(1.0), 2) { true }
-
-
-        config.add(HHCellObject::class, arrayListOf(pathwayDynamic))
-
-        val s = Model(arrayListOf(dynamic), config)
-        s.simulate { it.currentTime() > 100_000 }
-    }
-}
-
-fun createHHHundredCellsExperiment()
-{
+fun createHHCellsExperiment() {
+    FileSaver.initModelWriters("log/${System.currentTimeMillis()}/", setOf(DynamicResponse::class))
     val I_exp = 8.0
 
-    val cells : ArrayList<HHCellObject> = arrayListOf()
-    val neuronCount = 10000
+    val cells: ArrayList<HHCellObject> = arrayListOf()
+    val neuronCount = 10_000
     for (i in 0 until neuronCount) {
-        cells.add(HHCellObject(HHSignals(I = I_exp, V = -65.0, N = 0.32, M = 0.05, H= 0.6)))
+        cells.add(HHCellObject(HHSignals(I_e = I_exp, V = -65.0, N = 0.32, M = 0.05, H = 0.6)))
     }
 
-    val config = Configuration()
-
-    val pathwayDynamic: Pathway<HHCellObject> = Pathway()
-    pathwayDynamic.add(HHCellObject::IDynamicMechanism, SimpleParameters(1.0), 2) { true }
-    pathwayDynamic.add(HHCellObject::VDynamicMechanism, SimpleParameters(1.0), 2) { true }
-    pathwayDynamic.add(HHCellObject::NDynamicMechanism, SimpleParameters(1.0), 2) { true }
-    pathwayDynamic.add(HHCellObject::MDynamicMechanism, SimpleParameters(1.0), 2) { true }
-    pathwayDynamic.add(HHCellObject::HDynamicMechanism, SimpleParameters(1.0), 2) { true }
-
-    config.add(HHCellObject::class, arrayListOf(pathwayDynamic))
+    val config = configure {
+        addPathway(hhPathway())
+    }
 
     val s = Model(cells, config)
-
-    val elapsed = measureTimeMillis {
-        s.simulate { it.currentTime() > 100_000 }
-    }
-    println("Time taken: $elapsed")
-    println("Already calculated")
+    s.simulate { it.currentTime() > 10_000 }
+    FileSaver.closeModelWriters()
 }
 
 fun createSynapseExperiment()
@@ -150,14 +83,14 @@ fun createTwoPopulationsExperiment() {
 
     for (i in 0 until excCount) {
         excCells.add(HHCellObject(HHSignals(I = I_exp, V = Random.nextDouble(-65.0, 0.0), N = 0.32, M = 0.05, H= 0.6),
-                    constantCurrent = false))
+            constantCurrent = false))
     }
 
     val inhibCells : ArrayList<HHCellObject> = arrayListOf()
 
     for (i in 0 until inhCount) {
         inhibCells.add(HHCellObject(HHSignals(I = 5.0, V = Random.nextDouble(-65.0, 0.0), N = 0.32, M = 0.05, H= 0.6),
-                        constantCurrent = false))
+            constantCurrent = false))
     }
 
     val synapses : ArrayList<SynapseObject> = arrayListOf()
