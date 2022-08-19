@@ -2,6 +2,7 @@ package org.jetbrains.research.mads_ns.hh
 
 import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads.core.types.SignalsObject
+import org.jetbrains.research.mads_ns.synapses.SynapseSignals
 
 class HHCell(current: CurrentSignals, hh: HHSignals, val constantCurrent: Boolean = true) : SignalsObject(current, hh) {
     fun updateI(delta: Double) {
@@ -12,6 +13,11 @@ class HHCell(current: CurrentSignals, hh: HHSignals, val constantCurrent: Boolea
     fun updateV(delta: Double) {
         val sig = this.signals[HHSignals::class] as HHSignals
         sig.V += delta
+    }
+
+    fun updateSpiked(newValue: Boolean) {
+        val sig = this.signals[HHSignals::class] as HHSignals
+        sig.spiked = newValue
     }
 
     fun updateN(delta: Double) {
@@ -28,18 +34,12 @@ class HHCell(current: CurrentSignals, hh: HHSignals, val constantCurrent: Boolea
         val sig = this.signals[HHSignals::class] as HHSignals
         sig.H += delta
     }
-
-    fun updateIexternal(delta: Double) {
-        val sig = this.signals[HHSignals::class] as HHSignals
-        sig.I_ext += delta
-    }
 }
 
 data class CurrentSignals(
     var I_e: Double = 8.0,
 ) : Signals {
-    override fun clone() : Signals
-    {
+    override fun clone(): Signals {
         return this.copy()
     }
 }
@@ -49,10 +49,10 @@ data class HHSignals(
     var N: Double = 0.32,
     var M: Double = 0.05,
     var H: Double = 0.6,
-    var I_ext: Double = 0.0
+    var spiked: Boolean = false,
+    var spikeThreshold: Double = 25.0,
 ) : Signals {
-    override fun clone() : Signals
-    {
+    override fun clone(): Signals {
         return this.copy()
     }
 }

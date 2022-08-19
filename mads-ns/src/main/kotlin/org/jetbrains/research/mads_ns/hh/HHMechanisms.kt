@@ -1,16 +1,19 @@
 package org.jetbrains.research.mads_ns.hh
 
+import org.jetbrains.research.mads.core.telemetry.EmptySaver
 import org.jetbrains.research.mads.core.types.Response
 import org.jetbrains.research.mads.core.types.SignalsObject
+import org.jetbrains.research.mads.core.types.responses.SignalBooleanChangeResponse
 import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
 import org.jetbrains.research.mads_ns.electrode.ElectrodeConnection
-import org.jetbrains.research.mads_ns.synapses.SynapseReceiver
+import org.jetbrains.research.mads_ns.synapses.*
 import kotlin.math.exp
 import kotlin.math.pow
 
 object HHMechanisms {
     val IDynamic = HHCell::IDynamic
     val VDynamic = HHCell::VDynamic
+    val SpikeTransfer = HHCell::spikeTransfer
     val HDynamic = HHCell::HDynamic
     val NDynamic = HHCell::NDynamic
     val MDynamic = HHCell::MDynamic
@@ -69,6 +72,70 @@ fun HHCell.VDynamic(params: HHParameters): List<Response> {
             this::updateV
         )
     )
+}
+
+fun HHCell.spikeTransfer(params: HHParameters): List<Response> {
+    val signals = this.signals[HHSignals::class] as HHSignals
+    val result = arrayListOf<Response>()
+
+    if (signals.V >= signals.spikeThreshold && !signals.spiked) {
+        this.connections[SynapseReleaser]?.forEach {
+            if (it is Synapse) {
+                val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
+                val delta = synapseSignals.weight * synapseSignals.synapseSign * 100.0 // 100.0 – mA
+                result.add(
+                    SignalDoubleChangeResponse(
+                        "${it.hashCode()}, dI, ${delta}\n",
+                        this,
+                        params.savingParameters.saver::logResponse,
+                        params.savingParameters.saveResponse,
+                        delta,
+                        it::updateI
+                    )
+                )
+            }
+        }
+
+        result.add(
+            SignalBooleanChangeResponse(
+                "${this.hashCode()}, +\n",
+                this,
+                params.savingParameters.saver::logResponse,
+                params.savingParameters.saveResponse,
+                true,
+                this::updateSpiked
+            )
+        )
+    } else if (signals.V < signals.spikeThreshold && signals.spiked) {
+        this.connections[SynapseReleaser]?.forEach {
+            if (it is Synapse) {
+                val delta = 0.0
+                result.add(
+                    SignalDoubleChangeResponse(
+                        "${it.hashCode()}, dI, ${delta}\n",
+                        this,
+                        params.savingParameters.saver::logResponse,
+                        params.savingParameters.saveResponse,
+                        delta,
+                        it::updateI
+                    )
+                )
+            }
+        }
+
+        result.add(
+            SignalBooleanChangeResponse(
+                response = "${this.hashCode()}, -\n",
+                sourceObject = this,
+                EmptySaver::logResponse,            // We don't save any responses from + to -
+                logResponse = false,
+                value = false,
+                this::updateSpiked
+            )
+        )
+    }
+
+    return result
 }
 
 fun HHCell.NDynamic(params: HHParameters): List<Response> {

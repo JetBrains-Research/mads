@@ -2,14 +2,17 @@ package org.jetbrains.research.mads_ns.synapses
 
 import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads.core.types.SignalsObject
+import org.jetbrains.research.mads_ns.hh.CurrentSignals
 import org.jetbrains.research.mads_ns.hh.HHCell
+import org.jetbrains.research.mads_ns.hh.HHSignals
 
-class SynapseObject(
+class Synapse(
     var releaser: HHCell,
     var receiver: HHCell,
     isInhibitory: Boolean = false,
-    vararg signals: Signals
-) : SignalsObject(*signals) {
+    current: CurrentSignals,
+    synapse: SynapseSignals
+) : SignalsObject(current, synapse) {
 
     init {
         val sig = this.signals[SynapseSignals::class] as SynapseSignals
@@ -21,9 +24,9 @@ class SynapseObject(
         }
     }
 
-    fun updateSpiked(newValue: Boolean) {
-        val sig = this.signals[SynapseSignals::class] as SynapseSignals
-        sig.spiked = newValue
+    fun updateI(delta: Double) {
+        val sig = this.signals[CurrentSignals::class] as CurrentSignals
+        sig.I_e = delta
     }
 
     fun updateWeight(newValue: Double) {
@@ -34,8 +37,6 @@ class SynapseObject(
 
 data class SynapseSignals(
     var weight: Double = 1.0,
-    var spiked: Boolean = false,
-    var spikeThreshold: Double = 25.0,
     var synapseSign: Double = 1.0,
 ) : Signals {
     override fun clone(): Signals {
