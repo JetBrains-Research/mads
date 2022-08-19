@@ -5,10 +5,12 @@ import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.responses.SignalBooleanChangeResponse
-import org.jetbrains.research.mads.core.types.responses.SignalChangeResponse
 import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
-import org.jetbrains.research.mads_ns.hh.HHCellObject
+import org.jetbrains.research.mads_ns.electrode.Electrode
+import org.jetbrains.research.mads_ns.hh.CurrentSignals
+import org.jetbrains.research.mads_ns.hh.HHCell
 import org.jetbrains.research.mads_ns.hh.HHSignals
+import org.jetbrains.research.mads_ns.pathways.electrodePathway
 import org.jetbrains.research.mads_ns.pathways.hhPathway
 import org.jetbrains.research.mads_ns.pathways.synapsePathway
 import org.jetbrains.research.mads_ns.synapses.SynapseObject
@@ -17,35 +19,42 @@ import kotlin.random.Random
 import kotlin.system.measureTimeMillis
 
 fun main() {
-//    createHHCellsExperiment()
+    createHHCellsExperiment()
 //    createSynapseExperiment()
-    createTwoPopulationsExperiment()
+//    createTwoPopulationsExperiment()
 }
 
 fun createHHCellsExperiment() {
-    FileSaver.initModelWriters("log/${System.currentTimeMillis()}/", setOf(SignalChangeResponse::class))
+    FileSaver.initModelWriters("log/${System.currentTimeMillis()}/", setOf(SignalDoubleChangeResponse::class))
     val I_exp = 8.0
+    val rnd: Random = Random(12345L)
 
-    val cells: ArrayList<HHCellObject> = arrayListOf()
-    val neuronCount = 10_000
+    val objects: ArrayList<ModelObject> = arrayListOf()
+    val neuronCount = 1
     for (i in 0 until neuronCount) {
-        cells.add(HHCellObject(HHSignals(I_e = I_exp, V = -65.0, N = 0.32, M = 0.05, H = 0.6)))
+        val cell = HHCell(CurrentSignals(I_e = 0.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+        val electrode = Electrode(CurrentSignals(I_e = I_exp), rnd)
+        electrode.connectToHHCell(cell)
+        objects.add(cell)
+        objects.add(electrode)
     }
 
     val config = configure {
+        addPathway(electrodePathway())
         addPathway(hhPathway())
     }
 
-    val s = Model(cells, config)
+    val s = Model(objects, config)
     s.simulate { it.currentTime() > 10_000 }
     FileSaver.closeModelWriters()
 }
 
 fun createSynapseExperiment() {
+    FileSaver.initModelWriters("log/${System.currentTimeMillis()}/", setOf(SignalDoubleChangeResponse::class, SignalBooleanChangeResponse::class))
     val I_exp = 8.0
 
-    val cellSource = HHCellObject(HHSignals(I_e = I_exp, V = 0.0, N = 0.32, M = 0.05, H = 0.6))
-    val cellDest = HHCellObject(HHSignals(I_e = I_exp, V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+    val cellSource = HHCell(CurrentSignals(I_e = I_exp), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+    val cellDest = HHCell(CurrentSignals(I_e = I_exp), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
 
     val synapse = SynapseObject(cellSource, cellDest, false, SynapseSignals())
 
@@ -58,6 +67,8 @@ fun createSynapseExperiment() {
     val elapsed = measureTimeMillis {
         s.simulate { it.currentTime() > 100_000 }
     }
+
+    FileSaver.closeModelWriters()
     println("Time taken: $elapsed")
     println("Already calculated")
 }
@@ -69,23 +80,25 @@ fun createTwoPopulationsExperiment() {
     val excCount = 80
     val inhCount = 20
 
-    val excCells: ArrayList<HHCellObject> = arrayListOf()
+    val excCells: ArrayList<HHCell> = arrayListOf()
 
     for (i in 0 until excCount) {
         excCells.add(
-            HHCellObject(
-                HHSignals(I_e = I_exp, V = Random.nextDouble(-65.0, 0.0), N = 0.32, M = 0.05, H = 0.6),
+            HHCell(
+                CurrentSignals(I_e = I_exp),
+                HHSignals(V = Random.nextDouble(-65.0, 0.0), N = 0.32, M = 0.05, H = 0.6),
                 constantCurrent = false
             )
         )
     }
 
-    val inhibCells: ArrayList<HHCellObject> = arrayListOf()
+    val inhibCells: ArrayList<HHCell> = arrayListOf()
 
     for (i in 0 until inhCount) {
         inhibCells.add(
-            HHCellObject(
-                HHSignals(I_e = 5.0, V = Random.nextDouble(-65.0, 0.0), N = 0.32, M = 0.05, H = 0.6),
+            HHCell(
+                CurrentSignals(I_e = 5.0),
+                HHSignals(V = Random.nextDouble(-65.0, 0.0), N = 0.32, M = 0.05, H = 0.6),
                 constantCurrent = false
             )
         )

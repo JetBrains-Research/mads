@@ -13,7 +13,7 @@ object SynapseMechanisms {
 
 fun SynapseObject.spikeTransferMechanism(params: SynapseParameters): List<Response> {
     val synapseSignals = this.signals[SynapseSignals::class] as SynapseSignals
-    val sourceHHSignals = objectLeft.signals[HHSignals::class] as HHSignals
+    val sourceHHSignals = releaser.signals[HHSignals::class] as HHSignals
 //    val destSignals = objectRight.signals[HHSignals::class] as HHSignals
 
     if (sourceHHSignals.V >= synapseSignals.spikeThreshold) {
@@ -30,12 +30,12 @@ fun SynapseObject.spikeTransferMechanism(params: SynapseParameters): List<Respon
                     this::updateSpiked
                 ),
                 SignalDoubleChangeResponse(
-                    "${objectRight.hashCode()}, dI_ext, ${delta}\n",
+                    "${receiver.hashCode()}, dI_ext, ${delta}\n",
                     this,
                     params.savingParameters.saver::logResponse,
                     params.savingParameters.saveResponse,
                     delta,
-                    objectRight::updateIexternal
+                    receiver::updateIexternal
                 )
             )
         }

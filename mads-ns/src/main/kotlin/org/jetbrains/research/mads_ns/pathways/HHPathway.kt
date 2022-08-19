@@ -1,12 +1,10 @@
 package org.jetbrains.research.mads_ns.pathways
 
-import org.jetbrains.research.mads_ns.hh.HHMechanisms
-import org.jetbrains.research.mads_ns.hh.HHParamsNoSave
-import org.jetbrains.research.mads_ns.hh.HHParamsSaveToFile
 import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.pathway
+import org.jetbrains.research.mads_ns.hh.*
 
-fun hhPathway() = pathway {
+fun hhPathway() = pathway<HHCell> {
     mechanism(mechanism = HHMechanisms.IDynamic, parameters = HHParamsSaveToFile) {
         duration = 2
         condition = Always

@@ -1,24 +1,38 @@
 package org.jetbrains.research.mads_ns.hh
 
 import org.jetbrains.research.mads.core.types.Response
+import org.jetbrains.research.mads.core.types.SignalsObject
 import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
+import org.jetbrains.research.mads_ns.electrode.ElectrodeConnection
+import org.jetbrains.research.mads_ns.synapses.SynapseReceiver
 import kotlin.math.exp
 import kotlin.math.pow
 
 object HHMechanisms {
-    val IDynamic = HHCellObject::IDynamicMechanism
-    val VDynamic = HHCellObject::VDynamicMechanism
-    val HDynamic = HHCellObject::HDynamicMechanism
-    val NDynamic = HHCellObject::NDynamicMechanism
-    val MDynamic = HHCellObject::MDynamicMechanism
+    val IDynamic = HHCell::IDynamic
+    val VDynamic = HHCell::VDynamic
+    val HDynamic = HHCell::HDynamic
+    val NDynamic = HHCell::NDynamic
+    val MDynamic = HHCell::MDynamic
 }
 
-fun HHCellObject.IDynamicMechanism(params: HHParameters): List<Response> {
-    val signals = this.signals[HHSignals::class] as HHSignals
-    val delta: Double = 0.0
-//    val delta = (Random.nextDouble() - 0.5)/10
+fun HHCell.IDynamic(params: HHParameters): List<Response> {
+    var I_e = 0.0
 
-    val responseString = "${this.hashCode()}, dI, ${delta}\n"
+    this.connections[ElectrodeConnection]?.forEach {
+        if (it is SignalsObject) {
+            val signals = it.signals[CurrentSignals::class] as CurrentSignals
+            I_e += signals.I_e
+        }
+    }
+    this.connections[SynapseReceiver]?.forEach {
+        if (it is SignalsObject) {
+            val signals = it.signals[CurrentSignals::class] as CurrentSignals
+            I_e += signals.I_e
+        }
+    }
+
+    val responseString = "${this.hashCode()}, I_e, ${I_e}\n"
 //    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.I += it })
     return arrayListOf(
         SignalDoubleChangeResponse(
@@ -26,21 +40,22 @@ fun HHCellObject.IDynamicMechanism(params: HHParameters): List<Response> {
             this,
             params.savingParameters.saver::logResponse,
             params.savingParameters.saveResponse,
-            delta,
+            I_e,
             this::updateI
         )
     )
 }
 
-fun HHCellObject.VDynamicMechanism(params: HHParameters): List<Response> {
+fun HHCell.VDynamic(params: HHParameters): List<Response> {
     val s = this.signals[HHSignals::class] as HHSignals
+    val i = this.signals[CurrentSignals::class] as CurrentSignals
     val c = params.constants as HHConstants
 
-    val IK = c.g_K * s.N.pow(4.0) * (s.V - c.E_K);
-    val INa = c.g_Na * s.M.pow(3.0) * s.H * (s.V - c.E_Na);
-    val IL = c.g_L * (s.V - c.E_L);
+    val IK = c.g_K * s.N.pow(4.0) * (s.V - c.E_K)
+    val INa = c.g_Na * s.M.pow(3.0) * s.H * (s.V - c.E_Na)
+    val IL = c.g_L * (s.V - c.E_L)
 
-    val delta = ((s.I_e - IK - INa - IL) / c.C_m) * c.dt
+    val delta = ((i.I_e - IK - INa - IL) / c.C_m) * c.dt
 
     val responseString = "${this.hashCode()}, dV, ${delta}\n"
 //    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.V += it })
@@ -56,7 +71,7 @@ fun HHCellObject.VDynamicMechanism(params: HHParameters): List<Response> {
     )
 }
 
-fun HHCellObject.NDynamicMechanism(params: HHParameters): List<Response> {
+fun HHCell.NDynamic(params: HHParameters): List<Response> {
     val signals = this.signals[HHSignals::class] as HHSignals
 
     val V = signals.V
@@ -78,7 +93,7 @@ fun HHCellObject.NDynamicMechanism(params: HHParameters): List<Response> {
     )
 }
 
-fun HHCellObject.MDynamicMechanism(params: HHParameters): List<Response> {
+fun HHCell.MDynamic(params: HHParameters): List<Response> {
     val signals = this.signals[HHSignals::class] as HHSignals
 
     val V = signals.V
@@ -100,7 +115,7 @@ fun HHCellObject.MDynamicMechanism(params: HHParameters): List<Response> {
     )
 }
 
-fun HHCellObject.HDynamicMechanism(params: HHParameters): List<Response> {
+fun HHCell.HDynamic(params: HHParameters): List<Response> {
     val signals = this.signals[HHSignals::class] as HHSignals
 
     val V = signals.V
