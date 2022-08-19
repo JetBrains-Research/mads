@@ -1,4 +1,4 @@
-package domain
+package org.jetbrains.research.mads_ns.synapses
 
 import org.jetbrains.research.mads.core.types.*
 
@@ -9,4 +9,4 @@ open class SynapseParameters(
 
 object SynapseParamsNoSave : SynapseParameters(SkipSaving, EmptyConstants)
 
-object SynapseParamsSaveToFile : SynapseParameters(SaveToFile, EmptyConstants)
+object SynapseParamsSaveToFile : SynapseParameters(SaveToFile, SynapseConstants)

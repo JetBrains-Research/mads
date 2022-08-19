@@ -1,6 +1,8 @@
-package domain
+package org.jetbrains.research.mads_ns.pathways
 
-import domain.mechanisms.HHMechanisms
+import org.jetbrains.research.mads_ns.hh.HHMechanisms
+import org.jetbrains.research.mads_ns.hh.HHParamsNoSave
+import org.jetbrains.research.mads_ns.hh.HHParamsSaveToFile
 import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.pathway
 

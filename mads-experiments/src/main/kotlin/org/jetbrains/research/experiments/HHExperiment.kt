@@ -1,15 +1,18 @@
-package domain
+package org.jetbrains.research.experiments
 
-import domain.mechanisms.SynapseMechanisms
-import domain.objects.HHCellObject
-import domain.objects.HHSignals
-import domain.objects.SynapseObject
 import org.jetbrains.research.mads.core.configuration.configure
-import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.responses.DynamicResponse
+import org.jetbrains.research.mads.core.types.responses.SignalBooleanChangeResponse
+import org.jetbrains.research.mads.core.types.responses.SignalChangeResponse
+import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
+import org.jetbrains.research.mads_ns.hh.HHCellObject
+import org.jetbrains.research.mads_ns.hh.HHSignals
+import org.jetbrains.research.mads_ns.pathways.hhPathway
+import org.jetbrains.research.mads_ns.pathways.synapsePathway
+import org.jetbrains.research.mads_ns.synapses.SynapseObject
+import org.jetbrains.research.mads_ns.synapses.SynapseSignals
 import kotlin.random.Random
 import kotlin.system.measureTimeMillis
 
@@ -20,7 +23,7 @@ fun main() {
 }
 
 fun createHHCellsExperiment() {
-    FileSaver.initModelWriters("log/${System.currentTimeMillis()}/", setOf(DynamicResponse::class))
+    FileSaver.initModelWriters("log/${System.currentTimeMillis()}/", setOf(SignalChangeResponse::class))
     val I_exp = 8.0
 
     val cells: ArrayList<HHCellObject> = arrayListOf()
@@ -44,18 +47,11 @@ fun createSynapseExperiment() {
     val cellSource = HHCellObject(HHSignals(I_e = I_exp, V = 0.0, N = 0.32, M = 0.05, H = 0.6))
     val cellDest = HHCellObject(HHSignals(I_e = I_exp, V = -65.0, N = 0.32, M = 0.05, H = 0.6))
 
-    val synapse = SynapseObject(cellSource, cellDest)
+    val synapse = SynapseObject(cellSource, cellDest, false, SynapseSignals())
 
     val config = configure {
         addPathway(hhPathway())
-        addPathway(pathway<SynapseObject> {
-            mechanism(mechanism = SynapseMechanisms.SpikeTransfer, SynapseParamsNoSave) {
-                duration = 2
-            }
-            mechanism(mechanism = SynapseMechanisms.SynapseDecay, SynapseParamsNoSave) {
-                duration = 10
-            }
-        })
+        addPathway(synapsePathway())
     }
     val s = Model(arrayListOf(cellSource, cellDest, synapse), config)
 
@@ -67,7 +63,7 @@ fun createSynapseExperiment() {
 }
 
 fun createTwoPopulationsExperiment() {
-    FileSaver.initModelWriters("log/${System.currentTimeMillis()}/", setOf(DynamicResponse::class))
+    FileSaver.initModelWriters("log/${System.currentTimeMillis()}/", setOf(SignalDoubleChangeResponse::class, SignalBooleanChangeResponse::class))
 
     val I_exp = 8.0
     val excCount = 80
@@ -100,7 +96,7 @@ fun createTwoPopulationsExperiment() {
     for (i in 0 until excCount) {
         for (j in 0 until excCount) {
             if (i != j) {
-                val synapse = SynapseObject(excCells[i], excCells[j])
+                val synapse = SynapseObject(excCells[i], excCells[j],false, SynapseSignals())
                 synapses.add(synapse)
             }
         }
@@ -108,7 +104,7 @@ fun createTwoPopulationsExperiment() {
 
     for (i in 0 until excCount) {
         for (j in 0 until inhCount) {
-            val synapse = SynapseObject(excCells[i], inhibCells[j])
+            val synapse = SynapseObject(excCells[i], inhibCells[j],false, SynapseSignals())
             synapses.add(synapse)
         }
     }
@@ -116,7 +112,7 @@ fun createTwoPopulationsExperiment() {
     for (i in 0 until inhCount) {
         for (j in 0 until inhCount) {
             if (i != j) {
-                val synapse = SynapseObject(inhibCells[i], inhibCells[j], isInhibitory = true)
+                val synapse = SynapseObject(inhibCells[i], inhibCells[j], isInhibitory = true, SynapseSignals())
                 synapses.add(synapse)
             }
         }
@@ -138,14 +134,7 @@ fun createTwoPopulationsExperiment() {
 
     val config = configure {
         addPathway(hhPathway())
-        addPathway(pathway<SynapseObject> {
-            mechanism(mechanism = SynapseMechanisms.SpikeTransfer, SynapseParamsNoSave) {
-                duration = 2
-            }
-//            mechanism(mechanism = SynapseMechanisms.SynapseDecay, SynapseParamsNoSave) {
-//                duration = 10
-//            }
-        })
+        addPathway(synapsePathway())
     }
 
     val s = Model(allObjects, config)
@@ -156,33 +145,4 @@ fun createTwoPopulationsExperiment() {
     FileSaver.closeModelWriters()
     println("Time taken: $elapsed")
     println("Already calculated")
-
-//    for (i in 0 until excCount) {
-//        val fname = "mads_data//exc_${i}th_neuron.txt"
-//        File(fname).bufferedWriter().use { out ->
-//            out.write("I_ext;I;V;N;M;H\n")
-//
-//            var cellHist = excCells[i].history[HHSignals::class]
-//
-//            cellHist?.forEach {
-//                it as HHSignals
-//                out.write("${it.I_ext};${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
-//            }
-//        }
-//    }
-//
-//    for (i in 0 until inhCount) {
-//        val fname = "mads_data//inh_${i}th_neuron.txt"
-//        File(fname).bufferedWriter().use { out ->
-//            out.write("I_ext;I;V;N;M;H\n")
-//
-//            var cellHist = inhibCells[i].history[HHSignals::class]
-//
-//            cellHist?.forEach {
-//                it as HHSignals
-//                out.write("${it.I_ext};${it.I};${it.V}; ${it.N};${it.M};${it.H}\n")
-//            }
-//        }
-//    }
-
 }

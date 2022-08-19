@@ -1,11 +1,13 @@
-package domain
+package org.jetbrains.research.mads.core.test_domain
 
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.Response
+import java.util.*
 
-class DummyObject: ModelObject() {
-    override val type = "dummy object"
+open class SimpleObject : ModelObject() {
+    override val type = "simple object"
     val forCondition = true
+    val rnd = Random(12345L)
 
     init {
         responseMapping[SimpleResponse::class] = ::printResponse

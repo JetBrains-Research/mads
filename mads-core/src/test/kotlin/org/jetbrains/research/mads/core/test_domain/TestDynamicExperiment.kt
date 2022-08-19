@@ -1,9 +1,5 @@
-package domain
+package org.jetbrains.research.mads.core.test_domain
 
-import domain.mechanisms.DynSignals
-import domain.mechanisms.simpleDynamicMechanism
-import domain.objects.DynamicObject
-import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.configuration.configure
 import org.jetbrains.research.mads.core.configuration.pathway

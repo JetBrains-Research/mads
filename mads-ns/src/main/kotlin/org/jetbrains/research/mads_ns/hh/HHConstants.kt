@@ -1,4 +1,4 @@
-package domain
+package org.jetbrains.research.mads_ns.hh
 
 import org.jetbrains.research.mads.core.types.Constants
 

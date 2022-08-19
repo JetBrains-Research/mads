@@ -1,9 +1,9 @@
-package domain.objects
+package org.jetbrains.research.mads_ns.hh
 
 import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads.core.types.SignalsObject
 
-class HHCellObject(vararg sig: Signals, val constantCurrent: Boolean = true) : SignalsObject(*sig) {
+class HHCellObject(vararg signals: Signals, val constantCurrent: Boolean = true) : SignalsObject(*signals) {
     fun updateI(delta: Double) {
         val sig = this.signals[HHSignals::class] as HHSignals
         sig.I_e += delta

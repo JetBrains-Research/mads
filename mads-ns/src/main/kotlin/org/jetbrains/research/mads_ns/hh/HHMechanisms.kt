@@ -1,11 +1,7 @@
-package domain.mechanisms
+package org.jetbrains.research.mads_ns.hh
 
-import domain.HHConstants
-import domain.HHParameters
-import domain.objects.HHCellObject
-import domain.objects.HHSignals
 import org.jetbrains.research.mads.core.types.Response
-import org.jetbrains.research.mads.core.types.responses.DynamicResponse
+import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
 import kotlin.math.exp
 import kotlin.math.pow
 
@@ -25,7 +21,7 @@ fun HHCellObject.IDynamicMechanism(params: HHParameters): List<Response> {
     val responseString = "${this.hashCode()}, dI, ${delta}\n"
 //    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.I += it })
     return arrayListOf(
-        DynamicResponse(
+        SignalDoubleChangeResponse(
             responseString,
             this,
             params.savingParameters.saver::logResponse,
@@ -49,7 +45,7 @@ fun HHCellObject.VDynamicMechanism(params: HHParameters): List<Response> {
     val responseString = "${this.hashCode()}, dV, ${delta}\n"
 //    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.V += it })
     return arrayListOf(
-        DynamicResponse(
+        SignalDoubleChangeResponse(
             responseString,
             this,
             params.savingParameters.saver::logResponse,
@@ -71,7 +67,7 @@ fun HHCellObject.NDynamicMechanism(params: HHParameters): List<Response> {
     val responseString = "${this.hashCode()}, dN, ${delta}\n"
 //    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.N += it })
     return arrayListOf(
-        DynamicResponse(
+        SignalDoubleChangeResponse(
             responseString,
             this,
             params.savingParameters.saver::logResponse,
@@ -93,7 +89,7 @@ fun HHCellObject.MDynamicMechanism(params: HHParameters): List<Response> {
     val responseString = "${this.hashCode()}, dM, ${delta}\n"
 //    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.M += it })
     return arrayListOf(
-        DynamicResponse(
+        SignalDoubleChangeResponse(
             responseString,
             this,
             params.savingParameters.saver::logResponse,
@@ -115,7 +111,7 @@ fun HHCellObject.HDynamicMechanism(params: HHParameters): List<Response> {
     val responseString = "${this.hashCode()}, dH, ${delta}\n"
 //    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.H += it })
     return arrayListOf(
-        DynamicResponse(
+        SignalDoubleChangeResponse(
             responseString,
             this,
             params.savingParameters.saver::logResponse,

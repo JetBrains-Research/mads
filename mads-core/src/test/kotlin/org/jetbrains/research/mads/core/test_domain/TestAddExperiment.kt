@@ -1,8 +1,5 @@
-package domain
+package org.jetbrains.research.mads.core.test_domain
 
-import domain.mechanisms.simpleAddMechanism
-import domain.mechanisms.simpleMechanism
-import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.configuration.configure
 import org.jetbrains.research.mads.core.configuration.pathway

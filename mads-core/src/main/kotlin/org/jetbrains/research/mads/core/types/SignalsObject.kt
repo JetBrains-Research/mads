@@ -1,26 +1,40 @@
 package org.jetbrains.research.mads.core.types
 
-import org.jetbrains.research.mads.core.types.responses.DynamicResponse
+import org.jetbrains.research.mads.core.types.responses.SignalBooleanChangeResponse
+import org.jetbrains.research.mads.core.types.responses.SignalChangeResponse
+import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
+import org.jetbrains.research.mads.core.types.responses.SignalIntChangeResponse
 import kotlin.reflect.KClass
 
 open class SignalsObject(vararg signals: Signals) : ModelObject() {
     override val type = "physical object"
     val signals: MutableMap<KClass<out Signals>, Signals> = mutableMapOf()
-//    val history: MutableMap<KClass<out Signals>, MutableList<Signals>> = mutableMapOf()
 
     init {
-        responseMapping[DynamicResponse::class] = ::dynamicResponse
+        responseMapping[SignalBooleanChangeResponse::class] = ::signalChangedResponse
+        responseMapping[SignalIntChangeResponse::class] = ::signalChangedResponse
+        responseMapping[SignalDoubleChangeResponse::class] = ::signalChangedResponse
         signals.forEach { this.signals[it::class] = it }
-//        signals.forEach { this.history[it::class] = mutableListOf() }
     }
 
-    private fun dynamicResponse(response: Response): List<ModelObject> {
-        if (response is DynamicResponse) {
-            response.updateFn(response.delta)
+    private fun signalChangedResponse(response: Response): List<ModelObject> {
+        when (response::class) {
+            SignalBooleanChangeResponse::class -> {
+                response as SignalBooleanChangeResponse
+                response.updateFn(response.value)
+            }
 
-//            this.signals.forEach {
-//                this.history[it.key]?.add(it.value.clone())
-//            }
+            SignalIntChangeResponse::class -> {
+                response as SignalIntChangeResponse
+                response.updateFn(response.value)
+            }
+
+            SignalDoubleChangeResponse::class -> {
+                response as SignalDoubleChangeResponse
+                response.updateFn(response.value)
+            }
+
+            else -> println("Signal update type not supported")
         }
 
         return arrayListOf(this)
