@@ -1,4 +1,4 @@
-package domain
+package org.jetbrains.research.mads.core.test_domain
 
 import org.jetbrains.research.mads.core.types.Constants
 import org.jetbrains.research.mads.core.types.MechanismParameters

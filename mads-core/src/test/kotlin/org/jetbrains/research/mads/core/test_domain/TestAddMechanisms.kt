@@ -1,9 +1,5 @@
-package domain.mechanisms
+package org.jetbrains.research.mads.core.test_domain
 
-import domain.DummyObject
-import domain.SimpleObject
-import domain.SimpleParameters
-import domain.SimpleResponse
 import org.jetbrains.research.mads.core.types.Response
 import org.jetbrains.research.mads.core.types.responses.AddObjectResponse
 
