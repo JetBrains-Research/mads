@@ -6,20 +6,57 @@ import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.responses.SignalBooleanChangeResponse
 import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
+import org.jetbrains.research.mads_ns.data_provider.MnistProvider
 import org.jetbrains.research.mads_ns.electrode.Electrode
+import org.jetbrains.research.mads_ns.electrode.ElectrodeArray
 import org.jetbrains.research.mads_ns.hh.CurrentSignals
 import org.jetbrains.research.mads_ns.hh.HHCell
 import org.jetbrains.research.mads_ns.hh.HHSignals
 import org.jetbrains.research.mads_ns.pathways.*
 import org.jetbrains.research.mads_ns.synapses.Synapse
 import org.jetbrains.research.mads_ns.synapses.SynapseSignals
+import java.io.File
+import javax.imageio.ImageIO
 import kotlin.random.Random
 import kotlin.system.measureTimeMillis
 
 fun main() {
 //    createHHCellsExperiment()
-    createSynapseExperiment()
+//    createSynapseExperiment()
 //    createTwoPopulationsExperiment()
+    createTrainingExperiment()
+}
+
+fun createTrainingExperiment() {
+    FileSaver.initModelWriters("log/${System.currentTimeMillis()}/", setOf(SignalDoubleChangeResponse::class))
+
+    val targetClasses = arrayListOf<String>("0", "1")
+    val provider = MnistProvider("C:\\projects\\mads\\mads_data\\MNIST_training\\", targetClasses)
+    val electrodesArray = ElectrodeArray(provider, 10.0)
+
+    val objects: ArrayList<ModelObject> = arrayListOf()
+
+    objects.add(electrodesArray)
+
+    for(i in 0 .. provider.width - 1) {
+        for(j in 0 .. provider.height - 1) {
+            val cell = HHCell(CurrentSignals(I_e = 0.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+            val electrode = electrodesArray.getElectrodeByCoordinate(i, j)
+            electrode.connectToCell(cell)
+            objects.add(cell)
+        }
+    }
+
+    val config = configure {
+//        addPathway(electrodePathway())
+        addPathway(electrodeArrayPathway())
+        addPathway(hhPathway())
+    }
+
+    val s = Model(objects, config)
+    s.simulate { it.currentTime() > 10_000 }
+    FileSaver.closeModelWriters()
+
 }
 
 fun createHHCellsExperiment() {
@@ -39,6 +76,7 @@ fun createHHCellsExperiment() {
 
     val config = configure {
 //        addPathway(electrodePathway())
+        addPathway(electrodeArrayPathway())
         addPathway(hhPathway())
     }
 
@@ -62,7 +100,6 @@ fun createSynapseExperiment() {
     val config = configure {
 //        addPathway(electrodePathway())
         addPathway(hhPathway())
-//        addPathway(synapsePathway())
     }
     val s = Model(arrayListOf(electrode, cellSource, cellDest, synapse), config)
 
