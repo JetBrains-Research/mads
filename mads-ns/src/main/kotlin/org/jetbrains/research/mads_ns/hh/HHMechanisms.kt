@@ -86,7 +86,7 @@ fun HHCell.spikeTransfer(params: HHParameters): List<Response> {
                 result.add(
                     SignalDoubleChangeResponse(
                         "${it.hashCode()}, dI, ${delta}\n",
-                        this,
+                        it,
                         params.savingParameters.saver::logResponse,
                         params.savingParameters.saveResponse,
                         delta,
@@ -113,7 +113,7 @@ fun HHCell.spikeTransfer(params: HHParameters): List<Response> {
                 result.add(
                     SignalDoubleChangeResponse(
                         "${it.hashCode()}, dI, ${delta}\n",
-                        this,
+                        it,
                         params.savingParameters.saver::logResponse,
                         params.savingParameters.saveResponse,
                         delta,
