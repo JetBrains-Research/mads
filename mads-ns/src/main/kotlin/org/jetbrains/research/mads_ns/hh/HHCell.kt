@@ -4,7 +4,7 @@ import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads.core.types.SignalsObject
 import org.jetbrains.research.mads_ns.synapses.SynapseSignals
 
-class HHCell(current: CurrentSignals, hh: HHSignals, val constantCurrent: Boolean = true) : SignalsObject(current, hh) {
+class HHCell(current: CurrentSignals, hh: HHSignals, val constantCurrent: Boolean = true, val stdpDecayCoefficient: Double=0.99) : SignalsObject(current, hh) {
     fun updateI(delta: Double) {
         val sig = this.signals[CurrentSignals::class] as CurrentSignals
         sig.I_e = delta
@@ -34,6 +34,12 @@ class HHCell(current: CurrentSignals, hh: HHSignals, val constantCurrent: Boolea
         val sig = this.signals[HHSignals::class] as HHSignals
         sig.H += delta
     }
+
+    fun updateSTDPTrace(delta: Double)
+    {
+        val sig = this.signals[HHSignals::class] as HHSignals
+        sig.stdpTrace += delta
+    }
 }
 
 data class CurrentSignals(
@@ -51,6 +57,7 @@ data class HHSignals(
     var H: Double = 0.6,
     var spiked: Boolean = false,
     var spikeThreshold: Double = 25.0,
+    var stdpTrace: Double = 0.0
 ) : Signals {
     override fun clone(): Signals {
         return this.copy()

@@ -24,39 +24,293 @@ fun main() {
 //    createHHCellsExperiment()
 //    createSynapseExperiment()
 //    createTwoPopulationsExperiment()
-    createTrainingExperiment()
+//    createTrainingExperiment()
+    createTrainingExperimentConvolve()
+//    createSimpleTriplet()
 }
 
-fun createTrainingExperiment() {
-    FileSaver.initModelWriters("log/${System.currentTimeMillis()}/", setOf(SignalDoubleChangeResponse::class))
-
-    val targetClasses = arrayListOf<String>("0", "1")
-    val provider = MnistProvider("C:\\projects\\mads\\mads_data\\MNIST_training\\", targetClasses)
-    val electrodesArray = ElectrodeArray(provider, 10.0)
+fun createSimpleTriplet()
+{
+    val logPath = "log/latest/"
+    FileSaver.initModelWriters(logPath, setOf(SignalDoubleChangeResponse::class))
 
     val objects: ArrayList<ModelObject> = arrayListOf()
 
-    objects.add(electrodesArray)
+    val firstLayer: ArrayList<HHCell> = arrayListOf()
+    val secondLayer: ArrayList<HHCell> = arrayListOf()
 
-    for(i in 0 .. provider.width - 1) {
-        for(j in 0 .. provider.height - 1) {
-            val cell = HHCell(CurrentSignals(I_e = 0.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
-            val electrode = electrodesArray.getElectrodeByCoordinate(i, j)
-            electrode.connectToCell(cell)
-            objects.add(cell)
+    for(i in 0 until 2) {
+        val cell = HHCell(CurrentSignals(I_e = 15.0*i), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+        firstLayer.add(cell)
+    }
+
+    for(i in 0 until 2) {
+        val secondCell = HHCell(CurrentSignals(I_e = 15.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+        secondLayer.add(secondCell)
+    }
+
+    val synapses: ArrayList<Synapse> = arrayListOf()
+
+    for(i in 0 until firstLayer.size) {
+        for(j in 0 until secondLayer.size) {
+            if(i == 0 && j == 0) {
+                continue
+            }
+            val syn = connectCellsWithSynapse(firstLayer[i], secondLayer[j], false, CurrentSignals(0.0), SynapseSignals(weight = 10.0))
+            synapses.add(syn)
+
+            println(syn.hashCode())
         }
     }
 
+    println(synapses.size)
+
+    objects.addAll(firstLayer)
+    objects.addAll(secondLayer)
+    objects.addAll(synapses)
+
     val config = configure {
 //        addPathway(electrodePathway())
+        addPathway(synapsePathway())
         addPathway(electrodeArrayPathway())
         addPathway(hhPathway())
     }
 
     val s = Model(objects, config)
-    s.simulate { it.currentTime() > 10_000 }
+    s.simulate { it.currentTime() > 100_000 }
     FileSaver.closeModelWriters()
 
+    File("${logPath}/second_layer.txt").printWriter().use { out ->
+        secondLayer.forEach {
+            out.println("${it.hashCode()}")
+        }
+    }
+
+    synapses.forEach {
+        val w = (it.signals[SynapseSignals::class] as SynapseSignals).weight
+//            out.println("${w}")
+        println(w)
+    }
+
+//    File("${logPath}/synapse_weights.txt").printWriter().use { out ->
+//        synapses.forEach {
+//            val w = (it.signals[SynapseSignals::class] as SynapseSignals).weight
+////            out.println("${w}")
+//            println(w)
+//        }
+//    }
+}
+
+fun _connect_receptive_field(prevLayer: ArrayList<HHCell>, cell : HHCell, x: Int, y: Int, width: Int, height: Int, size: Int): ArrayList<Synapse> {
+    val res: ArrayList<Synapse> = arrayListOf()
+
+    val offset = size / 2
+    val centerIdx = y*width + x
+
+    for(i in -offset .. offset) {
+        for(j in -offset .. offset) {
+            val flatIdx = centerIdx + j + i*width
+            val srcCell = prevLayer[flatIdx]
+
+            val syn = connectCellsWithSynapse(srcCell, cell, false, CurrentSignals(0.0), SynapseSignals(weight=1.0))
+            res.add(syn)
+        }
+    }
+
+    return res
+}
+
+fun createTrainingExperimentConvolve() {
+//    val logPath = "log/${System.currentTimeMillis()}/"
+    val logPath = "log/allClasses/"
+//    FileSaver.initModelWriters(logPath, setOf(SignalDoubleChangeResponse::class, SignalBooleanChangeResponse::class))
+    FileSaver.initModelWriters(logPath, setOf(SignalBooleanChangeResponse::class))
+
+    val targetClasses = arrayListOf<String>("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
+    val provider = MnistProvider("C:\\projects\\mads\\mads_data\\MNIST_training\\", targetClasses)
+    val electrodesArray = ElectrodeArray(provider, 25.0)
+
+    val objects: ArrayList<ModelObject> = arrayListOf()
+
+    objects.add(electrodesArray)
+
+    val firstLayer: ArrayList<HHCell> = arrayListOf()
+    val secondLayer: ArrayList<HHCell> = arrayListOf()
+    val thirdLayer: ArrayList<HHCell> = arrayListOf()
+
+    val synapses: ArrayList<Synapse> = arrayListOf()
+    val synapsesSecondToThird: ArrayList<Synapse> = arrayListOf()
+
+    for(i in 0 until provider.width) {
+        for(j in 0 until provider.height) {
+            val cell = HHCell(CurrentSignals(I_e = 5.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+            val electrode = electrodesArray.getElectrodeByCoordinate(i, j)
+            electrode.connectToCell(cell)
+
+            firstLayer.add(cell)
+        }
+    }
+
+//    for(i in 0 until 100) {
+//        val secondCell = HHCell(CurrentSignals(I_e = 5.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+//        secondLayer.add(secondCell)
+//    }
+
+    for(i in 1 until provider.width-1 step 2) {
+        for(j in 1 until provider.height-1 step 2) {
+            val secondCell = HHCell(CurrentSignals(I_e = 5.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+            val connections = _connect_receptive_field(firstLayer, secondCell, i, j, provider.width, provider.height, 3)
+
+            synapses.addAll(connections)
+            secondLayer.add(secondCell)
+        }
+    }
+
+    for(i in 0 until 25) {
+        val thirdCell = HHCell(CurrentSignals(I_e = 5.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+        thirdLayer.add(thirdCell)
+    }
+
+    for(i in 0 until secondLayer.size) {
+        for(j in 0 until thirdLayer.size) {
+            val weight = 1.0 + Random.nextDouble() - 0.25
+            val syn = connectCellsWithSynapse(secondLayer[i], thirdLayer[j], false, CurrentSignals(0.0), SynapseSignals(weight=weight))
+            synapsesSecondToThird.add(syn)
+        }
+    }
+
+    objects.addAll(firstLayer)
+    objects.addAll(secondLayer)
+    objects.addAll(thirdLayer)
+    objects.addAll(synapses)
+    objects.addAll(synapsesSecondToThird)
+
+    println(secondLayer.size)
+
+    val config = configure {
+//        addPathway(electrodePathway())
+        addPathway(synapsePathway())
+        addPathway(electrodeArrayPathway())
+        addPathway(hhPathway())
+    }
+
+    val s = Model(objects, config)
+    s.simulate { it.currentTime() > 500_000 }
+    FileSaver.closeModelWriters()
+
+    File("${logPath}/second_layer.txt").printWriter().use { out ->
+        secondLayer.forEach {
+            out.println("${it.hashCode()}")
+        }
+    }
+
+    File("${logPath}/synapse1to2_weights.txt").printWriter().use { out ->
+        synapses.forEach {
+            val w = (it.signals[SynapseSignals::class] as SynapseSignals).weight
+            out.println("${w}")
+        }
+    }
+
+    File("${logPath}/synapse2to3_weights.txt").printWriter().use { out ->
+        synapsesSecondToThird.forEach {
+            val w = (it.signals[SynapseSignals::class] as SynapseSignals).weight
+            out.println("${w}")
+        }
+    }
+}
+
+fun createTrainingExperiment() {
+//    val logPath = "log/${System.currentTimeMillis()}/"
+    val logPath = "log/latest/"
+    FileSaver.initModelWriters(logPath, setOf(SignalDoubleChangeResponse::class))
+
+    val targetClasses = arrayListOf<String>("0", "1")
+    val provider = MnistProvider("C:\\projects\\mads\\mads_data\\MNIST_training\\", targetClasses)
+    val electrodesArray = ElectrodeArray(provider, 25.0)
+
+    val objects: ArrayList<ModelObject> = arrayListOf()
+
+    objects.add(electrodesArray)
+
+    val firstLayer: ArrayList<HHCell> = arrayListOf()
+    val secondLayer: ArrayList<HHCell> = arrayListOf()
+    val thirdLayer: ArrayList<HHCell> = arrayListOf()
+
+    for(i in 0 until provider.width) {
+        for(j in 0 until provider.height) {
+            val cell = HHCell(CurrentSignals(I_e = 5.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+            val electrode = electrodesArray.getElectrodeByCoordinate(i, j)
+            electrode.connectToCell(cell)
+
+            firstLayer.add(cell)
+        }
+    }
+
+    for(i in 0 until 100) {
+        val secondCell = HHCell(CurrentSignals(I_e = 5.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+        secondLayer.add(secondCell)
+    }
+
+    for(i in 0 until 25) {
+        val thirdCell = HHCell(CurrentSignals(I_e = 5.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+        thirdLayer.add(thirdCell)
+    }
+
+    val synapses: ArrayList<Synapse> = arrayListOf()
+    val synapsesSecondToThird: ArrayList<Synapse> = arrayListOf()
+
+    for(i in 0 until firstLayer.size) {
+        for(j in 0 until secondLayer.size) {
+            val weight = 1.0 + Random.nextDouble() - 0.25
+            val syn = connectCellsWithSynapse(firstLayer[i], secondLayer[j], false, CurrentSignals(0.0), SynapseSignals(weight=weight))
+            synapses.add(syn)
+        }
+    }
+
+    for(i in 0 until secondLayer.size) {
+        for(j in 0 until thirdLayer.size) {
+            val weight = 1.0 + Random.nextDouble() - 0.25
+            val syn = connectCellsWithSynapse(secondLayer[i], thirdLayer[j], false, CurrentSignals(0.0), SynapseSignals(weight=weight))
+            synapsesSecondToThird.add(syn)
+        }
+    }
+
+    objects.addAll(firstLayer)
+    objects.addAll(secondLayer)
+    objects.addAll(thirdLayer)
+    objects.addAll(synapses)
+    objects.addAll(synapsesSecondToThird)
+
+    val config = configure {
+//        addPathway(electrodePathway())
+        addPathway(synapsePathway())
+        addPathway(electrodeArrayPathway())
+        addPathway(hhPathway())
+    }
+
+    val s = Model(objects, config)
+    s.simulate { it.currentTime() > 50_000 }
+    FileSaver.closeModelWriters()
+
+    File("${logPath}/second_layer.txt").printWriter().use { out ->
+        secondLayer.forEach {
+            out.println("${it.hashCode()}")
+        }
+    }
+
+    File("${logPath}/synapse1to2_weights.txt").printWriter().use { out ->
+        synapses.forEach {
+            val w = (it.signals[SynapseSignals::class] as SynapseSignals).weight
+            out.println("${w}")
+        }
+    }
+
+    File("${logPath}/synapse2to3_weights.txt").printWriter().use { out ->
+        synapsesSecondToThird.forEach {
+            val w = (it.signals[SynapseSignals::class] as SynapseSignals).weight
+            out.println("${w}")
+        }
+    }
 }
 
 fun createHHCellsExperiment() {
@@ -81,7 +335,7 @@ fun createHHCellsExperiment() {
     }
 
     val s = Model(objects, config)
-    s.simulate { it.currentTime() > 10_000 }
+    s.simulate { it.currentTime() > 100_000 }
     FileSaver.closeModelWriters()
 }
 
@@ -170,15 +424,6 @@ fun createTwoPopulationsExperiment() {
             }
         }
     }
-
-//    for(i in 0 until inhCount)
-//    {
-//        for(j in 0 until excCount)
-//        {
-//            val synapse = SynapseObject(inhibCells[i], excCells[j], isInhibitory = true)
-//            synapses.add(synapse)
-//        }
-//    }
 
     val allObjects: ArrayList<ModelObject> = arrayListOf()
     allObjects.addAll(inhibCells)

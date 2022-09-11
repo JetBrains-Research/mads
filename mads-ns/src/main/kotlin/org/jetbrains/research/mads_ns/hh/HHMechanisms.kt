@@ -7,8 +7,10 @@ import org.jetbrains.research.mads.core.types.responses.SignalBooleanChangeRespo
 import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
 import org.jetbrains.research.mads_ns.electrode.ElectrodeConnection
 import org.jetbrains.research.mads_ns.synapses.*
+import java.util.Random
 import kotlin.math.exp
 import kotlin.math.pow
+import kotlin.math.sqrt
 
 object HHMechanisms {
     val IDynamic = HHCell::IDynamic
@@ -17,6 +19,25 @@ object HHMechanisms {
     val HDynamic = HHCell::HDynamic
     val NDynamic = HHCell::NDynamic
     val MDynamic = HHCell::MDynamic
+    val STDPDecay = HHCell::STDPDecay
+}
+
+fun HHCell.STDPDecay(params: HHParameters): List<Response> {
+    val signals = this.signals[HHSignals::class] as HHSignals
+    val trace = -signals.stdpTrace*(1 - stdpDecayCoefficient)
+
+    val responseString = "${this.hashCode()}, dTrace, ${trace}\n"
+//    return arrayListOf(DynamicResponse(responseString, this, delta) { this.signals.I += it })
+    return arrayListOf(
+            SignalDoubleChangeResponse(
+                    responseString,
+                    this,
+                    params.savingParameters.saver::logResponse,
+                    params.savingParameters.saveResponse,
+                    trace,
+                    this::updateSTDPTrace
+            )
+    )
 }
 
 fun HHCell.IDynamic(params: HHParameters): List<Response> {
@@ -86,19 +107,20 @@ fun HHCell.spikeTransfer(params: HHParameters): List<Response> {
                 result.add(
                     SignalDoubleChangeResponse(
                         "${it.hashCode()}, dI, ${delta}\n",
-                        this,
+                        it,
                         params.savingParameters.saver::logResponse,
                         params.savingParameters.saveResponse,
                         delta,
                         it::updateI
                     )
                 )
+
             }
         }
 
         result.add(
             SignalBooleanChangeResponse(
-                "${this.hashCode()}, +\n",
+                "${this.hashCode()}, Spiked\n",
                 this,
                 params.savingParameters.saver::logResponse,
                 params.savingParameters.saveResponse,
@@ -106,6 +128,19 @@ fun HHCell.spikeTransfer(params: HHParameters): List<Response> {
                 this::updateSpiked
             )
         )
+
+        val traceDelta = 1.0
+        result.add(
+            SignalDoubleChangeResponse(
+                "${this.hashCode()}, dTrace, ${traceDelta}\n",
+                this,
+                params.savingParameters.saver::logResponse,
+                params.savingParameters.saveResponse,
+                traceDelta,
+                this::updateSTDPTrace
+            )
+        )
+
     } else if (signals.V < signals.spikeThreshold && signals.spiked) {
         this.connections[SynapseReleaser]?.forEach {
             if (it is Synapse) {
@@ -113,7 +148,7 @@ fun HHCell.spikeTransfer(params: HHParameters): List<Response> {
                 result.add(
                     SignalDoubleChangeResponse(
                         "${it.hashCode()}, dI, ${delta}\n",
-                        this,
+                        it,
                         params.savingParameters.saver::logResponse,
                         params.savingParameters.saveResponse,
                         delta,
