@@ -7,6 +7,6 @@ import org.jetbrains.research.mads_ns.electrode.ElectrodeParametersNoSave
 
 fun electrodeArrayPathway() = pathway<ElectrodeArray> {
     mechanism(mechanism = ElectrodeArrayMechanisms.StimuliDynamic, ElectrodeParametersNoSave(0.5, 50.0)) {
-        duration = 100
+        duration = 1000
     }
 }

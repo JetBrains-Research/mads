@@ -8,11 +8,11 @@ import org.jetbrains.research.mads_ns.hh.HHParamsNoSave
 import org.jetbrains.research.mads_ns.hh.HHParamsSaveToFile
 
 fun hhPathway() = pathway<HHCell> {
-    mechanism(mechanism = HHMechanisms.IDynamic, parameters = HHParamsSaveToFile) {
+    mechanism(mechanism = HHMechanisms.IDynamic, parameters = HHParamsNoSave) {
         duration = 2
         condition = Always
     }
-    mechanism(mechanism = HHMechanisms.VDynamic, parameters = HHParamsSaveToFile) {
+    mechanism(mechanism = HHMechanisms.VDynamic, parameters = HHParamsNoSave) {
         duration = 2
         condition = Always
     }
@@ -29,6 +29,10 @@ fun hhPathway() = pathway<HHCell> {
     }
     mechanism(mechanism = HHMechanisms.HDynamic, parameters = HHParamsNoSave) {
         duration = 2
+        condition = Always
+    }
+    mechanism(mechanism = HHMechanisms.STDPDecay, parameters = HHParamsNoSave) {
+        duration = 10
         condition = Always
     }
 }
