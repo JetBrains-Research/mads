@@ -9,5 +9,9 @@ data class ArrayStimuliResponse (
         override val sourceObject: ModelObject,
         override val logFunction: (Long, Response) -> Response,
         override val logResponse: Boolean,
+//
+        val x: Int,
+        val y: Int,
         val stimuliData: BufferedImage
+//        val stimuli: Double
         ) : Response

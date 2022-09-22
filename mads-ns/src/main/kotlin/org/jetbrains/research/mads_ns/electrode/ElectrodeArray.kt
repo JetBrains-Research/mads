@@ -31,15 +31,14 @@ class ElectrodeArray(private val provider: ImageProvider,
     {
         response as ArrayStimuliResponse
 
+        val x = response.x
+        val y = response.y
         val img = response.stimuliData
 
-        for(i in 0 until width) {
-            for(j in 0 until height) {
-                val grayScaled = ( img.getRGB(i, j) and 0xFF ) / 255.0
-                var electrode = getElectrodeByCoordinate(i, j)
-                electrode.updateI(grayScaled * pixelMultiplier)
-            }
-        }
+        val grayScaled = ( img.getRGB(x, y) and 0xFF ) / 255.0
+
+        val electrode = getElectrodeByCoordinate(x, y)
+        electrode.updateI(grayScaled * pixelMultiplier)
 
         return arrayListOf(this)
     }
