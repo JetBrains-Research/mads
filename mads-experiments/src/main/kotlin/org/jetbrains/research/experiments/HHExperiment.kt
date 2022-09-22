@@ -25,7 +25,8 @@ fun main() {
 //    createSynapseExperiment()
 //    createTwoPopulationsExperiment()
 //    createTrainingExperiment()
-    createTrainingExperimentConvolve()
+//    createTrainingExperimentConvolve()
+    createTrainingExperimentExcInhib()
 //    createSimpleTriplet()
 }
 
@@ -213,6 +214,129 @@ fun createTrainingExperimentConvolve() {
 
     File("${logPath}/synapse2to3_weights.txt").printWriter().use { out ->
         synapsesSecondToThird.forEach {
+            val w = (it.signals[SynapseSignals::class] as SynapseSignals).weight
+            out.println("${w}")
+        }
+    }
+}
+
+fun createTrainingExperimentExcInhib() {
+//    val logPath = "log/${System.currentTimeMillis()}/"
+    val logPath = "log/excInhib/"
+//    FileSaver.initModelWriters(logPath, setOf(SignalDoubleChangeResponse::class, SignalBooleanChangeResponse::class))
+    FileSaver.initModelWriters(logPath, setOf(SignalBooleanChangeResponse::class))
+
+    val targetClasses = arrayListOf<String>("0", "1", "2")
+    val provider = MnistProvider("C:\\projects\\mads\\mads_data\\MNIST_training\\", targetClasses)
+    val electrodesArray = ElectrodeArray(provider, 25.0)
+
+    val objects: ArrayList<ModelObject> = arrayListOf()
+
+    objects.add(electrodesArray)
+
+    val firstLayer: ArrayList<HHCell> = arrayListOf()
+    val secondLayer: ArrayList<HHCell> = arrayListOf()
+    val thirdLayer: ArrayList<HHCell> = arrayListOf()
+
+    val synapses: ArrayList<Synapse> = arrayListOf()
+    val synapsesSecondToThird: ArrayList<Synapse> = arrayListOf()
+    val synapsesThirdToSecond: ArrayList<Synapse> = arrayListOf()
+
+    for(i in 0 until provider.width) {
+        for(j in 0 until provider.height) {
+            val cell = HHCell(CurrentSignals(I_e = 5.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+            val electrode = electrodesArray.getElectrodeByCoordinate(i, j)
+            electrode.connectToCell(cell)
+
+            firstLayer.add(cell)
+        }
+    }
+
+    for(i in 0 until provider.width) {
+        for(j in 0 until provider.height) {
+            val cell = HHCell(CurrentSignals(I_e = 5.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+
+            secondLayer.add(cell)
+        }
+    }
+
+    for(i in 0 until provider.width) {
+        for(j in 0 until provider.height) {
+            val cell = HHCell(CurrentSignals(I_e = 5.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+
+            thirdLayer.add(cell)
+        }
+    }
+
+    for(i in 0 until firstLayer.size) {
+        for(j in 0 until secondLayer.size) {
+            val weight = 1.0 + Random.nextDouble() - 0.25
+            val syn = connectCellsWithSynapse(firstLayer[i], secondLayer[j], false, CurrentSignals(0.0), SynapseSignals(weight=weight))
+            synapses.add(syn)
+        }
+    }
+
+    for(i in 0 until secondLayer.size) {
+        val weight = 1.0 + Random.nextDouble() - 0.25
+        val syn = connectCellsWithSynapse(secondLayer[i], thirdLayer[i], false, CurrentSignals(0.0), SynapseSignals(weight=weight))
+        synapsesSecondToThird.add(syn)
+    }
+
+    for(i in 0 until secondLayer.size) {
+        for(j in 0 until thirdLayer.size) {
+            if(i == j)
+            {
+                continue
+            }
+
+            val weight = 1.0 + Random.nextDouble() - 0.25
+            val syn = connectCellsWithSynapse(thirdLayer[j], secondLayer[i], true, CurrentSignals(0.0), SynapseSignals(weight=weight))
+            synapsesThirdToSecond.add(syn)
+        }
+    }
+
+
+    objects.addAll(firstLayer)
+    objects.addAll(secondLayer)
+    objects.addAll(thirdLayer)
+    objects.addAll(synapses)
+    objects.addAll(synapsesSecondToThird)
+
+    println(secondLayer.size)
+
+    val config = configure {
+//        addPathway(electrodePathway())
+        addPathway(synapsePathway())
+        addPathway(electrodeArrayPathway())
+        addPathway(hhPathway())
+    }
+
+    val s = Model(objects, config)
+    s.simulate { it.currentTime() > 100_000_0 }
+    FileSaver.closeModelWriters()
+
+    File("${logPath}/second_layer.txt").printWriter().use { out ->
+        secondLayer.forEach {
+            out.println("${it.hashCode()}")
+        }
+    }
+
+    File("${logPath}/synapse1to2_weights.txt").printWriter().use { out ->
+        synapses.forEach {
+            val w = (it.signals[SynapseSignals::class] as SynapseSignals).weight
+            out.println("${w}")
+        }
+    }
+
+    File("${logPath}/synapse2to3_weights.txt").printWriter().use { out ->
+        synapsesSecondToThird.forEach {
+            val w = (it.signals[SynapseSignals::class] as SynapseSignals).weight
+            out.println("${w}")
+        }
+    }
+
+    File("${logPath}/synapse3to2_weights.txt").printWriter().use { out ->
+        synapsesThirdToSecond.forEach {
             val w = (it.signals[SynapseSignals::class] as SynapseSignals).weight
             out.println("${w}")
         }

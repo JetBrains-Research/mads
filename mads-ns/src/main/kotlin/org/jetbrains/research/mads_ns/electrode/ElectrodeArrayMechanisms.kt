@@ -14,13 +14,22 @@ fun ElectrodeArray.StimuliDynamic(params: ElectrodeParameters): List<Response> {
     val provider = this.getProvider()
     val img = provider.getNextImage()
 
-    return arrayListOf(
-            ArrayStimuliResponse(
-                    responseString,
-                    this,
-                    params.savingParameters.saver::logResponse,
-                    params.savingParameters.saveResponse,
-                    img
+    val responses: ArrayList<Response> = arrayListOf()
+
+
+    for(i in 0 until provider.width) {
+        for(j in 0 until provider.height) {
+            responses.add(
+                    ArrayStimuliResponse(
+                            responseString,
+                            this,
+                            params.savingParameters.saver::logResponse,
+                            params.savingParameters.saveResponse,
+                            i, j, img
+                    )
             )
-    )
+        }
+    }
+
+    return responses
 }
