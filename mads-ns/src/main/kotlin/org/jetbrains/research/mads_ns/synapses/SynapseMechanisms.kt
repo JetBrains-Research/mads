@@ -32,7 +32,17 @@ fun Synapse.STDPWeightUpdateMechanism(params: SynapseParameters): List<Response>
     val releaserSig = this.releaser.signals[HHSignals::class] as HHSignals
     val receiverSig = this.receiver.signals[HHSignals::class] as HHSignals
 
-    val weightDelta = 1e-1*((releaserSig.stdpTrace - receiverSig.stdpTrace))
+    var weightDelta = ((releaserSig.stdpTrace - receiverSig.stdpTrace))
+
+    if(weightDelta < 0)
+    {
+        weightDelta *= 1e-2
+    }
+    else
+    {
+        weightDelta *= 1e-1
+    }
+
     val newWeight = max(0.0, synapseSignals.weight + weightDelta)
 
     return arrayListOf(
