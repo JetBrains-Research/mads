@@ -10,7 +10,7 @@ import javax.imageio.ImageIO
 
 
 class MnistProvider(rootPath: String, val targetClasses: List<String>, isRandom: Boolean=false) :
-        ImageProvider(rootPath, height=10, width=10, isRandom=isRandom) {
+        ImageProvider(rootPath, height=16, width=16, isRandom=isRandom) {
     private var classFileMaps: HashMap<String, Iterator<File>> = HashMap()
     private val classIterator = LoopingIterator(classFileMaps.keys)
     init {
@@ -35,7 +35,8 @@ class MnistProvider(rootPath: String, val targetClasses: List<String>, isRandom:
         val img = ImageIO.read(File(imagePath!!.toURI()))
 
 
-        return resize(img, 10)
+//        return resize(img, 10)
+        return img
     }
 
     private fun resize(src: BufferedImage, targetSize: Int): BufferedImage {

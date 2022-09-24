@@ -11,7 +11,7 @@ fun synapsePathway() = pathway<Synapse> {
 //        duration = 100
 //    }
     mechanism(mechanism = SynapseMechanisms.STDUpdate, SynapseParamsNoSave) {
-        duration = 100
+        duration = 10
     }
 
 }

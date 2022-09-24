@@ -226,6 +226,9 @@ fun createTrainingExperimentExcInhib() {
 //    FileSaver.initModelWriters(logPath, setOf(SignalDoubleChangeResponse::class, SignalBooleanChangeResponse::class))
     FileSaver.initModelWriters(logPath, setOf(SignalBooleanChangeResponse::class))
 
+    val n_exc = 100
+    val n_inhib = n_exc
+
     val targetClasses = arrayListOf<String>("0", "1", "2")
     val provider = MnistProvider("C:\\projects\\mads\\mads_data\\MNIST_training\\", targetClasses)
     val electrodesArray = ElectrodeArray(provider, 25.0)
@@ -252,20 +255,16 @@ fun createTrainingExperimentExcInhib() {
         }
     }
 
-    for(i in 0 until provider.width) {
-        for(j in 0 until provider.height) {
-            val cell = HHCell(CurrentSignals(I_e = 5.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+    for(i in 0 until n_inhib) {
+        val cell = HHCell(CurrentSignals(I_e = 5.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
 
-            secondLayer.add(cell)
-        }
+        secondLayer.add(cell)
     }
 
-    for(i in 0 until provider.width) {
-        for(j in 0 until provider.height) {
-            val cell = HHCell(CurrentSignals(I_e = 5.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
+    for(i in 0 until n_exc) {
+        val cell = HHCell(CurrentSignals(I_e = 5.0), HHSignals(V = -65.0, N = 0.32, M = 0.05, H = 0.6))
 
-            thirdLayer.add(cell)
-        }
+        thirdLayer.add(cell)
     }
 
     for(i in 0 until firstLayer.size) {
