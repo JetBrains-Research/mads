@@ -13,7 +13,7 @@ class LIFCell(current: CurrentSignals, lif: LIFSignals, val constantCurrent: Boo
 
     fun updateV(delta: Double) {
         val sig = this.signals[LIFSignals::class] as LIFSignals
-        
+
         sig.V += delta
     }
 
