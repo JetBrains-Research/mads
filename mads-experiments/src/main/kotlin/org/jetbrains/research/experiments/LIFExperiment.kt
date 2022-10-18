@@ -35,7 +35,9 @@ fun createLIFCellsExperiment() {
     val objects: ArrayList<ModelObject> = arrayListOf()
     val neuronCount = 1
     for (i in 0 until neuronCount) {
-        val cell = LIFCell(CurrentSignals(I_e = 2.0), LIFSignals(V = LIFConstants.V_reset))
+        val cell = LIFCell(CurrentSignals(I_e = 0.0), LIFSignals(V = LIFConstants.V_reset))
+        val electrode = Electrode(CurrentSignals(I_e = 2.0), rnd)
+        electrode.connectToCell(cell)
         objects.add(cell)
     }
 

@@ -37,7 +37,7 @@ fun LIFCell.STDPDecay(params: LIFParameters): List<Response> {
 }
 
 fun LIFCell.IDynamic(params: LIFParameters): List<Response> {
-    var I_e = 2.0
+    var I_e = 0.0
 
     this.connections[ElectrodeConnection]?.forEach {
         if (it is SignalsObject) {
