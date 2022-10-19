@@ -7,8 +7,8 @@ import org.jetbrains.research.mads_ns.hh.HHCell
 import org.jetbrains.research.mads_ns.hh.HHSignals
 
 class Synapse(
-    var releaser: HHCell,
-    var receiver: HHCell,
+    var releaser: SignalsObject,
+    var receiver: SignalsObject,
     isInhibitory: Boolean = false,
     current: CurrentSignals,
     synapse: SynapseSignals

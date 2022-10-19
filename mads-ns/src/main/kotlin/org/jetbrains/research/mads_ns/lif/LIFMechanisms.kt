@@ -73,6 +73,8 @@ fun LIFCell.VDynamic(params: LIFParameters): List<Response> {
     val spiked = (s.V > c.V_thresh)
     val delta = if(spiked) c.V_reset - s.V else (c.E_leak - s.V + (c.Rm * i.I_e)) / c.tau_mem * c.dt
 
+    println(s.V)
+
     val responseString = "${this.hashCode()}, dV, ${delta}\n"
     return arrayListOf(
             SignalDoubleChangeResponse(

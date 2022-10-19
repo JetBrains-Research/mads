@@ -17,9 +17,9 @@ fun lifPathway() = pathway<LIFCell> {
         duration = 2
         condition = Always
     }
-//    mechanism(mechanism = LIFMechanisms.SpikeTransfer, parameters = LIFParamsSaveToFile) {
-//        duration = 2
-//    }
+    mechanism(mechanism = LIFMechanisms.SpikeTransfer, parameters = LIFParamsSaveToFile) {
+        duration = 2
+    }
     mechanism(mechanism = LIFMechanisms.STDPDecay, parameters = LIFParamsNoSave) {
         duration = 10
         condition = Always
