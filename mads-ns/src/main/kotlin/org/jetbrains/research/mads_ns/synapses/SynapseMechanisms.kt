@@ -3,6 +3,7 @@ package org.jetbrains.research.mads_ns.synapses
 import org.jetbrains.research.mads.core.types.Response
 import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
 import org.jetbrains.research.mads_ns.hh.HHSignals
+import org.jetbrains.research.mads_ns.lif.LIFSignals
 import java.lang.Double.max
 
 object SynapseMechanisms {
@@ -29,18 +30,18 @@ fun Synapse.synapseDecayMechanism(params: SynapseParameters): List<Response> {
 fun Synapse.STDPWeightUpdateMechanism(params: SynapseParameters): List<Response> {
     val synapseSignals = this.signals[SynapseSignals::class] as SynapseSignals
 
-    val releaserSig = this.releaser.signals[HHSignals::class] as HHSignals
-    val receiverSig = this.receiver.signals[HHSignals::class] as HHSignals
+    val releaserSig = this.releaser.signals[LIFSignals::class] as LIFSignals
+    val receiverSig = this.receiver.signals[LIFSignals::class] as LIFSignals
 
     var weightDelta = ((releaserSig.stdpTrace - receiverSig.stdpTrace))
 
     if(weightDelta < 0)
     {
-        weightDelta *= 1e-2
+        weightDelta *= 0.1
     }
     else
     {
-        weightDelta *= 1e-1
+        weightDelta *= 0.3
     }
 
     val newWeight = max(0.0, synapseSignals.weight + weightDelta)

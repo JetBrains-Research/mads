@@ -93,13 +93,7 @@ fun createSimpleTriplet()
         println(w)
     }
 
-//    File("${logPath}/synapse_weights.txt").printWriter().use { out ->
-//        synapses.forEach {
-//            val w = (it.signals[SynapseSignals::class] as SynapseSignals).weight
-////            out.println("${w}")
-//            println(w)
-//        }
-//    }
+
 }
 
 fun _connect_receptive_field(prevLayer: ArrayList<HHCell>, cell : HHCell, x: Int, y: Int, width: Int, height: Int, size: Int): ArrayList<Synapse> {
@@ -304,14 +298,13 @@ fun createTrainingExperimentExcInhib() {
     println(secondLayer.size)
 
     val config = configure {
-//        addPathway(electrodePathway())
         addPathway(synapsePathway())
         addPathway(electrodeArrayPathway())
         addPathway(hhPathway())
     }
 
     val s = Model(objects, config)
-    s.simulate { it.currentTime() > 100_000_0 }
+    s.simulate { it.currentTime() > 100_000 }
     FileSaver.closeModelWriters()
 
     File("${logPath}/second_layer.txt").printWriter().use { out ->
