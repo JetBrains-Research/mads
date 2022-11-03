@@ -3,8 +3,7 @@ package org.jetbrains.research.mads_ns.pathways
 import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.SignalsObject
-import org.jetbrains.research.mads_ns.hh.CurrentSignals
-import org.jetbrains.research.mads_ns.hh.HHCell
+import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.synapses.*
 
 fun synapsePathway() = pathway<Synapse> {
@@ -18,11 +17,11 @@ fun synapsePathway() = pathway<Synapse> {
 }
 
 fun connectCellsWithSynapse(
-        releaser: SignalsObject,
-        receiver: SignalsObject,
-        inhibitory: Boolean,
-        currentSignals: CurrentSignals,
-        synapseSignals: SynapseSignals
+    releaser: SignalsObject,
+    receiver: SignalsObject,
+    inhibitory: Boolean,
+    currentSignals: CurrentSignals,
+    synapseSignals: SynapseSignals
 ): Synapse {
     val synapse: Synapse = Synapse(releaser, receiver, inhibitory, currentSignals, synapseSignals)
 

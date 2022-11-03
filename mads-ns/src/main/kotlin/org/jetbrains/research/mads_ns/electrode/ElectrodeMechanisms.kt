@@ -2,7 +2,7 @@ package org.jetbrains.research.mads_ns.electrode
 
 import org.jetbrains.research.mads.core.types.Response
 import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
-import org.jetbrains.research.mads_ns.hh.CurrentSignals
+import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 
 object ElectrodeMechanisms {
     val PulseDynamic = Electrode::PulseDynamic

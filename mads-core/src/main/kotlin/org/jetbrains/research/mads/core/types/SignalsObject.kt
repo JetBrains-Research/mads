@@ -1,7 +1,6 @@
 package org.jetbrains.research.mads.core.types
 
 import org.jetbrains.research.mads.core.types.responses.SignalBooleanChangeResponse
-import org.jetbrains.research.mads.core.types.responses.SignalChangeResponse
 import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
 import org.jetbrains.research.mads.core.types.responses.SignalIntChangeResponse
 import kotlin.reflect.KClass

@@ -2,8 +2,7 @@ package org.jetbrains.research.mads_ns.synapses
 
 import org.jetbrains.research.mads.core.types.Response
 import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
-import org.jetbrains.research.mads_ns.hh.HHSignals
-import org.jetbrains.research.mads_ns.lif.LIFSignals
+import org.jetbrains.research.mads_ns.physiology.neurons.SpikesSignals
 import java.lang.Double.max
 
 object SynapseMechanisms {
@@ -30,8 +29,8 @@ fun Synapse.synapseDecayMechanism(params: SynapseParameters): List<Response> {
 fun Synapse.STDPWeightUpdateMechanism(params: SynapseParameters): List<Response> {
     val synapseSignals = this.signals[SynapseSignals::class] as SynapseSignals
 
-    val releaserSig = this.releaser.signals[LIFSignals::class] as LIFSignals
-    val receiverSig = this.receiver.signals[LIFSignals::class] as LIFSignals
+    val releaserSig = this.releaser.signals[SpikesSignals::class] as SpikesSignals
+    val receiverSig = this.receiver.signals[SpikesSignals::class] as SpikesSignals
 
     var weightDelta = ((releaserSig.stdpTrace - receiverSig.stdpTrace))
 

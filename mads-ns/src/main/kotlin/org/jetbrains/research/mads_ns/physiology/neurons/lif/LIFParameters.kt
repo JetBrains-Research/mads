@@ -1,4 +1,4 @@
-package org.jetbrains.research.mads_ns.lif
+package org.jetbrains.research.mads_ns.physiology.neurons.lif
 
 import org.jetbrains.research.mads.core.types.*
 

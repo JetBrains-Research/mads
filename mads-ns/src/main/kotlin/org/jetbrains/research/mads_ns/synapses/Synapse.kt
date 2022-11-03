@@ -2,9 +2,7 @@ package org.jetbrains.research.mads_ns.synapses
 
 import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads.core.types.SignalsObject
-import org.jetbrains.research.mads_ns.hh.CurrentSignals
-import org.jetbrains.research.mads_ns.hh.HHCell
-import org.jetbrains.research.mads_ns.hh.HHSignals
+import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 
 class Synapse(
     var releaser: SignalsObject,
