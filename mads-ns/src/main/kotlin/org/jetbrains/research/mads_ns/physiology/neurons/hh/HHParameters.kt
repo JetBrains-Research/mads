@@ -1,4 +1,4 @@
-package org.jetbrains.research.mads_ns.hh
+package org.jetbrains.research.mads_ns.physiology.neurons.hh
 
 import org.jetbrains.research.mads.core.types.*
 

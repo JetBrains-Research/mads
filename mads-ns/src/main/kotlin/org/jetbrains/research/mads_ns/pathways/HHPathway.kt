@@ -2,22 +2,14 @@ package org.jetbrains.research.mads_ns.pathways
 
 import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.pathway
-import org.jetbrains.research.mads_ns.hh.HHCell
-import org.jetbrains.research.mads_ns.hh.HHMechanisms
-import org.jetbrains.research.mads_ns.hh.HHParamsNoSave
-import org.jetbrains.research.mads_ns.hh.HHParamsSaveToFile
+import org.jetbrains.research.mads_ns.physiology.neurons.hh.HHMechanisms
+import org.jetbrains.research.mads_ns.physiology.neurons.hh.HHNeuron
+import org.jetbrains.research.mads_ns.physiology.neurons.hh.HHParamsNoSave
 
-fun hhPathway() = pathway<HHCell> {
-    mechanism(mechanism = HHMechanisms.IDynamic, parameters = HHParamsNoSave) {
-        duration = 2
-        condition = Always
-    }
+fun hhPathway() = pathway<HHNeuron> {
     mechanism(mechanism = HHMechanisms.VDynamic, parameters = HHParamsNoSave) {
         duration = 2
         condition = Always
-    }
-    mechanism(mechanism = HHMechanisms.SpikeTransfer, parameters = HHParamsSaveToFile) {
-        duration = 2
     }
     mechanism(mechanism = HHMechanisms.NDynamic, parameters = HHParamsNoSave) {
         duration = 2
@@ -29,10 +21,6 @@ fun hhPathway() = pathway<HHCell> {
     }
     mechanism(mechanism = HHMechanisms.HDynamic, parameters = HHParamsNoSave) {
         duration = 2
-        condition = Always
-    }
-    mechanism(mechanism = HHMechanisms.STDPDecay, parameters = HHParamsNoSave) {
-        duration = 10
         condition = Always
     }
 }
