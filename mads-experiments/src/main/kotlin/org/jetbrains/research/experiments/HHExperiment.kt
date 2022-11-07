@@ -9,10 +9,10 @@ import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeRespon
 import org.jetbrains.research.mads_ns.data_provider.MnistProvider
 import org.jetbrains.research.mads_ns.electrode.Electrode
 import org.jetbrains.research.mads_ns.electrode.ElectrodeArray
-import org.jetbrains.research.mads_ns.physiology.neurons.hh.HHNeuron
 import org.jetbrains.research.mads_ns.physiology.neurons.hh.HHSignals
 import org.jetbrains.research.mads_ns.pathways.*
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
+import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
 import org.jetbrains.research.mads_ns.synapses.Synapse
 import org.jetbrains.research.mads_ns.synapses.SynapseSignals
 import java.io.File
@@ -36,16 +36,16 @@ fun createSimpleTriplet()
 
     val objects: ArrayList<ModelObject> = arrayListOf()
 
-    val firstLayer: ArrayList<HHNeuron> = arrayListOf()
-    val secondLayer: ArrayList<HHNeuron> = arrayListOf()
+    val firstLayer: ArrayList<Neuron> = arrayListOf()
+    val secondLayer: ArrayList<Neuron> = arrayListOf()
 
     for(i in 0 until 2) {
-        val cell = HHNeuron()
+        val cell = Neuron(HHSignals())
         firstLayer.add(cell)
     }
 
     for(i in 0 until 2) {
-        val secondCell = HHNeuron()
+        val secondCell = Neuron(HHSignals())
         secondLayer.add(secondCell)
     }
 
@@ -95,7 +95,7 @@ fun createSimpleTriplet()
 
 }
 
-fun _connect_receptive_field(prevLayer: ArrayList<HHNeuron>, cell : HHNeuron, x: Int, y: Int, width: Int, height: Int, size: Int): ArrayList<Synapse> {
+fun _connect_receptive_field(prevLayer: ArrayList<Neuron>, cell : Neuron, x: Int, y: Int, width: Int, height: Int, size: Int): ArrayList<Synapse> {
     val res: ArrayList<Synapse> = arrayListOf()
 
     val offset = size / 2
@@ -128,16 +128,16 @@ fun createTrainingExperimentConvolve() {
 
     objects.add(electrodesArray)
 
-    val firstLayer: ArrayList<HHNeuron> = arrayListOf()
-    val secondLayer: ArrayList<HHNeuron> = arrayListOf()
-    val thirdLayer: ArrayList<HHNeuron> = arrayListOf()
+    val firstLayer: ArrayList<Neuron> = arrayListOf()
+    val secondLayer: ArrayList<Neuron> = arrayListOf()
+    val thirdLayer: ArrayList<Neuron> = arrayListOf()
 
     val synapses: ArrayList<Synapse> = arrayListOf()
     val synapsesSecondToThird: ArrayList<Synapse> = arrayListOf()
 
     for(i in 0 until provider.width) {
         for(j in 0 until provider.height) {
-            val cell = HHNeuron()
+            val cell = Neuron(HHSignals())
             val electrode = electrodesArray.getElectrodeByCoordinate(i, j)
             electrode.connectToCell(cell)
 
@@ -152,7 +152,7 @@ fun createTrainingExperimentConvolve() {
 
     for(i in 1 until provider.width-1 step 2) {
         for(j in 1 until provider.height-1 step 2) {
-            val secondCell = HHNeuron()
+            val secondCell = Neuron(HHSignals())
             val connections = _connect_receptive_field(firstLayer, secondCell, i, j, provider.width, provider.height, 3)
 
             synapses.addAll(connections)
@@ -161,7 +161,7 @@ fun createTrainingExperimentConvolve() {
     }
 
     for(i in 0 until 25) {
-        val thirdCell = HHNeuron()
+        val thirdCell = Neuron(HHSignals())
         thirdLayer.add(thirdCell)
     }
 
@@ -230,9 +230,9 @@ fun createTrainingExperimentExcInhib() {
 
     objects.add(electrodesArray)
 
-    val firstLayer: ArrayList<HHNeuron> = arrayListOf()
-    val secondLayer: ArrayList<HHNeuron> = arrayListOf()
-    val thirdLayer: ArrayList<HHNeuron> = arrayListOf()
+    val firstLayer: ArrayList<Neuron> = arrayListOf()
+    val secondLayer: ArrayList<Neuron> = arrayListOf()
+    val thirdLayer: ArrayList<Neuron> = arrayListOf()
 
     val synapses: ArrayList<Synapse> = arrayListOf()
     val synapsesSecondToThird: ArrayList<Synapse> = arrayListOf()
@@ -240,7 +240,7 @@ fun createTrainingExperimentExcInhib() {
 
     for(i in 0 until provider.width) {
         for(j in 0 until provider.height) {
-            val cell = HHNeuron()
+            val cell = Neuron(HHSignals())
             val electrode = electrodesArray.getElectrodeByCoordinate(i, j)
             electrode.connectToCell(cell)
 
@@ -249,13 +249,13 @@ fun createTrainingExperimentExcInhib() {
     }
 
     for(i in 0 until n_inhib) {
-        val cell = HHNeuron()
+        val cell = Neuron(HHSignals())
 
         secondLayer.add(cell)
     }
 
     for(i in 0 until n_exc) {
-        val cell = HHNeuron()
+        val cell = Neuron(HHSignals())
 
         thirdLayer.add(cell)
     }
@@ -347,13 +347,13 @@ fun createTrainingExperiment() {
 
     objects.add(electrodesArray)
 
-    val firstLayer: ArrayList<HHNeuron> = arrayListOf()
-    val secondLayer: ArrayList<HHNeuron> = arrayListOf()
-    val thirdLayer: ArrayList<HHNeuron> = arrayListOf()
+    val firstLayer: ArrayList<Neuron> = arrayListOf()
+    val secondLayer: ArrayList<Neuron> = arrayListOf()
+    val thirdLayer: ArrayList<Neuron> = arrayListOf()
 
     for(i in 0 until provider.width) {
         for(j in 0 until provider.height) {
-            val cell = HHNeuron()
+            val cell = Neuron(HHSignals())
             val electrode = electrodesArray.getElectrodeByCoordinate(i, j)
             electrode.connectToCell(cell)
 
@@ -362,12 +362,12 @@ fun createTrainingExperiment() {
     }
 
     for(i in 0 until 100) {
-        val secondCell = HHNeuron()
+        val secondCell = Neuron(HHSignals())
         secondLayer.add(secondCell)
     }
 
     for(i in 0 until 25) {
-        val thirdCell = HHNeuron()
+        val thirdCell = Neuron(HHSignals())
         thirdLayer.add(thirdCell)
     }
 
@@ -436,7 +436,7 @@ fun createHHCellsExperiment() {
     val objects: ArrayList<ModelObject> = arrayListOf()
     val neuronCount = 1
     for (i in 0 until neuronCount) {
-        val cell = HHNeuron()
+        val cell = Neuron(HHSignals())
         val electrode = Electrode(CurrentSignals(I_e = I_exp), rnd)
         electrode.connectToCell(cell)
         objects.add(cell)
@@ -460,8 +460,8 @@ fun createSynapseExperiment() {
     val rnd: Random = Random(12345L)
 
     val electrode = Electrode(CurrentSignals(I_e = I_exp), rnd)
-    val cellSource = HHNeuron()
-    val cellDest = HHNeuron()
+    val cellSource = Neuron(HHSignals())
+    val cellDest = Neuron(HHSignals())
 
     electrode.connectToCell(cellSource)
     val synapse = connectCellsWithSynapse(cellSource, cellDest, false, CurrentSignals(0.0), SynapseSignals())
