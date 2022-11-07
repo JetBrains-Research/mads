@@ -9,9 +9,9 @@ import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeRespon
 import org.jetbrains.research.mads_ns.data_provider.MnistProvider
 import org.jetbrains.research.mads_ns.electrode.Electrode
 import org.jetbrains.research.mads_ns.electrode.ElectrodeArray
-import org.jetbrains.research.mads_ns.physiology.neurons.lif.LIFNeuron
 import org.jetbrains.research.mads_ns.pathways.*
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
+import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
 import org.jetbrains.research.mads_ns.synapses.Synapse
 import org.jetbrains.research.mads_ns.synapses.SynapseSignals
 import java.io.File
@@ -30,13 +30,16 @@ fun createLIFCellsExperiment() {
     val objects: ArrayList<ModelObject> = arrayListOf()
     val neuronCount = 1
     for (i in 0 until neuronCount) {
-        val cell = LIFNeuron()
-        val electrode = Electrode(CurrentSignals(I_e = 2.0), rnd)
+        val cell = Neuron()
+        val electrode = Electrode(CurrentSignals(I_e = 20.0), rnd)
         electrode.connectToCell(cell)
         objects.add(cell)
+        objects.add(electrode)
     }
 
     val config = configure {
+        addPathway(electrodePathway())
+        addPathway(neuronPathway())
         addPathway(lifPathway())
     }
 
@@ -64,9 +67,9 @@ fun createLIFTrainingExperimentExcInhib() {
 
     objects.add(electrodesArray)
 
-    val firstLayer: ArrayList<LIFNeuron> = arrayListOf()
-    val secondLayer: ArrayList<LIFNeuron> = arrayListOf()
-    val thirdLayer: ArrayList<LIFNeuron> = arrayListOf()
+    val firstLayer: ArrayList<Neuron> = arrayListOf()
+    val secondLayer: ArrayList<Neuron> = arrayListOf()
+    val thirdLayer: ArrayList<Neuron> = arrayListOf()
 
     val synapses: ArrayList<Synapse> = arrayListOf()
     val synapsesSecondToThird: ArrayList<Synapse> = arrayListOf()
@@ -74,7 +77,7 @@ fun createLIFTrainingExperimentExcInhib() {
 
     for(i in 0 until provider.width) {
         for(j in 0 until provider.height) {
-            val cell = LIFNeuron()
+            val cell = Neuron()
             val electrode = electrodesArray.getElectrodeByCoordinate(i, j)
             electrode.connectToCell(cell)
 
@@ -83,13 +86,13 @@ fun createLIFTrainingExperimentExcInhib() {
     }
 
     for(i in 0 until n_inhib) {
-        val cell = LIFNeuron()
+        val cell = Neuron()
 
         secondLayer.add(cell)
     }
 
     for(i in 0 until n_exc) {
-        val cell = LIFNeuron()
+        val cell = Neuron()
 
         thirdLayer.add(cell)
     }

@@ -6,11 +6,9 @@ import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
-import org.jetbrains.research.mads_ns.physiology.neurons.SpikesSignals
+import org.jetbrains.research.mads_ns.physiology.neurons.PotentialSignals
 import kotlin.math.exp
 import kotlin.math.pow
-
-class HHNeuron : Neuron(SpikesSignals(), CurrentSignals(), HHSignals())
 
 object HHConstants : Constants {
     // constants
@@ -34,7 +32,6 @@ object HHConstants : Constants {
 }
 
 data class HHSignals(
-    var V: Double = -65.0,
     var N: Double = 0.32,
     var M: Double = 0.05,
     var H: Double = 0.6
@@ -45,19 +42,20 @@ data class HHSignals(
 }
 
 object HHMechanisms {
-    val VDynamic = HHNeuron::VDynamic
-    val HDynamic = HHNeuron::HDynamic
-    val NDynamic = HHNeuron::NDynamic
-    val MDynamic = HHNeuron::MDynamic
+    val VDynamic = Neuron::VDynamic
+    val HDynamic = Neuron::HDynamic
+    val NDynamic = Neuron::NDynamic
+    val MDynamic = Neuron::MDynamic
 }
 
-fun HHNeuron.VDynamic(params: HHParameters): List<Response> {
+fun Neuron.VDynamic(params: HHParameters): List<Response> {
+    val u = this.signals[PotentialSignals::class] as PotentialSignals
     val s = this.signals[HHSignals::class] as HHSignals
     val i = this.signals[CurrentSignals::class] as CurrentSignals
 
-    val IK = HHConstants.g_K * s.N.pow(4.0) * (s.V - HHConstants.E_K)
-    val INa = HHConstants.g_Na * s.M.pow(3.0) * s.H * (s.V - HHConstants.E_Na)
-    val IL = HHConstants.g_L * (s.V - HHConstants.E_L)
+    val IK = HHConstants.g_K * s.N.pow(4.0) * (u.V - HHConstants.E_K)
+    val INa = HHConstants.g_Na * s.M.pow(3.0) * s.H * (u.V - HHConstants.E_Na)
+    val IL = HHConstants.g_L * (u.V - HHConstants.E_L)
 
     val delta = ((i.I_e - IK - INa - IL) / HHConstants.C_m) * HHConstants.dt
 
@@ -70,16 +68,17 @@ fun HHNeuron.VDynamic(params: HHParameters): List<Response> {
             params.savingParameters.saveResponse,
             delta
         ) {
-            s.V += it
+            u.V += it
         }
     )
 }
 
-fun HHNeuron.NDynamic(params: HHParameters): List<Response> {
-    val signals = this.signals[HHSignals::class] as HHSignals
+fun Neuron.NDynamic(params: HHParameters): List<Response> {
+    val u = this.signals[PotentialSignals::class] as PotentialSignals
+    val s = this.signals[HHSignals::class] as HHSignals
 
-    val V = signals.V
-    val n = signals.N
+    val V = u.V
+    val n = s.N
 
     val delta = ((AlphaN(V) * (1.0 - n)) - (BetaN(V) * n)) * HHConstants.dt
 
@@ -92,16 +91,17 @@ fun HHNeuron.NDynamic(params: HHParameters): List<Response> {
             params.savingParameters.saveResponse,
             delta
         ) {
-            signals.N += it
+            s.N += it
         }
     )
 }
 
-fun HHNeuron.MDynamic(params: HHParameters): List<Response> {
-    val signals = this.signals[HHSignals::class] as HHSignals
+fun Neuron.MDynamic(params: HHParameters): List<Response> {
+    val u = this.signals[PotentialSignals::class] as PotentialSignals
+    val s = this.signals[HHSignals::class] as HHSignals
 
-    val V = signals.V
-    val m = signals.M
+    val V = u.V
+    val m = s.M
 
     val delta = ((AlphaM(V) * (1.0 - m)) - (BetaM(V) * m)) * HHConstants.dt
 
@@ -114,16 +114,17 @@ fun HHNeuron.MDynamic(params: HHParameters): List<Response> {
             params.savingParameters.saveResponse,
             delta
         ) {
-            signals.M += it
+            s.M += it
         }
     )
 }
 
-fun HHNeuron.HDynamic(params: HHParameters): List<Response> {
-    val signals = this.signals[HHSignals::class] as HHSignals
+fun Neuron.HDynamic(params: HHParameters): List<Response> {
+    val u = this.signals[PotentialSignals::class] as PotentialSignals
+    val s = this.signals[HHSignals::class] as HHSignals
 
-    val V = signals.V
-    val h = signals.H
+    val V = u.V
+    val h = s.H
 
     val delta = ((AlphaH(V) * (1.0 - h)) - (BetaH(V) * h)) * HHConstants.dt
 
@@ -136,7 +137,7 @@ fun HHNeuron.HDynamic(params: HHParameters): List<Response> {
             params.savingParameters.saveResponse,
             delta
         ) {
-            signals.H += it
+            s.H += it
         }
     )
 }

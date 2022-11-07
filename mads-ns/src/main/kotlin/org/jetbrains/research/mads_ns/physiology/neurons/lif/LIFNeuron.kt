@@ -6,9 +6,8 @@ import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
+import org.jetbrains.research.mads_ns.physiology.neurons.PotentialSignals
 import org.jetbrains.research.mads_ns.physiology.neurons.SpikesSignals
-
-class LIFNeuron : Neuron(SpikesSignals(), CurrentSignals(), LIFSignals())
 
 object LIFConstants : Constants {
     const val tau_mem       = 20.0
@@ -21,20 +20,12 @@ object LIFConstants : Constants {
     const val dt = 0.01
 }
 
-data class LIFSignals(
-    var V: Double = -65.0,
-) : Signals {
-    override fun clone(): Signals {
-        return this.copy()
-    }
-}
-
 object LIFMechanisms {
-    val VDynamic = LIFNeuron::VDynamic
+    val VDynamic = Neuron::VDynamic
 }
 
-fun LIFNeuron.VDynamic(params: LIFParameters): List<Response> {
-    val s = this.signals[LIFSignals::class] as LIFSignals
+fun Neuron.VDynamic(params: LIFParameters): List<Response> {
+    val s = this.signals[PotentialSignals::class] as PotentialSignals
     val i = this.signals[CurrentSignals::class] as CurrentSignals
 
     val spiked = (s.V > LIFConstants.V_thresh)

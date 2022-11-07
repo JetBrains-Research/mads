@@ -15,10 +15,8 @@ import org.jetbrains.research.mads_ns.synapses.SynapseReleaser
 import org.jetbrains.research.mads_ns.synapses.SynapseSignals
 
 open class Neuron(
-    spikes: SpikesSignals,
-    current: CurrentSignals,
     vararg signals: Signals
-) : SignalsObject(spikes, current, *signals)
+) : SignalsObject(SpikesSignals(), PotentialSignals(), CurrentSignals(), *signals)
 
 data class SpikesSignals(
     var spiked: Boolean = false,
@@ -33,6 +31,14 @@ data class SpikesSignals(
 
 data class CurrentSignals(
     var I_e: Double = 0.0,
+) : Signals {
+    override fun clone(): Signals {
+        return this.copy()
+    }
+}
+
+data class PotentialSignals(
+    var V: Double = -65.0,
 ) : Signals {
     override fun clone(): Signals {
         return this.copy()
@@ -96,12 +102,12 @@ fun Neuron.STDPDecay(params: HHParameters): List<Response> {
 }
 
 fun Neuron.spikeTransfer(params: HHParameters): List<Response> {
-    val hhSignals = this.signals[HHSignals::class] as HHSignals
+    val potentialSignalsSignals = this.signals[PotentialSignals::class] as PotentialSignals
     val spikesSignals = this.signals[SpikesSignals::class] as SpikesSignals
     val currentSignals = this.signals[CurrentSignals::class] as CurrentSignals
     val result = arrayListOf<Response>()
 
-    if (hhSignals.V >= spikesSignals.spikeThreshold && !spikesSignals.spiked) {
+    if (potentialSignalsSignals.V >= spikesSignals.spikeThreshold && !spikesSignals.spiked) {
         this.connections[SynapseReleaser]?.forEach {
             if (it is Synapse) {
                 val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
@@ -146,7 +152,7 @@ fun Neuron.spikeTransfer(params: HHParameters): List<Response> {
             }
         )
 
-    } else if (hhSignals.V < spikesSignals.spikeThreshold && spikesSignals.spiked) {
+    } else if (potentialSignalsSignals.V < spikesSignals.spikeThreshold && spikesSignals.spiked) {
         this.connections[SynapseReleaser]?.forEach {
             if (it is Synapse) {
                 val delta = 0.0

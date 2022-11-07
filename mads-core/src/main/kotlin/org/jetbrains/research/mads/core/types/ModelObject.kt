@@ -16,6 +16,12 @@ abstract class ModelObject {
     val childObjects: HashSet<ModelObject> = HashSet()
     val connections: MutableMap<ConnectionType, HashSet<ModelObject>> = mutableMapOf()
 
+    var initialized = false
+        get() = field
+        private set(value) {
+            field = value
+        }
+
     init {
         responseMapping[AddObjectResponse::class] = ::addObject
         responseMapping[RemoveObjectResponse::class] = ::removeObject
@@ -32,10 +38,7 @@ abstract class ModelObject {
     }
 
     @Suppress("UNCHECKED_CAST")
-    internal fun <MO : ModelObject> createEvents(pathway: Pathway<MO>) {
-        if (events.size > 0)
-            return
-
+    private fun <MO : ModelObject> createEvents(pathway: Pathway<MO>) {
         this as MO
         pathway.configuredMechanisms.forEach {
             val mch = applyObjectToMechanism(it.mechanism, this)
@@ -43,6 +46,13 @@ abstract class ModelObject {
             val event = ModelEvent(mch, cnd, it.duration)
             events.add(event)
         }
+    }
+
+    internal fun createEvents(pathways: ArrayList<Pathway<out ModelObject>>) {
+        if (initialized) return
+
+        pathways.forEach { createEvents(it) }
+        initialized = true
     }
 
     internal fun applyResponses(tick: Long, responses: List<Response>): List<ModelObject> {

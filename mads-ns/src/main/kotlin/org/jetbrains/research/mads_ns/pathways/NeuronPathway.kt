@@ -4,8 +4,6 @@ import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
 import org.jetbrains.research.mads_ns.physiology.neurons.NeuronMechanisms
-import org.jetbrains.research.mads_ns.physiology.neurons.hh.HHNeuron
-import org.jetbrains.research.mads_ns.physiology.neurons.hh.HHMechanisms
 import org.jetbrains.research.mads_ns.physiology.neurons.hh.HHParamsNoSave
 import org.jetbrains.research.mads_ns.physiology.neurons.hh.HHParamsSaveToFile
 
