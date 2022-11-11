@@ -32,8 +32,6 @@ fun Neuron.VDynamic(params: LIFParameters): List<Response> {
     val delta =
         if (spiked) LIFConstants.V_reset - s.V else (LIFConstants.E_leak - s.V + (LIFConstants.Rm * i.I_e)) / LIFConstants.tau_mem * LIFConstants.dt
 
-    println(s.V)
-
     val responseString = "${this.hashCode()}, dV, ${delta}\n"
     return arrayListOf(
         SignalDoubleChangeResponse(

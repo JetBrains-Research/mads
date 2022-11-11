@@ -12,25 +12,27 @@ import org.jetbrains.research.mads_ns.electrode.ElectrodeArray
 import org.jetbrains.research.mads_ns.pathways.*
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
+import org.jetbrains.research.mads_ns.physiology.neurons.lif.LIFConstants
 import org.jetbrains.research.mads_ns.synapses.Synapse
 import org.jetbrains.research.mads_ns.synapses.SynapseSignals
 import java.io.File
 import kotlin.random.Random
 
 fun main() {
-    createLIFCellsExperiment()
+//    createLIFCellsExperiment()
+    LIFTwoCellsExperiment()
 //    createLIFTrainingExperimentExcInhib()
 }
 
 fun createLIFCellsExperiment() {
 //    FileSaver.initModelWriters("log/${System.currentTimeMillis()}/", setOf(SignalDoubleChangeResponse::class))
-    FileSaver.initModelWriters("log/lif_start/", setOf(SignalDoubleChangeResponse::class))
+    FileSaver.initModelWriters("log/lif_one/${System.currentTimeMillis()}/", setOf(SignalDoubleChangeResponse::class))
     val rnd: Random = Random(12345L)
 
     val objects: ArrayList<ModelObject> = arrayListOf()
     val neuronCount = 1
     for (i in 0 until neuronCount) {
-        val cell = Neuron()
+        val cell = Neuron(LIFConstants.V_thresh)
         val electrode = Electrode(CurrentSignals(I_e = 20.0), rnd)
         electrode.connectToCell(cell)
         objects.add(cell)
@@ -41,6 +43,32 @@ fun createLIFCellsExperiment() {
         addPathway(electrodePathway())
         addPathway(neuronPathway())
         addPathway(lifPathway())
+    }
+
+    val s = Model(objects, config)
+    s.simulate { it.currentTime() > 100_000 }
+    FileSaver.closeModelWriters()
+}
+
+fun LIFTwoCellsExperiment() {
+//    FileSaver.initModelWriters("log/${System.currentTimeMillis()}/", setOf(SignalDoubleChangeResponse::class))
+    FileSaver.initModelWriters("log/lif_two/${System.currentTimeMillis()}/", setOf(SignalDoubleChangeResponse::class, SignalBooleanChangeResponse::class))
+    val rnd: Random = Random(12345L)
+
+    val electrode = Electrode(CurrentSignals(I_e = 20.0), rnd)
+    val fNeuron = Neuron(LIFConstants.V_thresh)
+    val sNeuron = Neuron(LIFConstants.V_thresh)
+
+    electrode.connectToCell(fNeuron)
+    val synapse = connectCellsWithSynapse(fNeuron, sNeuron, false, CurrentSignals(0.0), SynapseSignals())
+
+    val objects: ArrayList<ModelObject> = arrayListOf(electrode, fNeuron, sNeuron, synapse)
+
+    val config = configure {
+        addPathway(electrodePathway())
+        addPathway(neuronPathway())
+        addPathway(lifPathway())
+        addPathway(synapsePathway())
     }
 
     val s = Model(objects, config)
@@ -77,7 +105,7 @@ fun createLIFTrainingExperimentExcInhib() {
 
     for(i in 0 until provider.width) {
         for(j in 0 until provider.height) {
-            val cell = Neuron()
+            val cell = Neuron(LIFConstants.V_thresh)
             val electrode = electrodesArray.getElectrodeByCoordinate(i, j)
             electrode.connectToCell(cell)
 
@@ -86,13 +114,13 @@ fun createLIFTrainingExperimentExcInhib() {
     }
 
     for(i in 0 until n_inhib) {
-        val cell = Neuron()
+        val cell = Neuron(LIFConstants.V_thresh)
 
         secondLayer.add(cell)
     }
 
     for(i in 0 until n_exc) {
-        val cell = Neuron()
+        val cell = Neuron(LIFConstants.V_thresh)
 
         thirdLayer.add(cell)
     }

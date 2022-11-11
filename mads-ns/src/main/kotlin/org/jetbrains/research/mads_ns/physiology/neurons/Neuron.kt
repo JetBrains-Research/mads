@@ -8,19 +8,19 @@ import org.jetbrains.research.mads.core.types.responses.SignalBooleanChangeRespo
 import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
 import org.jetbrains.research.mads_ns.electrode.ElectrodeConnection
 import org.jetbrains.research.mads_ns.physiology.neurons.hh.HHParameters
-import org.jetbrains.research.mads_ns.physiology.neurons.hh.HHSignals
 import org.jetbrains.research.mads_ns.synapses.Synapse
 import org.jetbrains.research.mads_ns.synapses.SynapseReceiver
 import org.jetbrains.research.mads_ns.synapses.SynapseReleaser
 import org.jetbrains.research.mads_ns.synapses.SynapseSignals
 
 open class Neuron(
+    spikeThreshold: Double,
     vararg signals: Signals
-) : SignalsObject(SpikesSignals(), PotentialSignals(), CurrentSignals(), *signals)
+) : SignalsObject(SpikesSignals(spikeThreshold = spikeThreshold), PotentialSignals(), CurrentSignals(), *signals)
 
 data class SpikesSignals(
     var spiked: Boolean = false,
-    var spikeThreshold: Double = 25.0,
+    var spikeThreshold: Double = 0.0,
     var stdpTrace: Double = 0.0,
     val stdpDecayCoefficient: Double = 0.99
 ) : Signals {
@@ -47,6 +47,8 @@ data class PotentialSignals(
 
 object NeuronMechanisms {
     val IDynamic = Neuron::IDynamic
+    val SpikeOn = Neuron::spikeOn
+    val SpikeOff = Neuron::spikeOff
     val SpikeTransfer = Neuron::spikeTransfer
     val STDPDecay = Neuron::STDPDecay
 }
@@ -84,7 +86,7 @@ fun Neuron.IDynamic(params: HHParameters): List<Response> {
 
 fun Neuron.STDPDecay(params: HHParameters): List<Response> {
     val signals = this.signals[SpikesSignals::class] as SpikesSignals
-    val trace = -signals.stdpTrace*(1 - signals.stdpDecayCoefficient)
+    val trace = -signals.stdpTrace * (1 - signals.stdpDecayCoefficient)
 
     val responseString = "${this.hashCode()}, dTrace, ${trace}\n"
     return arrayListOf(
@@ -101,86 +103,67 @@ fun Neuron.STDPDecay(params: HHParameters): List<Response> {
     )
 }
 
-fun Neuron.spikeTransfer(params: HHParameters): List<Response> {
-    val potentialSignalsSignals = this.signals[PotentialSignals::class] as PotentialSignals
+fun Neuron.spikeOn(params: HHParameters): List<Response> {
     val spikesSignals = this.signals[SpikesSignals::class] as SpikesSignals
-    val currentSignals = this.signals[CurrentSignals::class] as CurrentSignals
+    return arrayListOf(
+        SignalBooleanChangeResponse(
+            response = "${this.hashCode()}, Spiked\n",
+            sourceObject = this,
+            params.savingParameters.saver::logResponse,
+            params.savingParameters.saveResponse,
+            value = true
+        ) {
+            spikesSignals.spiked = it
+        },
+        SignalDoubleChangeResponse(
+            response = "${this.hashCode()}, dTrace, ${1.0}\n",
+            sourceObject = this,
+            params.savingParameters.saver::logResponse,
+            params.savingParameters.saveResponse,
+            value = 1.0
+        ) {
+            spikesSignals.stdpTrace += it
+        }
+    )
+}
+
+fun Neuron.spikeOff(params: HHParameters): List<Response> {
+    val spikesSignals = this.signals[SpikesSignals::class] as SpikesSignals
+    val result = arrayListOf<Response>(
+        SignalBooleanChangeResponse(
+            response = "",
+            sourceObject = this,
+            EmptySaver::logResponse,
+            logResponse = false,
+            value = false
+        ) {
+            spikesSignals.spiked = it
+        }
+    )
+
+    return result
+}
+
+fun Neuron.spikeTransfer(params: HHParameters): List<Response> {
     val result = arrayListOf<Response>()
 
-    if (potentialSignalsSignals.V >= spikesSignals.spikeThreshold && !spikesSignals.spiked) {
-        this.connections[SynapseReleaser]?.forEach {
-            if (it is Synapse) {
-                val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
-                val delta = synapseSignals.weight * synapseSignals.synapseSign * 100.0 // 100.0 – mA
-                result.add(
-                    SignalDoubleChangeResponse(
-                        "${it.hashCode()}, dI, ${delta}\n",
-                        it,
-                        params.savingParameters.saver::logResponse,
-                        params.savingParameters.saveResponse,
-                        delta
-                    ) { I ->
-                        currentSignals.I_e = I
-                    }
-                )
-
-            }
+    this.connections[SynapseReleaser]?.forEach {
+        if (it is Synapse) {
+            val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
+            val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
+            val delta = synapseSignals.weight * synapseSignals.synapseSign * 100.0 // 100.0 – mA
+            result.add(
+                SignalDoubleChangeResponse(
+                    response = "${it.hashCode()}, dI, ${delta}\n",
+                    sourceObject = it,
+                    params.savingParameters.saver::logResponse,
+                    params.savingParameters.saveResponse,
+                    value = delta
+                ) { I ->
+                    currentSignals.I_e = I
+                }
+            )
         }
-
-        result.add(
-            SignalBooleanChangeResponse(
-                "${this.hashCode()}, Spiked\n",
-                this,
-                params.savingParameters.saver::logResponse,
-                params.savingParameters.saveResponse,
-                true
-            ) {
-                spikesSignals.spiked = it
-            }
-        )
-
-        val traceDelta = 1.0
-        result.add(
-            SignalDoubleChangeResponse(
-                "${this.hashCode()}, dTrace, ${traceDelta}\n",
-                this,
-                params.savingParameters.saver::logResponse,
-                params.savingParameters.saveResponse,
-                traceDelta
-            ) {
-                spikesSignals.stdpTrace += it
-            }
-        )
-
-    } else if (potentialSignalsSignals.V < spikesSignals.spikeThreshold && spikesSignals.spiked) {
-        this.connections[SynapseReleaser]?.forEach {
-            if (it is Synapse) {
-                val delta = 0.0
-                result.add(
-                    SignalDoubleChangeResponse(
-                        "${it.hashCode()}, dI, ${delta}\n",
-                        it,
-                        params.savingParameters.saver::logResponse,
-                        params.savingParameters.saveResponse,
-                        delta
-                    ) { I ->
-                        currentSignals.I_e = I
-                    }
-                )
-            }
-        }
-
-        result.add(
-            SignalBooleanChangeResponse(
-                response = "${this.hashCode()}, -\n",
-                sourceObject = this,
-                EmptySaver::logResponse,            // We don't save any responses from + to -
-                logResponse = false,
-                value = false
-            ) {
-                spikesSignals.spiked = it
-            }
-        )
     }
 
     return result
