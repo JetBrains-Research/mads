@@ -10,10 +10,16 @@ fun synapsePathway() = pathway<Synapse> {
 //    mechanism(mechanism = SynapseMechanisms.SynapseDecay, SynapseParamsNoSave) {
 //        duration = 100
 //    }
-    mechanism(mechanism = SynapseMechanisms.STDUpdate, SynapseParamsNoSave) {
+    mechanism(mechanism = SynapseMechanisms.CurrentDecay, SynapseParamsSaveToFile) {
         duration = 10
+        condition = {
+            val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
+            currentSignals.I_e > 0.01
+        }
     }
-
+//    mechanism(mechanism = SynapseMechanisms.STDUpdate, SynapseParamsNoSave) {
+//        duration = 10
+//    }
 }
 
 fun connectCellsWithSynapse(

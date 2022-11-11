@@ -27,6 +27,7 @@ object HHConstants : Constants {
 
     // dt
     const val dt = 0.02
+    const val V_thresh = 25.0
 
     const val pulseVal = 100.0
 }

@@ -2,15 +2,17 @@ package org.jetbrains.research.mads_ns.synapses
 
 import org.jetbrains.research.mads.core.types.Response
 import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
+import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.physiology.neurons.SpikesSignals
 import java.lang.Double.max
 
 object SynapseMechanisms {
-    val SynapseDecay = Synapse::synapseDecayMechanism
+    val WeightDecay = Synapse::weightDecayMechanism
+    val CurrentDecay = Synapse::currentDecay
     val STDUpdate = Synapse::STDPWeightUpdateMechanism
 }
 
-fun Synapse.synapseDecayMechanism(params: SynapseParameters): List<Response> {
+fun Synapse.weightDecayMechanism(params: SynapseParameters): List<Response> {
     val synapseSignals = this.signals[SynapseSignals::class] as SynapseSignals
     val newWeight = synapseSignals.weight * SynapseConstants.weightDecayCoefficient
 
@@ -26,6 +28,21 @@ fun Synapse.synapseDecayMechanism(params: SynapseParameters): List<Response> {
     )
 }
 
+fun Synapse.currentDecay(params: SynapseParameters): List<Response> {
+    val currentSignals = this.signals[CurrentSignals::class] as CurrentSignals
+    val delta = -(currentSignals.I_e / 2)
+
+    return arrayListOf(SignalDoubleChangeResponse(
+        response = "${this.hashCode()}, dI_e, ${delta}\n",
+        sourceObject = this,
+        params.savingParameters.saver::logResponse,
+        logResponse = params.savingParameters.saveResponse,
+        value = delta
+    ) {
+        currentSignals.I_e += delta
+    })
+}
+
 fun Synapse.STDPWeightUpdateMechanism(params: SynapseParameters): List<Response> {
     val synapseSignals = this.signals[SynapseSignals::class] as SynapseSignals
 
@@ -34,25 +51,22 @@ fun Synapse.STDPWeightUpdateMechanism(params: SynapseParameters): List<Response>
 
     var weightDelta = ((releaserSig.stdpTrace - receiverSig.stdpTrace))
 
-    if(weightDelta < 0)
-    {
+    if (weightDelta < 0) {
         weightDelta *= 0.1
-    }
-    else
-    {
+    } else {
         weightDelta *= 0.3
     }
 
     val newWeight = max(0.0, synapseSignals.weight + weightDelta)
 
     return arrayListOf(
-            SignalDoubleChangeResponse(
-                    "${this.hashCode()}, dWeight_stdp, ${newWeight}\n",
-                    this,
-                    params.savingParameters.saver::logResponse,
-                    params.savingParameters.saveResponse,
-                    newWeight,
-                    this::updateWeight
-            )
+        SignalDoubleChangeResponse(
+            "${this.hashCode()}, dWeight_stdp, ${newWeight}\n",
+            this,
+            params.savingParameters.saver::logResponse,
+            params.savingParameters.saveResponse,
+            newWeight,
+            this::updateWeight
+        )
     )
 }
