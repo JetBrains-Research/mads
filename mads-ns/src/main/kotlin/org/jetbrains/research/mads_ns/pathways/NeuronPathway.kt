@@ -18,11 +18,11 @@ fun neuronPathway() = pathway<Neuron> {
         duration = 1
         condition = { overThresholdAndNotSpiked(it) }
     }
-    mechanism(mechanism = NeuronMechanisms.SpikeOff, parameters = HHParamsSaveToFile) {
+    mechanism(mechanism = NeuronMechanisms.SpikeOff, parameters = HHParamsNoSave) {
         duration = 1
         condition = { underThresholdAndSpiked(it) }
     }
-    mechanism(mechanism = NeuronMechanisms.SpikeTransfer, parameters = HHParamsSaveToFile) {
+    mechanism(mechanism = NeuronMechanisms.SpikeTransfer, parameters = HHParamsNoSave) {
         duration = 1
         condition = { overThresholdAndNotSpiked(it) }
     }

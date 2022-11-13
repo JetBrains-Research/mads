@@ -27,7 +27,7 @@ fun main() {
 
 fun IzhikevichCellsExperiment() {
 //    FileSaver.initModelWriters("log/${System.currentTimeMillis()}/", setOf(SignalDoubleChangeResponse::class))
-    FileSaver.initModelWriters("log/izh_one/${System.currentTimeMillis()}/", setOf(SignalDoubleChangeResponse::class))
+    FileSaver.initModelWriters("log/izh_one/${System.currentTimeMillis()}/", setOf(SignalBooleanChangeResponse::class))
     val rnd: Random = Random(12345L)
 
     val objects: ArrayList<ModelObject> = arrayListOf()
@@ -57,8 +57,8 @@ fun IzhikevichTwoCellsExperiment() {
     val rnd: Random = Random(12345L)
 
     val electrode = Electrode(CurrentSignals(I_e = 20.0), rnd)
-    val fNeuron = Neuron(LIFConstants.V_thresh, IzhSignals())
-    val sNeuron = Neuron(LIFConstants.V_thresh, IzhSignals())
+    val fNeuron = Neuron(IzhConstantsRS.V_thresh, IzhSignals())
+    val sNeuron = Neuron(IzhConstantsRS.V_thresh, IzhSignals())
 
     electrode.connectToCell(fNeuron)
     val synapse = connectCellsWithSynapse(fNeuron, sNeuron, false, CurrentSignals(0.0), SynapseSignals())
@@ -68,7 +68,7 @@ fun IzhikevichTwoCellsExperiment() {
     val config = configure {
         addPathway(electrodePathway())
         addPathway(neuronPathway())
-        addPathway(lifPathway())
+        addPathway(izhPathway())
         addPathway(synapsePathway())
     }
 
