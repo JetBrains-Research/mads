@@ -7,8 +7,8 @@ import java.awt.image.BufferedImage
 data class ArrayStimuliResponse (
         override val response: String,
         override val sourceObject: ModelObject,
-        override val logFunction: (Long, Response) -> Response,
-        override val logResponse: Boolean,
+//        override val logFunction: (Long, Response) -> Response,
+//        override val logResponse: Boolean,
 //
         val x: Int,
         val y: Int,

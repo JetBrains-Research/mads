@@ -6,40 +6,41 @@ import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
 import org.jetbrains.research.mads_ns.physiology.neurons.NeuronMechanisms
 import org.jetbrains.research.mads_ns.physiology.neurons.PotentialSignals
 import org.jetbrains.research.mads_ns.physiology.neurons.SpikesSignals
-import org.jetbrains.research.mads_ns.physiology.neurons.hh.HHParamsNoSave
-import org.jetbrains.research.mads_ns.physiology.neurons.hh.HHParamsSaveToFile
 
 fun neuronPathway() = pathway<Neuron> {
-    mechanism(mechanism = NeuronMechanisms.IDynamic, parameters = HHParamsNoSave) {
+    mechanism(mechanism = NeuronMechanisms.IDynamic) {
         duration = 2
         condition = Always
     }
-    mechanism(mechanism = NeuronMechanisms.SpikeOn, parameters = HHParamsSaveToFile) {
+    mechanism(mechanism = NeuronMechanisms.SpikeOn) {
         duration = 1
         condition = { overThresholdAndNotSpiked(it) }
     }
-    mechanism(mechanism = NeuronMechanisms.SpikeOff, parameters = HHParamsNoSave) {
+    mechanism(mechanism = NeuronMechanisms.SpikeOff) {
         duration = 1
         condition = { underThresholdAndSpiked(it) }
     }
-    mechanism(mechanism = NeuronMechanisms.SpikeTransfer, parameters = HHParamsNoSave) {
+    mechanism(mechanism = NeuronMechanisms.SpikeTransfer) {
         duration = 1
         condition = { overThresholdAndNotSpiked(it) }
     }
-    mechanism(mechanism = NeuronMechanisms.STDPDecay, parameters = HHParamsNoSave) {
+}
+
+fun stdpPathway() = pathway<Neuron> {
+    mechanism(mechanism = NeuronMechanisms.STDPDecay) {
         duration = 10
         condition = Always
     }
 }
 
-private fun overThresholdAndNotSpiked(neuron: Neuron) : Boolean {
+fun overThresholdAndNotSpiked(neuron: Neuron) : Boolean {
     val spikesSignals = neuron.signals[SpikesSignals::class] as SpikesSignals
     val potentialSignals = neuron.signals[PotentialSignals::class] as PotentialSignals
 
     return potentialSignals.V > spikesSignals.spikeThreshold && !spikesSignals.spiked
 }
 
-private fun underThresholdAndSpiked(neuron: Neuron) : Boolean {
+fun underThresholdAndSpiked(neuron: Neuron) : Boolean {
     val spikesSignals = neuron.signals[SpikesSignals::class] as SpikesSignals
     val potentialSignals = neuron.signals[PotentialSignals::class] as PotentialSignals
 

@@ -2,6 +2,7 @@ package org.jetbrains.research.mads.core.types
 
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.desd.ModelEvent
+import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.responses.AddObjectResponse
 import org.jetbrains.research.mads.core.types.responses.RemoveObjectResponse
 import kotlin.reflect.KClass
@@ -57,7 +58,7 @@ abstract class ModelObject {
 
     internal fun applyResponses(tick: Long, responses: List<Response>): List<ModelObject> {
         return resolveConflicts(responses).mapNotNull {
-            this.responseMapping[it::class]?.invoke(it.logFunction(tick, it))
+            this.responseMapping[it::class]?.invoke(FileSaver.logResponse(tick, it))
         }.flatten()
     }
 
@@ -71,7 +72,6 @@ abstract class ModelObject {
 
     private fun addObject(response: Response): List<ModelObject> {
         if (response is AddObjectResponse) {
-            println(response.response)
             response.addedObject.parent = this
             childObjects.add(response.addedObject)
             return arrayListOf(response.sourceObject, response.addedObject)
@@ -82,7 +82,6 @@ abstract class ModelObject {
 
     private fun removeObject(response: Response): List<ModelObject> {
         if (response is RemoveObjectResponse) {
-            println(response.response)
             childObjects.add(response.removedObject)
         }
         return arrayListOf()

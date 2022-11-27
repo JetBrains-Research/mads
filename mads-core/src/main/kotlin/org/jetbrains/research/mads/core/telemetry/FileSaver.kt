@@ -25,7 +25,7 @@ object FileSaver : ResponseSaver {
     }
 
     override fun logResponse(tick: Long, response: Response): Response {
-        if (modelWriters.containsKey(response::class) && response.logResponse) {
+        if (modelWriters.containsKey(response::class)) { //} && response.logResponse) {
             scope.launch {
                 modelWriters[response::class]!!.flow.emit("${tick}, " + response.response)
             }

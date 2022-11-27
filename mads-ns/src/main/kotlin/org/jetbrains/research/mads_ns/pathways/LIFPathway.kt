@@ -4,11 +4,9 @@ import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
 import org.jetbrains.research.mads_ns.physiology.neurons.lif.LIFMechanisms
-import org.jetbrains.research.mads_ns.physiology.neurons.lif.LIFParamsNoSave
-import org.jetbrains.research.mads_ns.physiology.neurons.lif.LIFParamsSaveToFile
 
 fun lifPathway() = pathway<Neuron> {
-    mechanism(mechanism = LIFMechanisms.VDynamic, parameters = LIFParamsNoSave) {
+    mechanism(mechanism = LIFMechanisms.VDynamic) {
         duration = 2
         condition = Always
     }

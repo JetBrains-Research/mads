@@ -4,6 +4,7 @@ import org.jetbrains.research.mads.core.types.responses.SignalBooleanChangeRespo
 import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
 import org.jetbrains.research.mads.core.types.responses.SignalIntChangeResponse
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
 open class SignalsObject(vararg signals: Signals) : ModelObject() {
     override val type = "physical object"
@@ -16,25 +17,39 @@ open class SignalsObject(vararg signals: Signals) : ModelObject() {
         signals.forEach { this.signals[it::class] = it }
     }
 
-    private fun signalChangedResponse(response: Response): List<ModelObject> {
-        when (response::class) {
-            SignalBooleanChangeResponse::class -> {
-                response as SignalBooleanChangeResponse
-                response.updateFn(response.value)
-            }
-
-            SignalIntChangeResponse::class -> {
-                response as SignalIntChangeResponse
-                response.updateFn(response.value)
-            }
-
-            SignalDoubleChangeResponse::class -> {
-                response as SignalDoubleChangeResponse
-                response.updateFn(response.value)
-            }
-
-            else -> println("Signal update type not supported")
+    protected fun signalChangedResponse(response: Response): List<ModelObject> {
+        if (response::class.isSubclassOf(SignalBooleanChangeResponse::class)) {
+            response as SignalBooleanChangeResponse
+            response.updateFn(response.value)
         }
+        else if (response::class.isSubclassOf(SignalDoubleChangeResponse::class)) {
+            response as SignalDoubleChangeResponse
+            response.updateFn(response.value)
+        }
+        else if (response::class.isSubclassOf(SignalIntChangeResponse::class)) {
+            response as SignalIntChangeResponse
+            response.updateFn(response.value)
+        } else {
+            println("Signal update type not supported")
+        }
+//        when (response::class) {
+//            SignalBooleanChangeResponse::class -> {
+//                response as SignalBooleanChangeResponse
+//                response.updateFn(response.value)
+//            }
+//
+//            SignalIntChangeResponse::class -> {
+//                response as SignalIntChangeResponse
+//                response.updateFn(response.value)
+//            }
+//
+//            SignalDoubleChangeResponse::class -> {
+//                response as SignalDoubleChangeResponse
+//                response.updateFn(response.value)
+//            }
+//
+//            else -> println("Signal update type not supported")
+//        }
 
         return arrayListOf(this)
     }
