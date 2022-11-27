@@ -7,17 +7,17 @@ import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.synapses.*
 
 fun synapsePathway() = pathway<Synapse> {
-//    mechanism(mechanism = SynapseMechanisms.SynapseDecay, SynapseParamsNoSave) {
+//    mechanism(mechanism = SynapseMechanisms.SynapseDecay) {
 //        duration = 100
 //    }
-    mechanism(mechanism = SynapseMechanisms.CurrentDecay, SynapseParamsSaveToFile) {
+    mechanism(mechanism = SynapseMechanisms.CurrentDecay) {
         duration = 10
         condition = {
             val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
             currentSignals.I_e > 0.01
         }
     }
-//    mechanism(mechanism = SynapseMechanisms.STDUpdate, SynapseParamsNoSave) {
+//    mechanism(mechanism = SynapseMechanisms.STDUpdate) {
 //        duration = 10
 //    }
 }

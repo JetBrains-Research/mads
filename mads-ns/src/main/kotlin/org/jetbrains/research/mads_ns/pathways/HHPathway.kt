@@ -4,22 +4,21 @@ import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
 import org.jetbrains.research.mads_ns.physiology.neurons.hh.HHMechanisms
-import org.jetbrains.research.mads_ns.physiology.neurons.hh.HHParamsNoSave
 
 fun hhPathway() = pathway<Neuron> {
-    mechanism(mechanism = HHMechanisms.VDynamic, parameters = HHParamsNoSave) {
+    mechanism(mechanism = HHMechanisms.VDynamic) {
         duration = 2
         condition = Always
     }
-    mechanism(mechanism = HHMechanisms.NDynamic, parameters = HHParamsNoSave) {
+    mechanism(mechanism = HHMechanisms.NDynamic) {
         duration = 2
         condition = Always
     }
-    mechanism(mechanism = HHMechanisms.MDynamic, parameters = HHParamsNoSave) {
+    mechanism(mechanism = HHMechanisms.MDynamic) {
         duration = 2
         condition = Always
     }
-    mechanism(mechanism = HHMechanisms.HDynamic, parameters = HHParamsNoSave) {
+    mechanism(mechanism = HHMechanisms.HDynamic) {
         duration = 2
         condition = Always
     }

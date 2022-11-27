@@ -1,7 +1,6 @@
 package org.jetbrains.research.mads_ns.electrode
 
 import org.jetbrains.research.mads.core.types.Response
-import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
 import org.jetbrains.research.mads_ns.types.responses.ArrayStimuliResponse
 
 object ElectrodeArrayMechanisms {
@@ -23,8 +22,8 @@ fun ElectrodeArray.StimuliDynamic(params: ElectrodeParameters): List<Response> {
                     ArrayStimuliResponse(
                             responseString,
                             this,
-                            params.savingParameters.saver::logResponse,
-                            params.savingParameters.saveResponse,
+//                            params.savingParameters.saver::logResponse,
+//                            params.savingParameters.saveResponse,
                             i, j, img
                     )
             )
