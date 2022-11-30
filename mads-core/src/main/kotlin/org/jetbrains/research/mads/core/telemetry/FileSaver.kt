@@ -5,44 +5,32 @@ import org.jetbrains.research.mads.core.types.Response
 import org.jetbrains.research.mads.core.types.ResponseSaver
 import java.io.File
 import java.nio.file.Paths
-import kotlin.reflect.KClass
 
 object FileSaver : ResponseSaver {
     private val scope = CoroutineScope(Dispatchers.IO + Job() + SupervisorJob())
-    private val modelWriters = HashMap<KClass<out Response>, CsvModelExporter>()
+    private lateinit var modelWriter : CsvModelExporter
 
-    fun initModelWriters(dir: String, allowedResponses: Set<KClass<out Response>>) {
+    fun initModelWriters(dir: String) {
         mkdirs(dir)
-        allowedResponses.forEach {
-            val csvModelExporter = CsvModelExporter()
-            csvModelExporter.open(
-                Paths.get(dir, File.separator),
-                "${it.simpleName}s.csv",
-                ""
-            )
-            modelWriters[it] = csvModelExporter
-        }
+        val csvModelExporter = CsvModelExporter()
+        csvModelExporter.open(
+            Paths.get(dir, File.separator),
+            "responses.csv",
+            ""
+        )
+        modelWriter = csvModelExporter
     }
 
     override fun logResponse(tick: Long, response: Response): Response {
-        if (modelWriters.containsKey(response::class)) { //} && response.logResponse) {
-            scope.launch {
-                modelWriters[response::class]!!.flow.emit("${tick}, " + response.response)
-            }
+        scope.launch {
+            modelWriter.flow.emit("${tick}, ${response.sourceObject.hashCode()}, " + response.string)
         }
+
         return response
     }
 
     fun closeModelWriters() {
-        modelWriters.values.forEach {
-            it.close()
-        }
-    }
-
-    fun isClosed(): Boolean {
-        return (modelWriters.values.map { it.isClosed }.toList())
-            .reduceOrNull { acc, next -> acc && next }
-            ?: true
+        modelWriter.close()
     }
 
     private fun mkdirs(dir: String) {

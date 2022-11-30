@@ -1,15 +1,16 @@
 package org.jetbrains.research.mads_ns.physiology.neurons
 
-import org.jetbrains.research.mads.core.types.*
-import org.jetbrains.research.mads.core.types.responses.SignalBooleanChangeResponse
-import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
+import org.jetbrains.research.mads.core.types.MechanismParameters
+import org.jetbrains.research.mads.core.types.Response
+import org.jetbrains.research.mads.core.types.Signals
+import org.jetbrains.research.mads.core.types.SignalsObject
 import org.jetbrains.research.mads_ns.electrode.ElectrodeConnection
 import org.jetbrains.research.mads_ns.synapses.Synapse
 import org.jetbrains.research.mads_ns.synapses.SynapseReceiver
 import org.jetbrains.research.mads_ns.synapses.SynapseReleaser
 import org.jetbrains.research.mads_ns.synapses.SynapseSignals
 
-open class Neuron(
+abstract class Neuron(
     spikeThreshold: Double,
     vararg signals: Signals
 ) : SignalsObject(SpikesSignals(spikeThreshold = spikeThreshold), PotentialSignals(), CurrentSignals(), *signals)
@@ -56,36 +57,6 @@ object NeuronMechanisms {
     val STDPDecay = Neuron::STDPDecay
 }
 
-data class CurrentChangeResponse(
-    override val sourceObject: ModelObject,
-    override val value: Double,
-    override val updateFn: (Double) -> Unit
-) : SignalDoubleChangeResponse("${sourceObject.hashCode()}, dI, ${value}\n", sourceObject, value, updateFn)
-
-data class PotentialChangeResponse(
-    override val sourceObject: ModelObject,
-    override val value: Double,
-    override val updateFn: (Double) -> Unit
-) : SignalDoubleChangeResponse("${sourceObject.hashCode()}, dV, ${value}\n", sourceObject, value, updateFn)
-
-data class SpikeOnChangeResponse(
-    override val sourceObject: ModelObject,
-    override val value: Boolean,
-    override val updateFn: (Boolean) -> Unit
-) : SignalBooleanChangeResponse("${sourceObject.hashCode()}, +\n", sourceObject, value, updateFn)
-
-data class SpikeOffChangeResponse(
-    override val sourceObject: ModelObject,
-    override val value: Boolean,
-    override val updateFn: (Boolean) -> Unit
-) : SignalBooleanChangeResponse("${sourceObject.hashCode()}, -\n", sourceObject, value, updateFn)
-
-data class STDPChangeResponse(
-    override val sourceObject: ModelObject,
-    override val value: Double,
-    override val updateFn: (Double) -> Unit
-) : SignalDoubleChangeResponse("${sourceObject.hashCode()}, dTrace, ${value}\n", sourceObject, value, updateFn)
-
 fun Neuron.IDynamic(params: MechanismParameters): List<Response> {
     val currentSignals = this.signals[CurrentSignals::class] as CurrentSignals
     var I_e = 0.0
@@ -106,7 +77,9 @@ fun Neuron.IDynamic(params: MechanismParameters): List<Response> {
     val delta = I_e - currentSignals.I_e
 
     return arrayListOf(
-        CurrentChangeResponse(this, delta) { currentSignals.I_e = it }
+        this.createResponse("dI, ${delta}\n") {
+            currentSignals.I_e += delta
+        }
     )
 }
 
@@ -115,7 +88,9 @@ fun Neuron.STDPDecay(params: MechanismParameters): List<Response> {
     val trace = -signals.stdpTrace * (1 - signals.stdpDecayCoefficient)
 
     return arrayListOf(
-        STDPChangeResponse(this, trace) { signals.stdpTrace += it }
+        this.createResponse("dTrace, ${trace}\n") {
+            signals.stdpTrace += trace
+        }
     )
 }
 
@@ -123,22 +98,28 @@ fun Neuron.STDPSpike(params: MechanismParameters): List<Response> {
     val signals = this.signals[STDPSignals::class] as STDPSignals
 
     return arrayListOf(
-        STDPChangeResponse(this, 1.0) { signals.stdpTrace += it }
+        this.createResponse("dTrace, ${1.0}\n"){
+            signals.stdpTrace += 1.0
+        }
     )
 }
 
 fun Neuron.spikeOn(params: MechanismParameters): List<Response> {
     val spikesSignals = this.signals[SpikesSignals::class] as SpikesSignals
     return arrayListOf(
-        SpikeOnChangeResponse(this, true) { spikesSignals.spiked = it }
+        this.createResponse("spike, +\n") {
+            spikesSignals.spiked = true
+        }
     )
 }
 
 fun Neuron.spikeOff(params: MechanismParameters): List<Response> {
     val spikesSignals = this.signals[SpikesSignals::class] as SpikesSignals
 
-    return arrayListOf<Response>(
-        SpikeOffChangeResponse(this, false) { spikesSignals.spiked = it }
+    return arrayListOf(
+        this.createResponse("spike, -\n") {
+            spikesSignals.spiked = false
+        }
     )
 }
 
@@ -151,7 +132,9 @@ fun Neuron.spikeTransfer(params: MechanismParameters): List<Response> {
             val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
             val delta = synapseSignals.weight * synapseSignals.synapseSign * 100.0 // 100.0 – mA
             result.add(
-                CurrentChangeResponse(it, delta) { I -> currentSignals.I_e = I }
+                it.createResponse("dI, ${delta}\n") {
+                    currentSignals.I_e += delta
+                }
             )
         }
     }

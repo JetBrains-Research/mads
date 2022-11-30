@@ -1,8 +1,11 @@
 package org.jetbrains.research.mads.core.types
 
-interface Response {
-    val response: String
-    val sourceObject: ModelObject
-//    val logFunction: (Long, Response) -> Response
-//    val logResponse: Boolean
+import org.jetbrains.research.mads.core.telemetry.EmptySaver
+
+class Response(
+    val sourceObject: ModelObject,
+    val string: String,
+    val applyFn: () -> Unit
+) {
+    var logFn: (Long, Response) -> Response = EmptySaver::logResponse
 }

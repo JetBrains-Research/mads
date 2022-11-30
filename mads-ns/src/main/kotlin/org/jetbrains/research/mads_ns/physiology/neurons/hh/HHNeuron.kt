@@ -1,10 +1,11 @@
 package org.jetbrains.research.mads_ns.physiology.neurons.hh
 
-import org.jetbrains.research.mads.core.types.*
-import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
+import org.jetbrains.research.mads.core.types.Constants
+import org.jetbrains.research.mads.core.types.MechanismParameters
+import org.jetbrains.research.mads.core.types.Response
+import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
-import org.jetbrains.research.mads_ns.physiology.neurons.PotentialChangeResponse
 import org.jetbrains.research.mads_ns.physiology.neurons.PotentialSignals
 import kotlin.math.exp
 import kotlin.math.pow
@@ -42,31 +43,15 @@ data class HHSignals(
 }
 
 object HHMechanisms {
-    val VDynamic = Neuron::VDynamic
-    val HDynamic = Neuron::HDynamic
-    val NDynamic = Neuron::NDynamic
-    val MDynamic = Neuron::MDynamic
+    val VDynamic = HHNeuron::VDynamic
+    val HDynamic = HHNeuron::HDynamic
+    val NDynamic = HHNeuron::NDynamic
+    val MDynamic = HHNeuron::MDynamic
 }
 
-data class MChangeResponse(
-    override val sourceObject: ModelObject,
-    override val value: Double,
-    override val updateFn: (Double) -> Unit
-) : SignalDoubleChangeResponse("${sourceObject.hashCode()}, dM, ${value}\n", sourceObject, value, updateFn)
+class HHNeuron(spikeThreshold: Double, vararg signals: Signals) : Neuron(spikeThreshold, *signals)
 
-data class NChangeResponse(
-    override val sourceObject: ModelObject,
-    override val value: Double,
-    override val updateFn: (Double) -> Unit
-) : SignalDoubleChangeResponse("${sourceObject.hashCode()}, dN, ${value}\n", sourceObject, value, updateFn)
-
-data class HChangeResponse(
-    override val sourceObject: ModelObject,
-    override val value: Double,
-    override val updateFn: (Double) -> Unit
-) : SignalDoubleChangeResponse("${sourceObject.hashCode()}, dH, ${value}\n", sourceObject, value, updateFn)
-
-fun Neuron.VDynamic(params: MechanismParameters): List<Response> {
+fun HHNeuron.VDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val s = this.signals[HHSignals::class] as HHSignals
     val i = this.signals[CurrentSignals::class] as CurrentSignals
@@ -78,11 +63,13 @@ fun Neuron.VDynamic(params: MechanismParameters): List<Response> {
     val delta = ((i.I_e - IK - INa - IL) / HHConstants.C_m) * HHConstants.dt
 
     return arrayListOf(
-        PotentialChangeResponse(this, delta) { u.V += it }
+        this.createResponse("${this.hashCode()}, dV, ${delta},\n") {
+            u.V += delta
+        }
     )
 }
 
-fun Neuron.NDynamic(params: MechanismParameters): List<Response> {
+fun HHNeuron.NDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val s = this.signals[HHSignals::class] as HHSignals
 
@@ -92,11 +79,13 @@ fun Neuron.NDynamic(params: MechanismParameters): List<Response> {
     val delta = ((AlphaN(V) * (1.0 - n)) - (BetaN(V) * n)) * HHConstants.dt
 
     return arrayListOf(
-        NChangeResponse(this, delta) { s.N += it }
+        this.createResponse("${this.hashCode()}, dN, ${delta},\n") {
+            s.N += delta
+        }
     )
 }
 
-fun Neuron.MDynamic(params: MechanismParameters): List<Response> {
+fun HHNeuron.MDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val s = this.signals[HHSignals::class] as HHSignals
 
@@ -106,11 +95,13 @@ fun Neuron.MDynamic(params: MechanismParameters): List<Response> {
     val delta = ((AlphaM(V) * (1.0 - m)) - (BetaM(V) * m)) * HHConstants.dt
 
     return arrayListOf(
-        MChangeResponse(this, delta) { s.M += it }
+        this.createResponse("${this.hashCode()}, dM, ${delta},\n") {
+            s.M += delta
+        }
     )
 }
 
-fun Neuron.HDynamic(params: MechanismParameters): List<Response> {
+fun HHNeuron.HDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val s = this.signals[HHSignals::class] as HHSignals
 
@@ -120,7 +111,9 @@ fun Neuron.HDynamic(params: MechanismParameters): List<Response> {
     val delta = ((AlphaH(V) * (1.0 - h)) - (BetaH(V) * h)) * HHConstants.dt
 
     return arrayListOf(
-        HChangeResponse(this, delta) { s.H += it }
+        this.createResponse("${this.hashCode()}, dH, ${delta},\n") {
+            s.H += delta
+        }
     )
 }
 

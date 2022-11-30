@@ -1,10 +1,12 @@
 package org.jetbrains.research.mads_ns.physiology.neurons.izh
 
-import org.jetbrains.research.mads.core.types.*
-import org.jetbrains.research.mads.core.types.responses.SignalBooleanChangeResponse
-import org.jetbrains.research.mads.core.types.responses.SignalDoubleChangeResponse
-import org.jetbrains.research.mads.core.types.responses.SignalIntChangeResponse
-import org.jetbrains.research.mads_ns.physiology.neurons.*
+import org.jetbrains.research.mads.core.types.Constants
+import org.jetbrains.research.mads.core.types.MechanismParameters
+import org.jetbrains.research.mads.core.types.Response
+import org.jetbrains.research.mads.core.types.Signals
+import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
+import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
+import org.jetbrains.research.mads_ns.physiology.neurons.PotentialSignals
 import kotlin.math.pow
 
 open class IzhConstants(
@@ -29,27 +31,13 @@ data class IzhSignals(
 }
 
 object IzhMechanisms {
-    val VDynamic = Neuron::VDynamic
-    val UDynamic = Neuron::UDynamic
+    val VDynamic = IzhNeuron::VDynamic
+    val UDynamic = IzhNeuron::UDynamic
 }
 
-class IzhNeuron(spikeThreshold: Double, vararg signals: Signals) : Neuron(spikeThreshold, *signals) {
-    init {
-        responseMapping[PotentialChangeResponse::class] = ::signalChangedResponse
-        responseMapping[CurrentChangeResponse::class] = ::signalChangedResponse
-        responseMapping[UChangeResponse::class] = ::signalChangedResponse
-        responseMapping[SpikeOnChangeResponse::class] = ::signalChangedResponse
-        responseMapping[SpikeOffChangeResponse::class] = ::signalChangedResponse
-    }
-}
+class IzhNeuron(spikeThreshold: Double, vararg signals: Signals) : Neuron(spikeThreshold, *signals)
 
-data class UChangeResponse(
-    override val sourceObject: ModelObject,
-    override val value: Double,
-    override val updateFn: (Double) -> Unit
-) : SignalDoubleChangeResponse("${sourceObject.hashCode()}, dU, ${value}\n", sourceObject, value, updateFn)
-
-fun Neuron.VDynamic(params: MechanismParameters): List<Response> {
+fun IzhNeuron.VDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val izh = this.signals[IzhSignals::class] as IzhSignals
     val i = this.signals[CurrentSignals::class] as CurrentSignals
@@ -64,11 +52,13 @@ fun Neuron.VDynamic(params: MechanismParameters): List<Response> {
         }
 
     return arrayListOf(
-        PotentialChangeResponse(this, delta) { u.V += it }
+        this.createResponse("dV, ${delta}\n") {
+            u.V += delta
+        }
     )
 }
 
-fun Neuron.UDynamic(params: MechanismParameters): List<Response> {
+fun IzhNeuron.UDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val izh = this.signals[IzhSignals::class] as IzhSignals
     val consts = IzhConstantsRS
@@ -82,6 +72,8 @@ fun Neuron.UDynamic(params: MechanismParameters): List<Response> {
         }
 
     return arrayListOf(
-        UChangeResponse(this, delta) { izh.U += it }
+        this.createResponse("dU, ${delta}\n") {
+            izh.U += delta
+        }
     )
 }

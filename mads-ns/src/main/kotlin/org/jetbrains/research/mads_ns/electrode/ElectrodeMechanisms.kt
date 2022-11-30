@@ -1,7 +1,6 @@
 package org.jetbrains.research.mads_ns.electrode
 
 import org.jetbrains.research.mads.core.types.Response
-import org.jetbrains.research.mads_ns.physiology.neurons.CurrentChangeResponse
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 
 object ElectrodeMechanisms {
@@ -18,8 +17,9 @@ fun Electrode.PulseDynamic(params: ElectrodeParameters): List<Response> {
 
     val delta = I - s.I_e
 
-    val responseString = "${this.hashCode()}, I, ${I}\n"
     return arrayListOf(
-        CurrentChangeResponse(this, delta) { s.I_e += it }
+        this.createResponse("dI, ${delta}\n") {
+            s.I_e += delta
+        }
     )
 }
