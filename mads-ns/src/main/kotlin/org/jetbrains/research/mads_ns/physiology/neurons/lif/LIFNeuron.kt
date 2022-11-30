@@ -3,9 +3,9 @@ package org.jetbrains.research.mads_ns.physiology.neurons.lif
 import org.jetbrains.research.mads.core.types.Constants
 import org.jetbrains.research.mads.core.types.MechanismParameters
 import org.jetbrains.research.mads.core.types.Response
+import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
-import org.jetbrains.research.mads_ns.physiology.neurons.PotentialChangeResponse
 import org.jetbrains.research.mads_ns.physiology.neurons.PotentialSignals
 
 object LIFConstants : Constants {
@@ -20,10 +20,12 @@ object LIFConstants : Constants {
 }
 
 object LIFMechanisms {
-    val VDynamic = Neuron::VDynamic
+    val VDynamic = LIFNeuron::VDynamic
 }
 
-fun Neuron.VDynamic(params: MechanismParameters): List<Response> {
+class LIFNeuron(spikeThreshold: Double, vararg signals: Signals) : Neuron(spikeThreshold, *signals)
+
+fun LIFNeuron.VDynamic(params: MechanismParameters): List<Response> {
     val s = this.signals[PotentialSignals::class] as PotentialSignals
     val i = this.signals[CurrentSignals::class] as CurrentSignals
 
@@ -31,8 +33,9 @@ fun Neuron.VDynamic(params: MechanismParameters): List<Response> {
     val delta =
         if (spiked) LIFConstants.V_reset - s.V else (LIFConstants.E_leak - s.V + (LIFConstants.Rm * i.I_e)) / LIFConstants.tau_mem * LIFConstants.dt
 
-    val responseString = "${this.hashCode()}, dV, ${delta}\n"
     return arrayListOf(
-        PotentialChangeResponse(this, delta) { s.V += it }
+        this.createResponse("${this.hashCode()}, dV, ${delta},\n") {
+            s.V += delta
+        }
     )
 }

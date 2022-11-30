@@ -6,10 +6,7 @@ import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads_ns.electrode.Electrode
 import org.jetbrains.research.mads_ns.pathways.*
-import org.jetbrains.research.mads_ns.physiology.neurons.CurrentChangeResponse
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
-import org.jetbrains.research.mads_ns.physiology.neurons.PotentialChangeResponse
-import org.jetbrains.research.mads_ns.physiology.neurons.SpikeOnChangeResponse
 import org.jetbrains.research.mads_ns.physiology.neurons.izh.IzhConstantsRS
 import org.jetbrains.research.mads_ns.physiology.neurons.izh.IzhNeuron
 import org.jetbrains.research.mads_ns.physiology.neurons.izh.IzhSignals
@@ -17,17 +14,13 @@ import org.jetbrains.research.mads_ns.synapses.SynapseSignals
 import kotlin.random.Random
 
 fun main() {
-//    IzhikevichCellsExperiment()
-    IzhikevichTwoCellsExperiment()
+    IzhikevichCellsExperiment()
+//    IzhikevichTwoCellsExperiment()
 }
 
 fun IzhikevichCellsExperiment() {
-    FileSaver.initModelWriters("log/izh_one/${System.currentTimeMillis()}/",
-        setOf(
-            CurrentChangeResponse::class,
-            PotentialChangeResponse::class,
-            SpikeOnChangeResponse::class
-        )
+    FileSaver.initModelWriters(
+        "log/izh_one/${System.currentTimeMillis()}/"
     )
     val rnd: Random = Random(12345L)
 
@@ -53,10 +46,8 @@ fun IzhikevichCellsExperiment() {
 
 fun IzhikevichTwoCellsExperiment() {
 //    FileSaver.initModelWriters("log/${System.currentTimeMillis()}/", setOf(SignalDoubleChangeResponse::class))
-    FileSaver.initModelWriters("log/izh_two/${System.currentTimeMillis()}/",
-        setOf(
-            PotentialChangeResponse::class,
-            SpikeOnChangeResponse::class)
+    FileSaver.initModelWriters(
+        "log/izh_two/${System.currentTimeMillis()}/"
     )
     val rnd: Random = Random(12345L)
 

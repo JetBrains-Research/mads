@@ -17,17 +17,17 @@ fun createCellsExperiment() {
 
     val pathwaySimple: Pathway<SimpleObject> =
         pathway {
-            mechanism(SimpleObject::simpleMechanism,
-                SimpleParameters(SkipSaving, EmptyConstants, 0.5)) {
-                duration = 10
-            }
+//            mechanism(SimpleObject::simpleAddMechanism,
+//                SimpleParameters(SkipSaving, EmptyConstants, 0.5)) {
+//                duration = 10
+//            }
             mechanism(SimpleObject::simpleAddMechanism,
                 SimpleParameters(SkipSaving, EmptyConstants, 0.5)) {
                 duration = 10
             }
         }
     val pathwayDummy: Pathway<DummyObject> = pathway {
-        mechanism(DummyObject::simpleMechanism,
+        mechanism(DummyObject::dummyMechanism,
             SimpleParameters(SkipSaving, EmptyConstants, 0.8)) {
             duration = 10
         }

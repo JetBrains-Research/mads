@@ -1,7 +1,6 @@
 package org.jetbrains.research.mads_ns.electrode
 
 import org.jetbrains.research.mads.core.types.Response
-import org.jetbrains.research.mads_ns.types.responses.ArrayStimuliResponse
 
 object ElectrodeArrayMechanisms {
     val StimuliDynamic = ElectrodeArray::StimuliDynamic
@@ -18,14 +17,13 @@ fun ElectrodeArray.StimuliDynamic(params: ElectrodeParameters): List<Response> {
 
     for(i in 0 until provider.width) {
         for(j in 0 until provider.height) {
+            val grayScaled = (img.getRGB(i, j) and 0xFF) / 255.0
+            val electrode = getElectrodeByCoordinate(i, j)
+            val delta =
             responses.add(
-                    ArrayStimuliResponse(
-                            responseString,
-                            this,
-//                            params.savingParameters.saver::logResponse,
-//                            params.savingParameters.saveResponse,
-                            i, j, img
-                    )
+                this.createResponse("I, ${1}") {
+                    stimulateCells(i, j, grayScaled)
+                }
             )
         }
     }

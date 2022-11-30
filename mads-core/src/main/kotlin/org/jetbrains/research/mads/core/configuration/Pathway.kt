@@ -12,17 +12,17 @@ class Pathway<MO : ModelObject>(val type: KClass<MO>) {
     fun <MP : MechanismParameters> mechanism(
         mechanism: (MO, MP) -> List<Response>,
         parameters: MP,
-        lambda: MocRecordBuilder<MO, MP>.() -> Unit
+        lambda: ConfiguredMechanismBuilder<MO, MP>.() -> Unit
     ) {
-        configuredMechanisms.add(MocRecordBuilder(mechanism, parameters).apply(lambda).build())
+        configuredMechanisms.add(ConfiguredMechanismBuilder(mechanism, parameters).apply(lambda).build())
     }
 
     @Suppress("UNCHECKED_CAST")
     fun <MP : MechanismParameters> mechanism(
         mechanism: (MO, MP) -> List<Response>,
-        lambda: MocRecordBuilder<MO, MP>.() -> Unit
+        lambda: ConfiguredMechanismBuilder<MO, MP>.() -> Unit
     ) {
-        configuredMechanisms.add(MocRecordBuilder(mechanism, EmptyParameters as MP).apply(lambda).build())
+        configuredMechanisms.add(ConfiguredMechanismBuilder(mechanism, EmptyParameters as MP).apply(lambda).build())
     }
 
     companion object {
