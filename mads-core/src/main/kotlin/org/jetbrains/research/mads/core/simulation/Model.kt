@@ -7,7 +7,7 @@ import me.tongfei.progressbar.ProgressBarStyle
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
 import org.jetbrains.research.mads.core.types.ModelObject
-import kotlin.streams.toList
+import java.util.stream.Collectors
 
 object RootObject : ModelObject()
 
@@ -55,7 +55,7 @@ class Model(
                 .map { e -> e.key.applyResponses(currentTime, e.value) }
                 .flatMap { it.stream() }
                 .distinct()
-                .toList()
+                .collect(Collectors.toList())
 
             // 3. calculate conditions -> map of events
             updatedObjects.parallelStream()
@@ -68,7 +68,7 @@ class Model(
             val allEvents = updatedObjects.parallelStream()
                 .map { it.events }
                 .flatMap { it.stream() }
-                .toList()
+                .collect(Collectors.toList())
 
             dispatcher.addEvents(allEvents)
 

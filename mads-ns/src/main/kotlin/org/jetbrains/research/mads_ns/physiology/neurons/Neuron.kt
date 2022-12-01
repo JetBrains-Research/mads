@@ -1,0 +1,143 @@
+package org.jetbrains.research.mads_ns.physiology.neurons
+
+import org.jetbrains.research.mads.core.types.MechanismParameters
+import org.jetbrains.research.mads.core.types.Response
+import org.jetbrains.research.mads.core.types.Signals
+import org.jetbrains.research.mads.core.types.SignalsObject
+import org.jetbrains.research.mads_ns.electrode.ElectrodeConnection
+import org.jetbrains.research.mads_ns.synapses.Synapse
+import org.jetbrains.research.mads_ns.synapses.SynapseReceiver
+import org.jetbrains.research.mads_ns.synapses.SynapseReleaser
+import org.jetbrains.research.mads_ns.synapses.SynapseSignals
+
+abstract class Neuron(
+    spikeThreshold: Double,
+    vararg signals: Signals
+) : SignalsObject(SpikesSignals(spikeThreshold = spikeThreshold), PotentialSignals(), CurrentSignals(), *signals)
+
+data class SpikesSignals(
+    var spiked: Boolean = false,
+    var spikeThreshold: Double = 0.0,
+) : Signals {
+    override fun clone(): Signals {
+        return this.copy()
+    }
+}
+
+data class STDPSignals(
+    var stdpTrace: Double = 0.0,
+    val stdpDecayCoefficient: Double = 0.99
+) : Signals {
+    override fun clone(): Signals {
+        return this.copy()
+    }
+}
+
+data class CurrentSignals(
+    var I_e: Double = 0.0,
+) : Signals {
+    override fun clone(): Signals {
+        return this.copy()
+    }
+}
+
+data class PotentialSignals(
+    var V: Double = -65.0,
+) : Signals {
+    override fun clone(): Signals {
+        return this.copy()
+    }
+}
+
+object NeuronMechanisms {
+    val IDynamic = Neuron::IDynamic
+    val SpikeOn = Neuron::spikeOn
+    val SpikeOff = Neuron::spikeOff
+    val SpikeTransfer = Neuron::spikeTransfer
+    val STDPDecay = Neuron::STDPDecay
+}
+
+fun Neuron.IDynamic(params: MechanismParameters): List<Response> {
+    val currentSignals = this.signals[CurrentSignals::class] as CurrentSignals
+    var I_e = 0.0
+
+    this.connections[ElectrodeConnection]?.forEach {
+        if (it is SignalsObject) {
+            val signals = it.signals[CurrentSignals::class] as CurrentSignals
+            I_e += signals.I_e
+        }
+    }
+    this.connections[SynapseReceiver]?.forEach {
+        if (it is SignalsObject) {
+            val signals = it.signals[CurrentSignals::class] as CurrentSignals
+            I_e += signals.I_e
+        }
+    }
+
+    val delta = I_e - currentSignals.I_e
+
+    return arrayListOf(
+        this.createResponse("dI, ${delta}\n") {
+            currentSignals.I_e += delta
+        }
+    )
+}
+
+fun Neuron.STDPDecay(params: MechanismParameters): List<Response> {
+    val signals = this.signals[STDPSignals::class] as STDPSignals
+    val trace = -signals.stdpTrace * (1 - signals.stdpDecayCoefficient)
+
+    return arrayListOf(
+        this.createResponse("dTrace, ${trace}\n") {
+            signals.stdpTrace += trace
+        }
+    )
+}
+
+fun Neuron.STDPSpike(params: MechanismParameters): List<Response> {
+    val signals = this.signals[STDPSignals::class] as STDPSignals
+
+    return arrayListOf(
+        this.createResponse("dTrace, ${1.0}\n"){
+            signals.stdpTrace += 1.0
+        }
+    )
+}
+
+fun Neuron.spikeOn(params: MechanismParameters): List<Response> {
+    val spikesSignals = this.signals[SpikesSignals::class] as SpikesSignals
+    return arrayListOf(
+        this.createResponse("spike, +\n") {
+            spikesSignals.spiked = true
+        }
+    )
+}
+
+fun Neuron.spikeOff(params: MechanismParameters): List<Response> {
+    val spikesSignals = this.signals[SpikesSignals::class] as SpikesSignals
+
+    return arrayListOf(
+        this.createResponse("spike, -\n") {
+            spikesSignals.spiked = false
+        }
+    )
+}
+
+fun Neuron.spikeTransfer(params: MechanismParameters): List<Response> {
+    val result = arrayListOf<Response>()
+
+    this.connections[SynapseReleaser]?.forEach {
+        if (it is Synapse) {
+            val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
+            val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
+            val delta = synapseSignals.weight * synapseSignals.synapseSign * 100.0 // 100.0 – mA
+            result.add(
+                it.createResponse("dI, ${delta}\n") {
+                    currentSignals.I_e += delta
+                }
+            )
+        }
+    }
+
+    return result
+}
