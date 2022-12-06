@@ -12,10 +12,7 @@ abstract class ModelObject {
     val connections: MutableMap<ConnectionType, HashSet<ModelObject>> = mutableMapOf()
 
     var initialized = false
-        get() = field
-        private set(value) {
-            field = value
-        }
+        private set
 
     fun getChildObjects(): Array<ModelObject> {
         return childObjects.toTypedArray()
@@ -39,8 +36,6 @@ abstract class ModelObject {
     }
 
     internal fun createEvents(pathways: ArrayList<Pathway<out ModelObject>>) {
-        if (initialized) return
-
         pathways.forEach { createEvents(it) }
         initialized = true
     }

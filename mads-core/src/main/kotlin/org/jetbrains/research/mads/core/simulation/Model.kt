@@ -1,9 +1,5 @@
 package org.jetbrains.research.mads.core.simulation
 
-import me.tongfei.progressbar.ConsoleProgressBarConsumer
-import me.tongfei.progressbar.ProgressBar
-import me.tongfei.progressbar.ProgressBarBuilder
-import me.tongfei.progressbar.ProgressBarStyle
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
 import org.jetbrains.research.mads.core.types.ModelObject
@@ -16,15 +12,9 @@ class Model(
     private val configuration: Configuration
 ) : ModelObject() {
 
+    private var tStart: Long = 0
     private val dispatcher = EventsDispatcher()
-
-    // TODO: proper use of progress bar, maybe spinner instead: we don't know when stop condition will be true
-    private val progressBar: ProgressBar = ProgressBarBuilder()
-        .setStyle(ProgressBarStyle.ASCII)
-        .setTaskName("Simulation")
-        .continuousUpdate()
-        .setConsumer(ConsoleProgressBarConsumer(System.out))
-        .build()
+    private val progressBar: ProgressBarRotating = ProgressBarRotating(250, "step: 0")
 
     init {
         parent = RootObject
@@ -42,6 +32,8 @@ class Model(
     }
 
     fun simulate(stopCondition: (Model) -> Boolean) {
+        progressBar.start()
+        tStart = System.currentTimeMillis()
 
         // 0. check S_i for stop condition -> stop or repeat from 1
         while (!stopCondition(this)) {
@@ -60,7 +52,7 @@ class Model(
             // 3. calculate conditions -> map of events
             updatedObjects.parallelStream()
                 .forEach {
-                    configuration.createEvents(it)
+                    if (!it.initialized) configuration.createEvents(it)
                     it.checkConditions()
                 }
 
@@ -72,10 +64,11 @@ class Model(
 
             dispatcher.addEvents(allEvents)
 
-            progressBar.stepTo(currentTime())
+            val realTime = System.currentTimeMillis() - tStart
+            val extInfo = "step: $currentTime"
+            progressBar.updateInfo(realTime, extInfo)
         }
-        progressBar.extraMessage = "Done"
-        progressBar.close()
+        progressBar.stop("done")
     }
 
     fun currentTime(): Long {
