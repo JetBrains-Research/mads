@@ -52,7 +52,7 @@ fun IzhNeuron.VDynamic(params: MechanismParameters): List<Response> {
         }
 
     return arrayListOf(
-        this.createResponse("dV, ${delta}\n") {
+        this.createResponse("dV,${delta}\n") {
             u.V += delta
         }
     )
@@ -72,7 +72,7 @@ fun IzhNeuron.UDynamic(params: MechanismParameters): List<Response> {
         }
 
     return arrayListOf(
-        this.createResponse("dU, ${delta}\n") {
+        this.createResponse("dU,${delta}\n") {
             izh.U += delta
         }
     )

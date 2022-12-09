@@ -6,24 +6,20 @@ import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import kotlin.random.Random
 
 class ElectrodeArray(private val provider: ImageProvider,
-                     public val pixelMultiplier: Double=5.0) : ModelObject() {
+                     val pixelMultiplier: Double = 5.0
+) : ModelObject() {
     private var electrodesGrid = ArrayList<Electrode>()
     private val width = provider.width
     private val height = provider.height
 
     init {
-        val rnd: Random = Random(42L)
+        val rnd = Random(42L)
 
         for (i in 0..width) {
             for (j in 0..height) {
                 electrodesGrid.add(Electrode(CurrentSignals(I_e = 0.0), rnd))
             }
         }
-    }
-
-    fun stimulateCells(x: Int, y: Int, grayScaled: Double) {
-        val electrode = getElectrodeByCoordinate(x, y)
-        electrode.updateI(grayScaled * pixelMultiplier)
     }
 
     fun getElectrodeByCoordinate(x: Int, y: Int): Electrode {

@@ -43,7 +43,7 @@ class ProgressBarRotating(
 
     fun stop(extMessage: String) {
         showProgress = false
-        print("\r[$duration] $additionalInfo | $status $extMessage")
+        print("\r[$duration] $additionalInfo | $status $extMessage\n")
     }
 
     private fun getModelingTime(time: Long): String {

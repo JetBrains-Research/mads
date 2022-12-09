@@ -1,4 +1,4 @@
-package org.jetbrains.research.experiments
+package org.jetbrains.research.experiments.examples
 //
 //import org.jetbrains.research.mads.core.configuration.configure
 //import org.jetbrains.research.mads.core.simulation.Model

@@ -6,8 +6,10 @@ import org.jetbrains.research.mads.core.desd.ModelEvent
 object EmptyModelObject : ModelObject()
 
 abstract class ModelObject {
-    val events: ArrayList<ModelEvent> = ArrayList()
+    var type: String = ""
     var parent: ModelObject = EmptyModelObject
+    val events: ArrayList<ModelEvent> = ArrayList()
+
     val childObjects: HashSet<ModelObject> = HashSet()
     val connections: MutableMap<ConnectionType, HashSet<ModelObject>> = mutableMapOf()
 

@@ -1,6 +1,7 @@
 package org.jetbrains.research.mads_ns.electrode
 
 import org.jetbrains.research.mads.core.types.Response
+import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 
 object ElectrodeArrayMechanisms {
     val StimuliDynamic = ElectrodeArray::StimuliDynamic
@@ -15,14 +16,15 @@ fun ElectrodeArray.StimuliDynamic(params: ElectrodeParameters): List<Response> {
     val responses: ArrayList<Response> = arrayListOf()
 
 
-    for(i in 0 until provider.width) {
-        for(j in 0 until provider.height) {
+    for (i in 0 until provider.width) {
+        for (j in 0 until provider.height) {
             val grayScaled = (img.getRGB(i, j) and 0xFF) / 255.0
             val electrode = getElectrodeByCoordinate(i, j)
-            val delta =
+            val current = electrode.signals[CurrentSignals::class] as CurrentSignals
+            val delta = grayScaled * this.pixelMultiplier - current.I_e
             responses.add(
-                this.createResponse("I, ${1}") {
-                    stimulateCells(i, j, grayScaled)
+                this.createResponse("dI,${delta}") {
+                    current.I_e += delta
                 }
             )
         }

@@ -53,7 +53,7 @@ fun Synapse.weightDecayMechanism(params: MechanismParameters): List<Response> {
     val delta = newWeight - synapseSignals.weight
 
     return arrayListOf(
-        this.createResponse("dWeight, ${delta}\n") {
+        this.createResponse("dWeight,${delta}\n") {
             synapseSignals.weight += delta
         }
     )
@@ -64,7 +64,7 @@ fun Synapse.currentDecay(params: MechanismParameters): List<Response> {
     val delta = -(currentSignals.I_e / 2)
 
     return arrayListOf(
-        this.createResponse("dI, ${delta}\n") {
+        this.createResponse("dI,${delta}\n") {
             currentSignals.I_e += delta
         }
     )
@@ -84,7 +84,7 @@ fun Synapse.STDPWeightUpdateMechanism(params: MechanismParameters): List<Respons
     val delta = newWeight - synapseSignals.weight
 
     return arrayListOf(
-        this.createResponse("dWeight, ${delta}\n") {
+        this.createResponse("dWeight,${delta}\n") {
             synapseSignals.weight += delta
         }
     )

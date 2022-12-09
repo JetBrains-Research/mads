@@ -77,7 +77,7 @@ fun Neuron.IDynamic(params: MechanismParameters): List<Response> {
     val delta = I_e - currentSignals.I_e
 
     return arrayListOf(
-        this.createResponse("dI, ${delta}\n") {
+        this.createResponse("dI,${delta}\n") {
             currentSignals.I_e += delta
         }
     )
@@ -88,7 +88,7 @@ fun Neuron.STDPDecay(params: MechanismParameters): List<Response> {
     val trace = -signals.stdpTrace * (1 - signals.stdpDecayCoefficient)
 
     return arrayListOf(
-        this.createResponse("dTrace, ${trace}\n") {
+        this.createResponse("dTrace,${trace}\n") {
             signals.stdpTrace += trace
         }
     )
@@ -98,7 +98,7 @@ fun Neuron.STDPSpike(params: MechanismParameters): List<Response> {
     val signals = this.signals[STDPSignals::class] as STDPSignals
 
     return arrayListOf(
-        this.createResponse("dTrace, ${1.0}\n"){
+        this.createResponse("dTrace,${1.0}\n"){
             signals.stdpTrace += 1.0
         }
     )
@@ -107,7 +107,7 @@ fun Neuron.STDPSpike(params: MechanismParameters): List<Response> {
 fun Neuron.spikeOn(params: MechanismParameters): List<Response> {
     val spikesSignals = this.signals[SpikesSignals::class] as SpikesSignals
     return arrayListOf(
-        this.createResponse("spike, +\n") {
+        this.createResponse("spike,+\n") {
             spikesSignals.spiked = true
         }
     )
@@ -117,7 +117,7 @@ fun Neuron.spikeOff(params: MechanismParameters): List<Response> {
     val spikesSignals = this.signals[SpikesSignals::class] as SpikesSignals
 
     return arrayListOf(
-        this.createResponse("spike, -\n") {
+        this.createResponse("spike,-\n") {
             spikesSignals.spiked = false
         }
     )
@@ -132,7 +132,7 @@ fun Neuron.spikeTransfer(params: MechanismParameters): List<Response> {
             val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
             val delta = synapseSignals.weight * synapseSignals.synapseSign * 100.0 // 100.0 – mA
             result.add(
-                it.createResponse("dI, ${delta}\n") {
+                it.createResponse("dI,${delta}\n") {
                     currentSignals.I_e += delta
                 }
             )

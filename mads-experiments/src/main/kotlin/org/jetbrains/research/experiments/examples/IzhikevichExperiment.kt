@@ -1,4 +1,4 @@
-package org.jetbrains.research.experiments
+package org.jetbrains.research.experiments.examples
 
 import org.jetbrains.research.mads.core.configuration.configure
 import org.jetbrains.research.mads.core.simulation.Model
@@ -14,21 +14,23 @@ import org.jetbrains.research.mads_ns.synapses.SynapseSignals
 import kotlin.random.Random
 
 fun main() {
-    IzhikevichCellsExperiment()
-//    IzhikevichTwoCellsExperiment()
+//    IzhikevichCellsExperiment()
+    IzhikevichTwoCellsExperiment()
 }
 
 fun IzhikevichCellsExperiment() {
     FileSaver.initModelWriters(
         "log/izh_one/${System.currentTimeMillis()}/"
     )
-    val rnd: Random = Random(12345L)
+    val rnd = Random(12345L)
 
     val objects: ArrayList<ModelObject> = arrayListOf()
     val neuronCount = 1
     for (i in 0 until neuronCount) {
         val cell = IzhNeuron(IzhConstantsRS.V_thresh, IzhSignals())
+        cell.type = "neuron"
         val electrode = Electrode(CurrentSignals(I_e = 20.0), rnd)
+        electrode.type = "electrode"
         electrode.connectToCell(cell)
         objects.add(cell)
         objects.add(electrode)
@@ -53,7 +55,9 @@ fun IzhikevichTwoCellsExperiment() {
 
     val electrode = Electrode(CurrentSignals(I_e = 20.0), rnd)
     val fNeuron = IzhNeuron(IzhConstantsRS.V_thresh, IzhSignals())
+    fNeuron.type = "input"
     val sNeuron = IzhNeuron(IzhConstantsRS.V_thresh, IzhSignals())
+    sNeuron.type = "output"
 
     electrode.connectToCell(fNeuron)
     val synapse = connectCellsWithSynapse(fNeuron, sNeuron, false, CurrentSignals(0.0), SynapseSignals())
@@ -67,6 +71,6 @@ fun IzhikevichTwoCellsExperiment() {
     }
 
     val s = Model(objects, config)
-    s.simulate { it.currentTime() > 100_000 }
+    s.simulate { it.currentTime() > 1_000_000 }
     FileSaver.closeModelWriters()
 }

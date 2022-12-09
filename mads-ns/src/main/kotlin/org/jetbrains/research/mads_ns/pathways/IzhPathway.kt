@@ -11,7 +11,7 @@ fun izhPathway() = pathway<IzhNeuron> {
     mechanism(mechanism = IzhMechanisms.VDynamic) {
         duration = 2
         condition = Always
-//        logFn = FileSaver::logResponse
+        logFn = FileSaver::logResponse
     }
     mechanism(mechanism = IzhMechanisms.UDynamic) {
         duration = 2
