@@ -36,6 +36,7 @@ fun LIFNeuron.VDynamic(params: MechanismParameters): List<Response> {
     return arrayListOf(
         this.createResponse("dV,${delta},\n") {
             s.V += delta
-        }
+        },
+        this.createResponse("VVal,${s.V},\n") { }
     )
 }

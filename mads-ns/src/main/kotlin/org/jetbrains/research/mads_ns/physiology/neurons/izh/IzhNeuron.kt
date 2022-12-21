@@ -7,6 +7,7 @@ import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
 import org.jetbrains.research.mads_ns.physiology.neurons.PotentialSignals
+import org.jetbrains.research.mads_ns.physiology.neurons.lif.VDynamic
 import kotlin.math.pow
 
 open class IzhConstants(
@@ -54,7 +55,8 @@ fun IzhNeuron.VDynamic(params: MechanismParameters): List<Response> {
     return arrayListOf(
         this.createResponse("dV,${delta}\n") {
             u.V += delta
-        }
+        },
+        this.createResponse("VVal,${u.V}\n") { }
     )
 }
 

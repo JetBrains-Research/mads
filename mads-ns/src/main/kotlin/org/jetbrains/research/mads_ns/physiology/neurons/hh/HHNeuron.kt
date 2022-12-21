@@ -7,6 +7,7 @@ import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
 import org.jetbrains.research.mads_ns.physiology.neurons.PotentialSignals
+import org.jetbrains.research.mads_ns.physiology.neurons.lif.VDynamic
 import kotlin.math.exp
 import kotlin.math.pow
 
@@ -63,9 +64,10 @@ fun HHNeuron.VDynamic(params: MechanismParameters): List<Response> {
     val delta = ((i.I_e - IK - INa - IL) / HHConstants.C_m) * HHConstants.dt
 
     return arrayListOf(
-        this.createResponse("dV,${delta},\n") {
+        this.createResponse("dV,${delta}\n") {
             u.V += delta
-        }
+        },
+        this.createResponse("VVal,${u.V}\n") { }
     )
 }
 
