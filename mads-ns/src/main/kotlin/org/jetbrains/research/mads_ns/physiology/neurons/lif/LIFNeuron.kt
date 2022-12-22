@@ -34,9 +34,9 @@ fun LIFNeuron.VDynamic(params: MechanismParameters): List<Response> {
         if (spiked) LIFConstants.V_reset - s.V else (LIFConstants.E_leak - s.V + (LIFConstants.Rm * i.I_e)) / LIFConstants.tau_mem * LIFConstants.dt
 
     return arrayListOf(
-        this.createResponse("dV,${delta},\n") {
+        this.createResponse("dV",delta.toString()) {
             s.V += delta
         },
-        this.createResponse("VVal,${s.V},\n") { }
+        this.createResponse("VVal",s.V.toString()) { }
     )
 }

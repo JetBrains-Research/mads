@@ -23,7 +23,13 @@ object FileSaver : ResponseSaver {
 
     override fun logResponse(tick: Long, response: Response): Response {
         scope.launch {
-            modelWriter.flow.emit("${tick},${response.sourceObject.hashCode()},${response.sourceObject.type}," + response.string)
+            modelWriter.flow.emit(
+                (arrayOf(
+                tick.toString(),
+                response.sourceObject.hashCode().toString(),
+                response.sourceObject.type.toString(),
+                response.logLabel,
+                response.logValue)).joinToString(",")+"\n")
         }
 
         return response

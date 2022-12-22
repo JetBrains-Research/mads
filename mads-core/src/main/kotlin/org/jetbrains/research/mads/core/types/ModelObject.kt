@@ -42,8 +42,8 @@ abstract class ModelObject {
         initialized = true
     }
 
-    fun createResponse(string: String, applyFn: () -> Unit) : Response {
-        return Response(this, string, applyFn)
+    fun createResponse(logLabel: String, logValue: String, applyFn: () -> Unit) : Response {
+        return Response(this, logLabel, logValue, applyFn)
     }
 
     internal fun applyResponses(currentTime: Long, responses: List<Response>): List<ModelObject> {

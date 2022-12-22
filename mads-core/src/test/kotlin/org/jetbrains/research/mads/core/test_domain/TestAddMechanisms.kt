@@ -17,7 +17,7 @@ fun SimpleObject.simpleAddMechanism(params: SimpleParameters): List<Response> {
     return if (this.rnd.nextDouble() < params.probability) {
         val addedObject = SimpleObject()
         arrayListOf(
-            this.createResponse("added, ${addedObject.hashCode()}\n") {
+            this.createResponse("added",addedObject.hashCode().toString()) {
                 this.parent.addObject(addedObject)
             }
         )

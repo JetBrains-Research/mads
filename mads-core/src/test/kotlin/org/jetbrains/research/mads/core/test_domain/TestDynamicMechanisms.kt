@@ -7,7 +7,7 @@ fun DynamicObject.simpleDynamicMechanism(params: SimpleParameters): List<Respons
     val s = this.signals[DynSignals::class] as DynSignals
     val delta: Double = s.x + s.x / 2
     return arrayListOf(
-        this.createResponse("dx, ${delta}\n") {
+        this.createResponse("dx",delta.toString()) {
             s.x += delta
         }
     )

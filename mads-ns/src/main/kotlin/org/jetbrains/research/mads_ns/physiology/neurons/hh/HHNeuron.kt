@@ -64,10 +64,10 @@ fun HHNeuron.VDynamic(params: MechanismParameters): List<Response> {
     val delta = ((i.I_e - IK - INa - IL) / HHConstants.C_m) * HHConstants.dt
 
     return arrayListOf(
-        this.createResponse("dV,${delta}\n") {
+        this.createResponse("dV",delta.toString()) {
             u.V += delta
         },
-        this.createResponse("VVal,${u.V}\n") { }
+        this.createResponse("VVal",u.V.toString()) { }
     )
 }
 
@@ -81,7 +81,7 @@ fun HHNeuron.NDynamic(params: MechanismParameters): List<Response> {
     val delta = ((AlphaN(V) * (1.0 - n)) - (BetaN(V) * n)) * HHConstants.dt
 
     return arrayListOf(
-        this.createResponse("dN,${delta},\n") {
+        this.createResponse("dN",delta.toString()) {
             s.N += delta
         }
     )
@@ -97,7 +97,7 @@ fun HHNeuron.MDynamic(params: MechanismParameters): List<Response> {
     val delta = ((AlphaM(V) * (1.0 - m)) - (BetaM(V) * m)) * HHConstants.dt
 
     return arrayListOf(
-        this.createResponse("dM,${delta},\n") {
+        this.createResponse("dM",delta.toString()) {
             s.M += delta
         }
     )
@@ -113,7 +113,7 @@ fun HHNeuron.HDynamic(params: MechanismParameters): List<Response> {
     val delta = ((AlphaH(V) * (1.0 - h)) - (BetaH(V) * h)) * HHConstants.dt
 
     return arrayListOf(
-        this.createResponse("dH,${delta},\n") {
+        this.createResponse("dH",delta.toString()) {
             s.H += delta
         }
     )

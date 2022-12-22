@@ -23,7 +23,7 @@ fun ElectrodeArray.StimuliDynamic(params: ElectrodeParameters): List<Response> {
             val current = electrode.signals[CurrentSignals::class] as CurrentSignals
             val delta = grayScaled * this.pixelMultiplier - current.I_e
             responses.add(
-                this.createResponse("dI,${delta}") {
+                this.createResponse("dI",delta.toString()) {
                     current.I_e += delta
                 }
             )

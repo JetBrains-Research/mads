@@ -26,7 +26,7 @@ fun main() {
     var currents = arrayOf<Double>(5.0, 10.0, 20.0, 30.0, 50.0)
 //    var currents = arrayOf<Double>(-10.0, -5.0, 0.0, 5.0, 10.0)
     var startTime = System.currentTimeMillis()
-    var ticks = 10_000L
+    var ticks = 100_000L
     var randomSeed = 12345L
     println("Experiment start time $startTime")
 
