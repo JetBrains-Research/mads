@@ -7,10 +7,10 @@ import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads_ns.electrode.Electrode
 import org.jetbrains.research.mads_ns.pathways.*
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
-import org.jetbrains.research.mads_ns.physiology.neurons.izh.IzhConstantsRS
-import org.jetbrains.research.mads_ns.physiology.neurons.izh.IzhNeuron
-import org.jetbrains.research.mads_ns.physiology.neurons.izh.IzhSignals
-import org.jetbrains.research.mads_ns.synapses.SynapseSignals
+import org.jetbrains.research.mads_ns.physiology.neurons.IzhConstantsRS
+import org.jetbrains.research.mads_ns.physiology.neurons.IzhNeuron
+import org.jetbrains.research.mads_ns.physiology.neurons.IzhSignals
+import org.jetbrains.research.mads_ns.physiology.synapses.SynapseSignals
 import kotlin.random.Random
 
 fun main() {
@@ -42,7 +42,7 @@ fun IzhikevichCellsExperiment() {
     }
 
     val s = Model(objects, config)
-    s.simulate { it.currentTime() > 100_000 }
+    s?.simulate { it.currentTime() > 100_000 }
     FileSaver.closeModelWriters()
 }
 
@@ -71,6 +71,6 @@ fun IzhikevichTwoCellsExperiment() {
     }
 
     val s = Model(objects, config)
-    s.simulate { it.currentTime() > 1_000_000 }
+    s?.simulate { it.currentTime() > 1_000_000 }
     FileSaver.closeModelWriters()
 }

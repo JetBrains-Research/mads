@@ -1,13 +1,6 @@
-package org.jetbrains.research.mads_ns.physiology.neurons.izh
+package org.jetbrains.research.mads_ns.physiology.neurons
 
-import org.jetbrains.research.mads.core.types.Constants
-import org.jetbrains.research.mads.core.types.MechanismParameters
-import org.jetbrains.research.mads.core.types.Response
-import org.jetbrains.research.mads.core.types.Signals
-import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
-import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
-import org.jetbrains.research.mads_ns.physiology.neurons.PotentialSignals
-import org.jetbrains.research.mads_ns.physiology.neurons.lif.VDynamic
+import org.jetbrains.research.mads.core.types.*
 import kotlin.math.pow
 
 open class IzhConstants(
@@ -38,6 +31,7 @@ object IzhMechanisms {
 
 class IzhNeuron(spikeThreshold: Double, vararg signals: Signals) : Neuron(spikeThreshold, *signals)
 
+@TimeResolutionAnnotation(resolution = millisecond)
 fun IzhNeuron.VDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val izh = this.signals[IzhSignals::class] as IzhSignals
@@ -49,7 +43,7 @@ fun IzhNeuron.VDynamic(params: MechanismParameters): List<Response> {
         if (spiked) {
             consts.c - u.V
         } else {
-            0.04 * u.V.pow(2.0) + 5 * u.V + 140 - izh.U + i.I_e
+            params.dt * (0.04 * u.V.pow(2.0) + 5 * u.V + 140 - izh.U + i.I_e)
         }
 
     return arrayListOf(
@@ -60,6 +54,7 @@ fun IzhNeuron.VDynamic(params: MechanismParameters): List<Response> {
     )
 }
 
+@TimeResolutionAnnotation(resolution = millisecond)
 fun IzhNeuron.UDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val izh = this.signals[IzhSignals::class] as IzhSignals
@@ -70,7 +65,7 @@ fun IzhNeuron.UDynamic(params: MechanismParameters): List<Response> {
         if (spiked) {
             consts.d
         } else {
-            consts.a * (consts.b * u.V - izh.U)
+            params.dt * (consts.a * (consts.b * u.V - izh.U))
         }
 
     return arrayListOf(

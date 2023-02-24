@@ -7,7 +7,7 @@ import java.util.stream.Collectors
 
 object RootObject : ModelObject()
 
-class Model(
+class Model private constructor(
     objects: List<ModelObject>,
     private val configuration: Configuration
 ) : ModelObject() {
@@ -17,6 +17,8 @@ class Model(
     private val progressBar: ProgressBarRotating = ProgressBarRotating(250, "step: 0")
 
     init {
+        println("Simulation step size is equal to ${configuration.timeResolution} seconds")
+        progressBar.start()
         parent = RootObject
         configuration.createEvents(this)
         this.checkConditions()
@@ -32,8 +34,8 @@ class Model(
     }
 
     fun simulate(stopCondition: (Model) -> Boolean) {
-        progressBar.start()
         tStart = System.currentTimeMillis()
+        var lastStep = 0L
 
         // 0. check S_i for stop condition -> stop or repeat from 1
         while (!stopCondition(this)) {
@@ -65,13 +67,32 @@ class Model(
             dispatcher.addEvents(allEvents)
 
             val realTime = System.currentTimeMillis() - tStart
-            val extInfo = "step: $currentTime"
+            val extInfo = "step: ${"%,d".format(currentTime)}"
+            lastStep = currentTime
             progressBar.updateInfo(realTime, extInfo)
         }
         progressBar.stop("done")
+        val totalModelingTime = configuration.timeResolution.toBigDecimal().multiply(lastStep.toBigDecimal()).toDouble()
+        println("Total of $totalModelingTime seconds were simulated\n")
     }
 
     fun currentTime(): Long {
         return dispatcher.peekHead()
+    }
+
+    companion object {
+        operator fun invoke(objects: List<ModelObject>, configuration: Configuration): Model? {
+            if (configuration.hasErrors()) {
+                configuration.errors().forEach { println(it) }
+                return null
+            }
+
+            if (objects.isEmpty()) {
+                println("Nothing to simulate. Initial model state does not contain any objects.")
+                return null
+            }
+
+            return Model(objects, configuration)
+        }
     }
 }

@@ -32,7 +32,7 @@ abstract class ModelObject {
         pathway.configuredMechanisms.forEach {
             val mch = applyObjectToMechanism(it.mechanism, this)
             val cnd = applyObjectToCondition(it.condition, this)
-            val event = ModelEvent(mch, cnd, it.duration, it.logFn)
+            val event = ModelEvent(mch, cnd, it.duration * pathway.timeResolutionCoefficient, it.logFn)
             events.add(event)
         }
     }

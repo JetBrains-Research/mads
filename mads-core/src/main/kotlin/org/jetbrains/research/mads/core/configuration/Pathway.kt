@@ -1,28 +1,26 @@
 package org.jetbrains.research.mads.core.configuration
 
-import org.jetbrains.research.mads.core.types.EmptyParameters
 import org.jetbrains.research.mads.core.types.MechanismParameters
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.Response
+import org.jetbrains.research.mads.core.types.second
 import kotlin.reflect.KClass
 
 class Pathway<MO : ModelObject>(val type: KClass<MO>) {
     val configuredMechanisms = ArrayList<ConfiguredMechanism<MO>>()
+    var timeResolution: Double = second
+    var timeResolutionCoefficient: Int = 1
 
-    fun <MP : MechanismParameters> mechanism(
-        mechanism: (MO, MP) -> List<Response>,
-        parameters: MP,
-        lambda: ConfiguredMechanismBuilder<MO, MP>.() -> Unit
+    fun mechanism(
+        mechanism: (MO, MechanismParameters) -> List<Response>,
+        lambda: ConfiguredMechanismBuilder<MO>.() -> Unit
     ) {
-        configuredMechanisms.add(ConfiguredMechanismBuilder(mechanism, parameters).apply(lambda).build())
+        configuredMechanisms.add(ConfiguredMechanismBuilder(mechanism, timeResolution).apply(lambda).build())
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <MP : MechanismParameters> mechanism(
-        mechanism: (MO, MP) -> List<Response>,
-        lambda: ConfiguredMechanismBuilder<MO, MP>.() -> Unit
-    ) {
-        configuredMechanisms.add(ConfiguredMechanismBuilder(mechanism, EmptyParameters as MP).apply(lambda).build())
+    fun checkResolution(globalResolution: Double) : Boolean {
+        timeResolutionCoefficient = (timeResolution / globalResolution).toInt()
+        return globalResolution <= timeResolution
     }
 
     companion object {

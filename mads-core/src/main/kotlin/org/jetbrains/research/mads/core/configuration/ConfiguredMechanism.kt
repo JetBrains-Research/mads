@@ -1,10 +1,9 @@
 package org.jetbrains.research.mads.core.configuration
 
 import org.jetbrains.research.mads.core.telemetry.EmptySaver
-import org.jetbrains.research.mads.core.types.MechanismParameters
-import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.Response
-import org.jetbrains.research.mads.core.types.applyParametersToMechanism
+import org.jetbrains.research.mads.core.types.*
+import kotlin.jvm.internal.CallableReference
+import kotlin.reflect.full.findAnnotation
 
 data class ConfiguredMechanism<MO : ModelObject>(
     val mechanism: ((MO) -> List<Response>),
@@ -13,13 +12,24 @@ data class ConfiguredMechanism<MO : ModelObject>(
     val logFn: (Long, Response) -> Response
 )
 
-class ConfiguredMechanismBuilder<MO : ModelObject, MP : MechanismParameters>(private val mechanism: ((MO, MP) -> List<Response>),
-                                                                             private val parameters: MP) {
+class ConfiguredMechanismBuilder<MO : ModelObject>(private val mechanism: ((MO, MechanismParameters) -> List<Response>),
+                                                                             private val pathwayResolution: Double) {
+    var constants: Constants = EmptyConstants
     var duration: Int = 1
     var condition: ((MO) -> Boolean) = Always
     var logFn: (Long, Response) -> Response = EmptySaver::logResponse
 
-    fun build() = ConfiguredMechanism(applyParametersToMechanism(mechanism, parameters), duration, condition, logFn)
+    fun build() = ConfiguredMechanism(applyParametersToMechanism(mechanism, createParams()), duration, condition, logFn)
+
+    private fun createParams() : MechanismParameters {
+        val annotation = (mechanism as CallableReference).findAnnotation<TimeResolutionAnnotation>()
+        val dt: Double = if (annotation != null)
+            pathwayResolution.toBigDecimal().multiply(duration.toBigDecimal()).divide(annotation.resolution.toBigDecimal()).toDouble()
+        else
+            1.0
+
+        return MechanismParameters(constants, dt)
+    }
 }
 
 typealias Predicate<T> = ((T) -> Boolean)

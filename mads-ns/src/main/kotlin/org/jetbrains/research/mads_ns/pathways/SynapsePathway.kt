@@ -4,7 +4,7 @@ import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.SignalsObject
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
-import org.jetbrains.research.mads_ns.synapses.*
+import org.jetbrains.research.mads_ns.physiology.synapses.*
 
 fun synapsePathway() = pathway<Synapse> {
 //    mechanism(mechanism = SynapseMechanisms.SynapseDecay) {

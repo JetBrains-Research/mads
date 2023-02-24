@@ -6,7 +6,7 @@ description = "Core types for MADS"
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-//    implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.21")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.21")
 
 //    implementation("me.tongfei:progressbar:0.9.5")
 

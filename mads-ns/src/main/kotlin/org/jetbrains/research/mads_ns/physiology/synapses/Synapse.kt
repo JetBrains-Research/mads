@@ -1,4 +1,4 @@
-package org.jetbrains.research.mads_ns.synapses
+package org.jetbrains.research.mads_ns.physiology.synapses
 
 import org.jetbrains.research.mads.core.types.*
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals

@@ -22,10 +22,10 @@ class ProgressBarRotating(
 
     init {
         modelingTimeFormatter.timeZone = TimeZone.getTimeZone("GMT")
-        print("\r[$duration] $additionalInfo | $status initialization")
     }
 
     fun start() {
+        print("\r[$duration] $additionalInfo | $status initialization")
         var x = 0
         showProgress = true
         scope.launch {

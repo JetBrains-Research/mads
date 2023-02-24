@@ -10,6 +10,6 @@ class DummyObject: ModelObject() {
     }
 }
 
-fun DummyObject.dummyMechanism(params: SimpleParameters) : List<Response> {
-    return arrayListOf()
-}
+//fun DummyObject.dummyMechanism(params: SimpleParameters) : List<Response> {
+//    return arrayListOf()
+//}

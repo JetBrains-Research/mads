@@ -3,18 +3,20 @@ package org.jetbrains.research.mads_ns.pathways
 import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.telemetry.FileSaver
+import org.jetbrains.research.mads.core.types.millisecond
+import org.jetbrains.research.mads_ns.physiology.neurons.LIFMechanisms
+import org.jetbrains.research.mads_ns.physiology.neurons.LIFNeuron
 import org.jetbrains.research.mads_ns.physiology.neurons.NeuronMechanisms
-import org.jetbrains.research.mads_ns.physiology.neurons.lif.LIFMechanisms
-import org.jetbrains.research.mads_ns.physiology.neurons.lif.LIFNeuron
 
 fun lifPathway() = pathway<LIFNeuron> {
+    timeResolution = millisecond
     mechanism(mechanism = LIFMechanisms.VDynamic) {
-        duration = 2
+        duration = 1
         condition = Always
         logFn = FileSaver::logResponse
     }
     mechanism(mechanism = NeuronMechanisms.IDynamic) {
-        duration = 2
+        duration = 1
         condition = Always
     }
     mechanism(mechanism = NeuronMechanisms.SpikeOn) {
