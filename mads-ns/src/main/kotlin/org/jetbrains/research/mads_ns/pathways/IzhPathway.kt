@@ -3,35 +3,37 @@ package org.jetbrains.research.mads_ns.pathways
 import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.telemetry.FileSaver
+import org.jetbrains.research.mads.core.types.microsecond
+import org.jetbrains.research.mads_ns.physiology.neurons.IzhMechanisms
+import org.jetbrains.research.mads_ns.physiology.neurons.IzhNeuron
 import org.jetbrains.research.mads_ns.physiology.neurons.NeuronMechanisms
-import org.jetbrains.research.mads_ns.physiology.neurons.izh.IzhMechanisms
-import org.jetbrains.research.mads_ns.physiology.neurons.izh.IzhNeuron
 
 fun izhPathway() = pathway<IzhNeuron> {
+    timeResolution = microsecond
     mechanism(mechanism = IzhMechanisms.VDynamic) {
-        duration = 2
+        duration = 100
         condition = Always
         logFn = FileSaver::logResponse
     }
     mechanism(mechanism = IzhMechanisms.UDynamic) {
-        duration = 2
+        duration = 100
         condition = Always
     }
     mechanism(mechanism = NeuronMechanisms.IDynamic) {
-        duration = 2
+        duration = 100
         condition = Always
     }
     mechanism(mechanism = NeuronMechanisms.SpikeOn) {
-        duration = 1
+        duration = 100
         condition = { overThresholdAndNotSpiked(it) }
         logFn = FileSaver::logResponse
     }
     mechanism(mechanism = NeuronMechanisms.SpikeOff) {
-        duration = 1
+        duration = 100
         condition = { underThresholdAndSpiked(it) }
     }
     mechanism(mechanism = NeuronMechanisms.SpikeTransfer) {
-        duration = 1
+        duration = 100
         condition = { overThresholdAndNotSpiked(it) }
     }
 }

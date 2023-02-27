@@ -1,10 +1,14 @@
 package org.jetbrains.research.mads.core.types
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationStrategy
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.desd.ModelEvent
+import org.jetbrains.research.mads.core.telemetry.ModelObjectSerizalizer
 
 object EmptyModelObject : ModelObject()
 
+@Serializable(with= ModelObjectSerizalizer::class)
 abstract class ModelObject {
     var type: String = ""
     var parent: ModelObject = EmptyModelObject
@@ -32,7 +36,7 @@ abstract class ModelObject {
         pathway.configuredMechanisms.forEach {
             val mch = applyObjectToMechanism(it.mechanism, this)
             val cnd = applyObjectToCondition(it.condition, this)
-            val event = ModelEvent(mch, cnd, it.duration, it.logFn)
+            val event = ModelEvent(mch, cnd, it.duration * pathway.timeResolutionCoefficient, it.logFn)
             events.add(event)
         }
     }

@@ -2,7 +2,6 @@ package org.jetbrains.research.mads.core.telemetry
 
 import kotlinx.coroutines.*
 import org.jetbrains.research.mads.core.types.Response
-import org.jetbrains.research.mads.core.types.ResponseSaver
 import java.io.File
 import java.nio.file.Paths
 

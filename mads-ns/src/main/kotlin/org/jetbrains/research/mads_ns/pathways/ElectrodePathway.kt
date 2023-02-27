@@ -5,10 +5,9 @@ import org.jetbrains.research.mads.core.types.SignalsObject
 import org.jetbrains.research.mads_ns.electrode.Electrode
 import org.jetbrains.research.mads_ns.electrode.ElectrodeConnection
 import org.jetbrains.research.mads_ns.electrode.ElectrodeMechanisms
-import org.jetbrains.research.mads_ns.electrode.ElectrodeParametersNoSave
 
 fun electrodePathway() = pathway<Electrode> {
-    mechanism(mechanism = ElectrodeMechanisms.PulseDynamic, ElectrodeParametersNoSave(0.9, 50.0)) {
+    mechanism(mechanism = ElectrodeMechanisms.PulseDynamic) {
         duration = 100
     }
 }

@@ -1,20 +1,13 @@
 package org.jetbrains.research.mads.core.types
 
-interface MechanismParameters {
-    val savingParameters: SavingParameters
-    val constants: Constants
-}
+data class MechanismParameters(
+    val constants: Constants,
+    val dt: Double
+)
 
-object EmptyParameters : MechanismParameters {
-    override val savingParameters: SavingParameters
-        get() = SkipSaving
-    override val constants: Constants
-        get() = EmptyConstants
-}
-
-fun <MO : ModelObject, MP : MechanismParameters> applyParametersToMechanism(
-    mechanism: (MO, MP) -> List<Response>,
-    params: MP
+fun <MO : ModelObject> applyParametersToMechanism(
+    mechanism: (MO, MechanismParameters) -> List<Response>,
+    params: MechanismParameters
 ): ((MO) -> List<Response>) {
     return fun(obj: MO): List<Response> {
         return mechanism(obj, params)

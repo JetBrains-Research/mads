@@ -1,13 +1,6 @@
-package org.jetbrains.research.mads_ns.physiology.neurons.hh
+package org.jetbrains.research.mads_ns.physiology.neurons
 
-import org.jetbrains.research.mads.core.types.Constants
-import org.jetbrains.research.mads.core.types.MechanismParameters
-import org.jetbrains.research.mads.core.types.Response
-import org.jetbrains.research.mads.core.types.Signals
-import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
-import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
-import org.jetbrains.research.mads_ns.physiology.neurons.PotentialSignals
-import org.jetbrains.research.mads_ns.physiology.neurons.lif.VDynamic
+import org.jetbrains.research.mads.core.types.*
 import kotlin.math.exp
 import kotlin.math.pow
 
@@ -26,11 +19,8 @@ object HHConstants : Constants {
     // mF/cm^2
     const val C_m = 1.0
 
-    // dt
-    const val dt = 0.02
+    // mV
     const val V_thresh = -50.0
-
-    const val pulseVal = 100.0
 }
 
 data class HHSignals(
@@ -52,6 +42,7 @@ object HHMechanisms {
 
 class HHNeuron(spikeThreshold: Double, vararg signals: Signals) : Neuron(spikeThreshold, *signals)
 
+@TimeResolutionAnnotation(resolution = millisecond)
 fun HHNeuron.VDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val s = this.signals[HHSignals::class] as HHSignals
@@ -61,7 +52,7 @@ fun HHNeuron.VDynamic(params: MechanismParameters): List<Response> {
     val INa = HHConstants.g_Na * s.M.pow(3.0) * s.H * (u.V - HHConstants.E_Na)
     val IL = HHConstants.g_L * (u.V - HHConstants.E_L)
 
-    val delta = ((i.I_e - IK - INa - IL) / HHConstants.C_m) * HHConstants.dt
+    val delta = params.dt * ((i.I_e - IK - INa - IL) / HHConstants.C_m)
 
     return arrayListOf(
         this.createResponse("dV",delta.toString()) {
@@ -71,6 +62,7 @@ fun HHNeuron.VDynamic(params: MechanismParameters): List<Response> {
     )
 }
 
+@TimeResolutionAnnotation(resolution = millisecond)
 fun HHNeuron.NDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val s = this.signals[HHSignals::class] as HHSignals
@@ -78,7 +70,7 @@ fun HHNeuron.NDynamic(params: MechanismParameters): List<Response> {
     val V = u.V
     val n = s.N
 
-    val delta = ((AlphaN(V) * (1.0 - n)) - (BetaN(V) * n)) * HHConstants.dt
+    val delta = params.dt * ((AlphaN(V) * (1.0 - n)) - (BetaN(V) * n))
 
     return arrayListOf(
         this.createResponse("dN",delta.toString()) {
@@ -87,6 +79,7 @@ fun HHNeuron.NDynamic(params: MechanismParameters): List<Response> {
     )
 }
 
+@TimeResolutionAnnotation(resolution = millisecond)
 fun HHNeuron.MDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val s = this.signals[HHSignals::class] as HHSignals
@@ -94,7 +87,7 @@ fun HHNeuron.MDynamic(params: MechanismParameters): List<Response> {
     val V = u.V
     val m = s.M
 
-    val delta = ((AlphaM(V) * (1.0 - m)) - (BetaM(V) * m)) * HHConstants.dt
+    val delta = params.dt * ((AlphaM(V) * (1.0 - m)) - (BetaM(V) * m))
 
     return arrayListOf(
         this.createResponse("dM",delta.toString()) {
@@ -103,6 +96,7 @@ fun HHNeuron.MDynamic(params: MechanismParameters): List<Response> {
     )
 }
 
+@TimeResolutionAnnotation(resolution = millisecond)
 fun HHNeuron.HDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val s = this.signals[HHSignals::class] as HHSignals
@@ -110,7 +104,7 @@ fun HHNeuron.HDynamic(params: MechanismParameters): List<Response> {
     val V = u.V
     val h = s.H
 
-    val delta = ((AlphaH(V) * (1.0 - h)) - (BetaH(V) * h)) * HHConstants.dt
+    val delta = params.dt * ((AlphaH(V) * (1.0 - h)) - (BetaH(V) * h))
 
     return arrayListOf(
         this.createResponse("dH",delta.toString()) {

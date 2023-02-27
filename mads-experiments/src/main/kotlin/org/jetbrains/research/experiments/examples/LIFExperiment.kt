@@ -10,9 +10,9 @@ package org.jetbrains.research.experiments.examples
 //import org.jetbrains.research.mads_ns.pathways.*
 //import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 //import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
-//import org.jetbrains.research.mads_ns.physiology.neurons.lif.LIFConstants
-//import org.jetbrains.research.mads_ns.synapses.Synapse
-//import org.jetbrains.research.mads_ns.synapses.SynapseSignals
+//import org.jetbrains.research.mads_ns.physiology.neurons.LIFConstants
+//import org.jetbrains.research.mads_ns.physiology.Synapse
+//import org.jetbrains.research.mads_ns.physiology.SynapseSignals
 //import java.io.File
 //import kotlin.random.Random
 //

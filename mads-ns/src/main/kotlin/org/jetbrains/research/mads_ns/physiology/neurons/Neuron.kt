@@ -5,10 +5,10 @@ import org.jetbrains.research.mads.core.types.Response
 import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads.core.types.SignalsObject
 import org.jetbrains.research.mads_ns.electrode.ElectrodeConnection
-import org.jetbrains.research.mads_ns.synapses.Synapse
-import org.jetbrains.research.mads_ns.synapses.SynapseReceiver
-import org.jetbrains.research.mads_ns.synapses.SynapseReleaser
-import org.jetbrains.research.mads_ns.synapses.SynapseSignals
+import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
+import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReceiver
+import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReleaser
+import org.jetbrains.research.mads_ns.physiology.synapses.SynapseSignals
 
 abstract class Neuron(
     spikeThreshold: Double,
