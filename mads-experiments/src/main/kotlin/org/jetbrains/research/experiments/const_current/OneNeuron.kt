@@ -16,13 +16,24 @@ import org.jetbrains.research.mads_ns.physiology.neurons.*
 import kotlin.random.Random
 
 fun main() {
-//    val currents = arrayOf<Double>(5.0)
+//    val currents = arrayOf<Double>(10.0)
     val currents = arrayOf<Double>(5.0, 10.0, 20.0, 30.0, 50.0)
 //    var currents = arrayOf<Double>(-10.0, -5.0, 0.0, 5.0, 10.0)
     val startTime = System.currentTimeMillis()
     val modelingTime = 500 * millisecond
     val randomSeed = 12345L
     println("Experiment start time $startTime")
+
+//    for (i in 0..100) {
+//        experimentWithCurrents(currents[0], "hh/${System.currentTimeMillis()}",
+//            { -> HHNeuron(HHConstants.V_thresh, HHSignals()) },
+//            configure {
+//                timeResolution = microsecond
+//                addPathway(hhPathway())
+//            },
+//            modelingTime, randomSeed
+//        )
+//    }
 
     for (current in currents) {
         println("Experiments with $current nA current")

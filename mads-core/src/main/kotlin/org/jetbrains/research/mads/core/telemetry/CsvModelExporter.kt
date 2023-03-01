@@ -1,48 +1,45 @@
 package org.jetbrains.research.mads.core.telemetry
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import java.io.File
 import java.io.OutputStreamWriter
 import java.nio.file.Path
 
 class CsvModelExporter {
-    var isClosed = false
-    private val scope = CoroutineScope(Dispatchers.IO + Job() + SupervisorJob())
+    private lateinit var writer: OutputStreamWriter
+    private lateinit var channel: Channel<String>
 
-    //lateinit
-    lateinit var flow: MutableSharedFlow<String>
-    private lateinit var fileWriter: OutputStreamWriter
-    private lateinit var jobCollect: Deferred<Unit>
-
-    //region Public
+    @OptIn(DelicateCoroutinesApi::class)
     fun open(path: Path, fileName: String, header: String) {
-        openFile(path, fileName, header)
+        writer = File(path.toString() + File.separator + fileName).writer()
+        writer.write(header)
+        channel = Channel()
+
+        val writerJob = GlobalScope.launch {
+            for (message in channel) {
+                withContext(Dispatchers.IO) {
+                    writer.write(message)
+                    writer.flush()
+                }
+            }
+            withContext(Dispatchers.IO) {
+                writer.close()
+            }
+        }
+
+        writerJob.invokeOnCompletion {
+            channel.close(it)
+        }
     }
 
     fun close() {
-        scope.launch {
-            jobCollect.await()
-        }
-        fileWriter.flush()
-        fileWriter.close()
-        isClosed = true
-    }
-
-    //region Private
-    private fun openFile(path: Path, fileName: String, header: String) {
-        flow = MutableSharedFlow()
-        fileWriter = File(path.toString() + File.separator + fileName).writer()
-        fileWriter.write(header)
-
-        jobCollect = scope.async {
-            flow.collect {
-                write(it)
-            }
+        runBlocking {
+            channel.send("")
         }
     }
 
-    private fun write(text: String) {
-        fileWriter.write(text)
+    suspend fun write(message: String) {
+        channel.send(message)
     }
 }
