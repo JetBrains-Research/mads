@@ -1,9 +1,9 @@
 package org.jetbrains.research.mads_ns.physiology.neurons
 
 import org.jetbrains.research.mads.core.types.MechanismParameters
+import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.Response
 import org.jetbrains.research.mads.core.types.Signals
-import org.jetbrains.research.mads.core.types.SignalsObject
 import org.jetbrains.research.mads_ns.electrode.ElectrodeConnection
 import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReceiver
@@ -13,7 +13,7 @@ import org.jetbrains.research.mads_ns.physiology.synapses.SynapseSignals
 abstract class Neuron(
     spikeThreshold: Double,
     vararg signals: Signals
-) : SignalsObject(SpikesSignals(spikeThreshold = spikeThreshold), PotentialSignals(), CurrentSignals(), *signals)
+) : ModelObject(SpikesSignals(spikeThreshold = spikeThreshold), PotentialSignals(), CurrentSignals(), *signals)
 
 data class SpikesSignals(
     var spiked: Boolean = false,
@@ -62,16 +62,12 @@ fun Neuron.IDynamic(params: MechanismParameters): List<Response> {
     var I_e = 0.0
 
     this.connections[ElectrodeConnection]?.forEach {
-        if (it is SignalsObject) {
-            val signals = it.signals[CurrentSignals::class] as CurrentSignals
-            I_e += signals.I_e
-        }
+        val signals = it.signals[CurrentSignals::class] as CurrentSignals
+        I_e += signals.I_e
     }
     this.connections[SynapseReceiver]?.forEach {
-        if (it is SignalsObject) {
-            val signals = it.signals[CurrentSignals::class] as CurrentSignals
-            I_e += signals.I_e
-        }
+        val signals = it.signals[CurrentSignals::class] as CurrentSignals
+        I_e += signals.I_e
     }
 
     val delta = I_e - currentSignals.I_e

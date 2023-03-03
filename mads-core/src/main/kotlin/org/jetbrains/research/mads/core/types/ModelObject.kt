@@ -2,10 +2,11 @@ package org.jetbrains.research.mads.core.types
 
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.desd.ModelEvent
+import kotlin.reflect.KClass
 
 object EmptyModelObject : ModelObject()
 
-abstract class ModelObject {
+abstract class ModelObject(vararg signals: Signals) {
     var type: String = ""
     var parent: ModelObject = EmptyModelObject
     val events: ArrayList<ModelEvent> = ArrayList()
@@ -15,6 +16,12 @@ abstract class ModelObject {
 
     var initialized = false
         private set
+
+    val signals: MutableMap<KClass<out Signals>, Signals> = mutableMapOf()
+
+    init {
+        signals.forEach { this.signals[it::class] = it }
+    }
 
     fun getChildObjects(): Array<ModelObject> {
         return childObjects.toTypedArray()

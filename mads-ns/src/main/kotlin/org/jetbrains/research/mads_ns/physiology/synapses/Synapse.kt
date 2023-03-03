@@ -14,12 +14,12 @@ object SynapseConstants : Constants {
 }
 
 class Synapse(
-    var releaser: SignalsObject,
-    var receiver: SignalsObject,
+    var releaser: ModelObject,
+    var receiver: ModelObject,
     isInhibitory: Boolean = false,
     current: CurrentSignals,
     synapse: SynapseSignals
-) : SignalsObject(current, synapse) {
+) : ModelObject(current, synapse) {
 
     init {
         val sig = this.signals[SynapseSignals::class] as SynapseSignals
