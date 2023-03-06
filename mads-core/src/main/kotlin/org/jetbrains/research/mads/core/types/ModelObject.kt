@@ -1,7 +1,7 @@
 package org.jetbrains.research.mads.core.types
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerializationStrategy
+import kotlin.reflect.KClass
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.desd.ModelEvent
 import org.jetbrains.research.mads.core.telemetry.ModelObjectSerizalizer
@@ -9,7 +9,8 @@ import org.jetbrains.research.mads.core.telemetry.ModelObjectSerizalizer
 object EmptyModelObject : ModelObject()
 
 @Serializable(with= ModelObjectSerizalizer::class)
-abstract class ModelObject {
+abstract class ModelObject(vararg signals: Signals) {
+
     var type: String = ""
     var parent: ModelObject = EmptyModelObject
     val events: ArrayList<ModelEvent> = ArrayList()
@@ -19,6 +20,12 @@ abstract class ModelObject {
 
     var initialized = false
         private set
+
+    val signals: MutableMap<KClass<out Signals>, Signals> = mutableMapOf()
+
+    init {
+        signals.forEach { this.signals[it::class] = it }
+    }
 
     fun getChildObjects(): Array<ModelObject> {
         return childObjects.toTypedArray()

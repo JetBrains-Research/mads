@@ -6,7 +6,7 @@ import kotlin.random.Random
 
 object ElectrodeConnection : ConnectionType
 
-class Electrode(current: CurrentSignals, val rnd: Random) : SignalsObject(current)
+class Electrode(current: CurrentSignals, val rnd: Random) : ModelObject(current)
 
 object ElectrodeConstants : Constants {
     // constants

@@ -15,20 +15,20 @@ object FileSaver : ResponseSaver {
         csvModelExporter.open(
             Paths.get(dir, File.separator),
             "responses.csv",
-            ""
+            "time,object,type,parameter,alteration\n"
         )
         modelWriter = csvModelExporter
     }
 
     override fun logResponse(tick: Long, response: Response): Response {
         scope.launch {
-            modelWriter.flow.emit(
+            modelWriter.write(
                 (arrayOf(
-                tick.toString(),
-                response.sourceObject.hashCode().toString(),
-                response.sourceObject.type.toString(),
-                response.logLabel,
-                response.logValue)).joinToString(",")+"\n")
+                    tick.toString(),
+                    response.sourceObject.hashCode().toString(),
+                    response.sourceObject.type.toString(),
+                    response.logLabel,
+                    response.logValue)).joinToString(",")+"\n")
         }
 
         return response

@@ -2,7 +2,6 @@ package org.jetbrains.research.mads_ns.pathways
 
 import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.SignalsObject
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.physiology.synapses.*
 
@@ -23,8 +22,8 @@ fun synapsePathway() = pathway<Synapse> {
 }
 
 fun connectCellsWithSynapse(
-    releaser: SignalsObject,
-    receiver: SignalsObject,
+    releaser: ModelObject,
+    receiver: ModelObject,
     inhibitory: Boolean,
     currentSignals: CurrentSignals,
     synapseSignals: SynapseSignals
