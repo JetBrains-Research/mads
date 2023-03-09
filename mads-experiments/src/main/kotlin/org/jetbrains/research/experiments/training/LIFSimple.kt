@@ -28,7 +28,7 @@ fun simpleLIFLearning() {
     val targetClasses = arrayListOf("1", "3")
     // TODO use relative path
     val provider = MnistProvider("C:\\projects\\mads\\mads_data\\MNIST_training\\", targetClasses)
-    val electrodesArray = ElectrodeArray(provider, 25.0)
+    val electrodesArray = ElectrodeArray(provider, 10.0)
 
     val objects: ArrayList<ModelObject> = arrayListOf()
 
@@ -48,6 +48,8 @@ fun simpleLIFLearning() {
             firstLayer.add(cell)
         }
     }
+
+    objects.addAll(electrodesArray.getChildElectrodes())
 
     for(i in 0 until nExc) {
         val cell = LIFNeuron(LIFConstants.V_thresh)
@@ -69,6 +71,7 @@ fun simpleLIFLearning() {
 
     val config = configure {
         timeResolution = millisecond
+        addPathway(electrodePathway())
         addPathway(synapsePathway())
         addPathway(electrodeArrayPathway())
         addPathway(lifPathway())
