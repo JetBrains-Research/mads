@@ -6,7 +6,6 @@ import org.jetbrains.research.mads.core.types.Response
 import org.jetbrains.research.mads_ns.data_provider.ImageProvider
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.physiology.neurons.ProbabilisticSpikingSignals
-import org.jetbrains.research.mads_ns.physiology.neurons.SpikesSignals
 import kotlin.random.Random
 
 

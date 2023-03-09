@@ -12,7 +12,7 @@ class Electrode(current: CurrentSignals, val rnd: Random) : ModelObject(current,
 object ElectrodeConstants : Constants {
     // constants
     const val pulseProbability: Double = 0.5
-    const val pulseValue: Double = 10.0
+    const val pulseValue: Double = 5.0
 }
 
 object ElectrodeMechanisms {
@@ -25,7 +25,7 @@ fun Electrode.PulseDynamic(params: MechanismParameters): List<Response> {
 
     var I = 0.0
     if (s.I_e == 0.0 && rnd.nextDouble() < spikeProbability) {
-        I = 10.0
+        I = (params.constants as ElectrodeConstants).pulseValue
     }
 
     val delta = I - s.I_e
