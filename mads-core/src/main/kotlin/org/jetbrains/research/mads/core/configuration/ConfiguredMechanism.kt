@@ -1,6 +1,5 @@
 package org.jetbrains.research.mads.core.configuration
 
-import org.jetbrains.research.mads.core.telemetry.EmptySaver
 import org.jetbrains.research.mads.core.types.*
 import kotlin.jvm.internal.CallableReference
 import kotlin.reflect.full.findAnnotation
@@ -9,7 +8,6 @@ data class ConfiguredMechanism<MO : ModelObject>(
     val mechanism: ((MO) -> List<Response>),
     val duration: Int,
     val condition: ((MO) -> Boolean),
-    val logFn: (Long, Response) -> Response
 )
 
 class ConfiguredMechanismBuilder<MO : ModelObject>(private val mechanism: ((MO, MechanismParameters) -> List<Response>),
@@ -17,9 +15,8 @@ class ConfiguredMechanismBuilder<MO : ModelObject>(private val mechanism: ((MO, 
     var constants: Constants = EmptyConstants
     var duration: Int = 1
     var condition: ((MO) -> Boolean) = Always
-    var logFn: (Long, Response) -> Response = EmptySaver::logResponse
 
-    fun build() = ConfiguredMechanism(applyParametersToMechanism(mechanism, createParams()), duration, condition, logFn)
+    fun build() = ConfiguredMechanism(applyParametersToMechanism(mechanism, createParams()), duration, condition)
 
     private fun createParams() : MechanismParameters {
         val annotation = (mechanism as CallableReference).findAnnotation<TimeResolutionAnnotation>()

@@ -65,7 +65,10 @@ fun main() {
 }
 
 fun experimentWithCurrents(current: Double, logFolder: String, neuronFun: () -> Neuron, config: Configuration, time: Double, seed: Long) {
-    FileSaver.initModelWriters("log/const_current/${current}_nA/${logFolder}/")
+    val saver = FileSaver("log/const_current/${current}_nA/${logFolder}/")
+    saver.addSignalsNames(SpikesSignals::spiked)
+    saver.addSignalsNames(PotentialSignals::V)
+
     val rnd = Random(seed)
 
     val objects: ArrayList<ModelObject> = arrayListOf()
@@ -83,6 +86,6 @@ fun experimentWithCurrents(current: Double, logFolder: String, neuronFun: () -> 
 
     val s = Model(objects, config)
     val stopTime = (time.toBigDecimal() / config.timeResolution.toBigDecimal()).toLong()
-    s?.simulate { it.currentTime() > stopTime }
-    FileSaver.closeModelWriters()
+    s?.simulate(saver) { it.currentTime() > stopTime }
+    saver.closeModelWriters()
 }

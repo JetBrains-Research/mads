@@ -2,6 +2,8 @@ package org.jetbrains.research.mads.core.simulation
 
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
+import org.jetbrains.research.mads.core.telemetry.EmptySaver
+import org.jetbrains.research.mads.core.telemetry.Saver
 import org.jetbrains.research.mads.core.types.ModelObject
 import java.util.stream.Collectors
 
@@ -33,7 +35,7 @@ class Model private constructor(
         dispatcher.addEvents(allEvents)
     }
 
-    fun simulate(stopCondition: (Model) -> Boolean) {
+    fun simulate(saver: Saver = EmptySaver, stopCondition: (Model) -> Boolean) {
         tStart = System.currentTimeMillis()
         var lastStep = 0L
 
@@ -46,7 +48,7 @@ class Model private constructor(
 
             // 2. apply responses to each object independently -> S_i to S_i+1
             val updatedObjects = responses.entries.parallelStream()
-                .map { e -> e.key.applyResponses(currentTime, e.value) }
+                .map { e -> e.key.applyResponses(e.value) }
                 .flatMap { it.stream() }
                 .distinct()
                 .collect(Collectors.toList())
@@ -54,6 +56,7 @@ class Model private constructor(
             // 3. calculate conditions -> map of events
             updatedObjects.parallelStream()
                 .forEach {
+                    saver.logChangedSignals(currentTime, it.hashCode(), it.type, it.getChangedSignals())
                     if (!it.initialized) configuration.createEvents(it)
                     it.checkConditions()
                 }
