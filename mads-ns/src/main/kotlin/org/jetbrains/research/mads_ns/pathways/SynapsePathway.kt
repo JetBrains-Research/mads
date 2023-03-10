@@ -2,17 +2,17 @@ package org.jetbrains.research.mads_ns.pathways
 
 import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.millisecond
+import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.physiology.synapses.*
 
 fun synapsePathway() = pathway<Synapse> {
-    timeResolution = millisecond
+    timeResolution = microsecond
 //    mechanism(mechanism = SynapseMechanisms.SynapseDecay) {
 //        duration = 100
 //    }
     mechanism(mechanism = SynapseMechanisms.CurrentDecay) {
-        duration = 10
+        duration = 100
         condition = {
             val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
             currentSignals.I_e > 0.01

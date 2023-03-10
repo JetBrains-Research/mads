@@ -6,6 +6,7 @@ import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads_ns.physiology.neurons.IzhMechanisms
 import org.jetbrains.research.mads_ns.physiology.neurons.IzhNeuron
 import org.jetbrains.research.mads_ns.physiology.neurons.NeuronMechanisms
+import org.jetbrains.research.mads_ns.physiology.neurons.SpikeConstants
 
 fun izhPathway() = pathway<IzhNeuron> {
     timeResolution = microsecond
@@ -32,5 +33,6 @@ fun izhPathway() = pathway<IzhNeuron> {
     mechanism(mechanism = NeuronMechanisms.SpikeTransfer) {
         duration = 100
         condition = { overThresholdAndNotSpiked(it) }
+        constants = SpikeConstants()
     }
 }
