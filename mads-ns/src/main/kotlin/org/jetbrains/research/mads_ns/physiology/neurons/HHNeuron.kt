@@ -1,5 +1,6 @@
 package org.jetbrains.research.mads_ns.physiology.neurons
 
+import kotlinx.serialization.Serializable
 import org.jetbrains.research.mads.core.types.*
 import kotlin.math.exp
 import kotlin.math.pow
@@ -23,6 +24,7 @@ object HHConstants : Constants {
     const val V_thresh = -50.0
 }
 
+@Serializable
 data class HHSignals(
     var N: Double = 0.32,
     var M: Double = 0.05,

@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm")
+    kotlin("plugin.serialization") version "1.8.10"
 }
 
 //group = "org.example"
@@ -11,6 +12,8 @@ description = "Neuroscience domain for MADS"
 //}
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+
     implementation(project(":mads-core"))
     implementation("org.apache.commons:commons-collections4:4.4")
 }

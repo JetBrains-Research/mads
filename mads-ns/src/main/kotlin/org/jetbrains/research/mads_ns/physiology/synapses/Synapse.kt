@@ -1,5 +1,6 @@
 package org.jetbrains.research.mads_ns.physiology.synapses
 
+import kotlinx.serialization.Serializable
 import org.jetbrains.research.mads.core.types.*
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.physiology.neurons.STDPSignals
@@ -32,6 +33,7 @@ class Synapse(
     }
 }
 
+@Serializable
 data class SynapseSignals(
     var weight: Double = 1.0,
     var synapseSign: Double = 1.0,

@@ -1,5 +1,6 @@
 package org.jetbrains.research.mads_ns.physiology.neurons
 
+import kotlinx.serialization.Serializable
 import org.jetbrains.research.mads.core.types.MechanismParameters
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.Response
@@ -15,6 +16,7 @@ abstract class Neuron(
     vararg signals: Signals
 ) : ModelObject(SpikesSignals(spikeThreshold = spikeThreshold), PotentialSignals(), CurrentSignals(), *signals)
 
+@Serializable
 data class SpikesSignals(
     var spiked: Boolean = false,
     var spikeThreshold: Double = 0.0,
@@ -24,6 +26,7 @@ data class SpikesSignals(
     }
 }
 
+@Serializable
 data class STDPSignals(
     var stdpTrace: Double = 0.0,
     val stdpDecayCoefficient: Double = 0.99
@@ -33,6 +36,7 @@ data class STDPSignals(
     }
 }
 
+@Serializable
 data class CurrentSignals(
     var I_e: Double = 0.0,
 ) : Signals {
@@ -41,6 +45,7 @@ data class CurrentSignals(
     }
 }
 
+@Serializable
 data class PotentialSignals(
     var V: Double = -65.0,
 ) : Signals {
