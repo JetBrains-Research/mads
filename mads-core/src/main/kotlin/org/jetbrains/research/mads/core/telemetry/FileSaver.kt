@@ -1,37 +1,47 @@
 package org.jetbrains.research.mads.core.telemetry
 
 import kotlinx.coroutines.*
-import org.jetbrains.research.mads.core.types.Response
 import java.io.File
 import java.nio.file.Paths
+import kotlin.reflect.KProperty
+import kotlin.reflect.jvm.javaField
 
-object FileSaver : ResponseSaver {
+class FileSaver(dir: String) : Saver {
     private val scope = CoroutineScope(Dispatchers.IO + Job() + SupervisorJob())
-    private lateinit var modelWriter : CsvModelExporter
+    private var modelWriter : CsvModelExporter = CsvModelExporter()
+    private val sigSet = mutableSetOf<String>()
 
-    fun initModelWriters(dir: String) {
+    init {
         mkdirs(dir)
         val csvModelExporter = CsvModelExporter()
         csvModelExporter.open(
             Paths.get(dir, File.separator),
-            "responses.csv",
-            "time,object,type,parameter,alteration\n"
+            "signals.csv",
+            "time,object,type,signal,value\n"
         )
         modelWriter = csvModelExporter
     }
 
-    override fun logResponse(tick: Long, response: Response): Response {
-        scope.launch {
-            modelWriter.write(
-                (arrayOf(
-                    tick.toString(),
-                    response.sourceObject.hashCode().toString(),
-                    response.sourceObject.type.toString(),
-                    response.logLabel,
-                    response.logValue)).joinToString(",")+"\n")
-        }
+    override fun addSignalsNames(signal: KProperty<*>) {
+        sigSet.add("${signal.javaField?.declaringClass?.simpleName}.${signal.name}")
+    }
 
-        return response
+    override fun logChangedSignals(tick: Long, id: Int, type: String, signals: Map<String, String>) {
+        scope.launch {
+            signals.forEach { signal ->
+                if (sigSet.contains(signal.key)) {
+                    modelWriter.write(
+                        (arrayOf(
+                            tick.toString(),
+                            id.toString(),
+                            type,
+                            signal.key,
+                            signal.value
+                        )).joinToString(",") + "\n"
+                    )
+                }
+            }
+        }
     }
 
     fun closeModelWriters() {

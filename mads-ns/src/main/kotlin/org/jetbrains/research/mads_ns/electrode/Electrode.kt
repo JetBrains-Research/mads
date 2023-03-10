@@ -30,7 +30,7 @@ fun Electrode.PulseDynamic(params: MechanismParameters): List<Response> {
     val delta = I - s.I_e
 
     return arrayListOf(
-        this.createResponse("dI",delta.toString()) {
+        this.createResponse {
             s.I_e += delta
         }
     )

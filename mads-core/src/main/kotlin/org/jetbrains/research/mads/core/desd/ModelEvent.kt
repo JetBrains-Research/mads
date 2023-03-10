@@ -1,6 +1,5 @@
 package org.jetbrains.research.mads.core.desd
 
-import org.jetbrains.research.mads.core.telemetry.EmptySaver
 import org.jetbrains.research.mads.core.types.Response
 import java.util.*
 
@@ -14,7 +13,6 @@ class ModelEvent(
     private val mechanism: () -> List<Response>,
     private val condition: () -> Boolean,
     private val duration: Int,
-    private val logFn: (Long, Response) -> Response = EmptySaver::logResponse,
     seed: Long = 12345L,
     rangePercent: Double = 0.0
 ) {
@@ -45,11 +43,7 @@ class ModelEvent(
     fun getEventTime(): Long = eventTime
 
     fun executeEvent(): List<Response> {
-        val responses = stateProcessorMap[eventState]!!.invoke()
-        if (logFn != EmptySaver::logResponse)
-            responses.map { it.logFn = logFn }
-
-        return responses;
+        return stateProcessorMap[eventState]!!.invoke()
     }
 
     fun updateTime(tick: Long): Boolean {

@@ -43,7 +43,7 @@ abstract class ModelObject(vararg signals: Signals) {
         pathway.configuredMechanisms.forEach {
             val mch = applyObjectToMechanism(it.mechanism, this)
             val cnd = applyObjectToCondition(it.condition, this)
-            val event = ModelEvent(mch, cnd, it.duration * pathway.timeResolutionCoefficient, it.logFn)
+            val event = ModelEvent(mch, cnd, it.duration * pathway.timeResolutionCoefficient)
             events.add(event)
         }
     }
@@ -53,15 +53,23 @@ abstract class ModelObject(vararg signals: Signals) {
         initialized = true
     }
 
-    fun createResponse(logLabel: String, logValue: String, applyFn: () -> Unit) : Response {
-        return Response(this, logLabel, logValue, applyFn)
+    fun createResponse(applyFn: () -> Unit) : Response {
+        return Response(this, applyFn)
     }
 
-    internal fun applyResponses(currentTime: Long, responses: List<Response>): List<ModelObject> {
+    internal fun applyResponses(responses: List<Response>): List<ModelObject> {
         return resolveConflicts(responses).map {
             it.applyFn()
-            it.logFn(currentTime, it).sourceObject
+            it.sourceObject
         }
+    }
+
+    internal fun getChangedSignals(): Map<String, String> {
+        return signals.flatMap { (key, value) ->
+            value.getUpdatedProperties().map { (innerKey, innerValue) ->
+                "${key.simpleName}.$innerKey" to innerValue
+            }
+        }.toMap()
     }
 
     internal fun checkConditions() {
