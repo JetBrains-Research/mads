@@ -70,7 +70,7 @@ fun ElectrodeArray.StimuliDynamic(params: MechanismParameters): List<Response> {
 
 
             responses.add(
-                this.createResponse("nSpikes", numberOfSpikes.toString()) {
+                this.createResponse {
                     spikes.spikeProbability = numberOfSpikes / 100.0
                 }
             )
