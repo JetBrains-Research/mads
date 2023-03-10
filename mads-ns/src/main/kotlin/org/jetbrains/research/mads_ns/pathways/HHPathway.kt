@@ -6,6 +6,7 @@ import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads_ns.physiology.neurons.HHMechanisms
 import org.jetbrains.research.mads_ns.physiology.neurons.HHNeuron
 import org.jetbrains.research.mads_ns.physiology.neurons.NeuronMechanisms
+import org.jetbrains.research.mads_ns.physiology.neurons.SpikeConstants
 
 fun hhPathway() = pathway<HHNeuron> {
     timeResolution = microsecond
@@ -40,5 +41,6 @@ fun hhPathway() = pathway<HHNeuron> {
     mechanism(mechanism = NeuronMechanisms.SpikeTransfer) {
         duration = 25
         condition = { overThresholdAndNotSpiked(it) }
+        constants = SpikeConstants()
     }
 }
