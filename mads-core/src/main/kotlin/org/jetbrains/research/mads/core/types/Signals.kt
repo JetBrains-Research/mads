@@ -47,22 +47,6 @@ open class Signals {
         return updatedMap
     }
 
-    fun getProperties(): Map<String, Any> {
-        val kClass = this::class
-        val memberProperties = kClass.memberProperties
-
-        val updatedMap = mutableMapOf<String, Any>()
-        memberProperties.forEach {
-            @Suppress("UNCHECKED_CAST")
-            val kProp = it as? KProperty1<Signals, *>
-            kProp?.let {
-                val value = kProp.get(this)?.toString() ?: "null"
-                updatedMap[kProp.name] = value
-            }
-        }
-        return updatedMap
-    }
-
     override fun toString(): String {
         val kClass = this::class
         val memberProperties = kClass.memberProperties

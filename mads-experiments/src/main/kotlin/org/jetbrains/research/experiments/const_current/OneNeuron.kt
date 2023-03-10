@@ -65,7 +65,7 @@ fun main() {
 }
 
 fun experimentWithCurrents(current: Double, logFolder: String, neuronFun: () -> Neuron, config: Configuration, time: Double, seed: Long) {
-    val saver = FileSaver("log/const_current/OneNeuron/${current}_nA/${logFolder}/")
+    val saver = FileSaver("log/const_current/${current}_nA/${logFolder}/")
     saver.addSignalsNames(SpikesSignals::spiked)
     saver.addSignalsNames(PotentialSignals::V)
 
