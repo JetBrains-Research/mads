@@ -1,6 +1,5 @@
 package org.jetbrains.research.mads_ns.physiology.neurons
 
-import kotlinx.serialization.Serializable
 import org.jetbrains.research.mads.core.types.*
 import kotlin.math.pow
 
@@ -17,13 +16,8 @@ object IzhConstantsRS : IzhConstants(d = 8.0)
 
 object IzhConstantsIB : IzhConstants(d = 4.0, c = -55.0)
 
-@Serializable
-data class IzhSignals(
-    var U: Double = 0.0,
-) : Signals {
-    override fun clone(): Signals {
-        return this.copy()
-    }
+class IzhSignals : Signals() {
+    var U: Double by observable(0.0)
 }
 
 object IzhMechanisms {
@@ -49,10 +43,9 @@ fun IzhNeuron.VDynamic(params: MechanismParameters): List<Response> {
         }
 
     return arrayListOf(
-        this.createResponse("dV",delta.toString()) {
+        this.createResponse {
             u.V += delta
-        },
-        this.createResponse("VVal",u.V.toString()) { }
+        }
     )
 }
 
@@ -71,7 +64,7 @@ fun IzhNeuron.UDynamic(params: MechanismParameters): List<Response> {
         }
 
     return arrayListOf(
-        this.createResponse("dU",delta.toString()) {
+        this.createResponse {
             izh.U += delta
         }
     )
