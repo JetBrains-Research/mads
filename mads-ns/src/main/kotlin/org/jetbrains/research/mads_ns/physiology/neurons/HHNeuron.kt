@@ -1,5 +1,6 @@
 package org.jetbrains.research.mads_ns.physiology.neurons
 
+import kotlinx.serialization.Serializable
 import org.jetbrains.research.mads.core.types.*
 import kotlin.math.exp
 import kotlin.math.pow
@@ -23,10 +24,15 @@ object HHConstants : Constants {
     const val V_thresh = -50.0
 }
 
-class HHSignals : Signals() {
-    var N: Double by observable(0.32)
-    var M: Double by observable(0.05)
-    var H: Double by observable(0.6)
+@Serializable
+data class HHSignals(
+    var N: Double = 0.32,
+    var M: Double = 0.05,
+    var H: Double = 0.6
+) : Signals {
+    override fun clone(): Signals {
+        return this.copy()
+    }
 }
 
 object HHMechanisms {
@@ -51,9 +57,10 @@ fun HHNeuron.VDynamic(params: MechanismParameters): List<Response> {
     val delta = params.dt * ((i.I_e - IK - INa - IL) / HHConstants.C_m)
 
     return arrayListOf(
-        this.createResponse {
+        this.createResponse("dV",delta.toString()) {
             u.V += delta
-        }
+        },
+        this.createResponse("VVal",u.V.toString()) { }
     )
 }
 
@@ -68,7 +75,7 @@ fun HHNeuron.NDynamic(params: MechanismParameters): List<Response> {
     val delta = params.dt * ((AlphaN(V) * (1.0 - n)) - (BetaN(V) * n))
 
     return arrayListOf(
-        this.createResponse {
+        this.createResponse("dN",delta.toString()) {
             s.N += delta
         }
     )
@@ -85,7 +92,7 @@ fun HHNeuron.MDynamic(params: MechanismParameters): List<Response> {
     val delta = params.dt * ((AlphaM(V) * (1.0 - m)) - (BetaM(V) * m))
 
     return arrayListOf(
-        this.createResponse {
+        this.createResponse("dM",delta.toString()) {
             s.M += delta
         }
     )
@@ -102,7 +109,7 @@ fun HHNeuron.HDynamic(params: MechanismParameters): List<Response> {
     val delta = params.dt * ((AlphaH(V) * (1.0 - h)) - (BetaH(V) * h))
 
     return arrayListOf(
-        this.createResponse {
+        this.createResponse("dH",delta.toString()) {
             s.H += delta
         }
     )
