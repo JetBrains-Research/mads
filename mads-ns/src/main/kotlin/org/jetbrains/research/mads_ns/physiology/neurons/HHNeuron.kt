@@ -33,6 +33,9 @@ data class HHSignals(
     override fun clone(): Signals {
         return this.copy()
     }
+    override fun state(): Map<String, Double> {
+        return mapOf("N" to N, "M" to M, "H" to H)
+    }
 }
 
 object HHMechanisms {

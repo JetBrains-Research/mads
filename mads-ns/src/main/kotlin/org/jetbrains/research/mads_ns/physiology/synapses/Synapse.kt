@@ -41,6 +41,10 @@ data class SynapseSignals(
     override fun clone(): Signals {
         return this.copy()
     }
+
+    override fun state(): Map<String, Double> {
+        return mapOf("weight" to weight, "sign" to synapseSign)
+    }
 }
 
 object SynapseMechanisms {

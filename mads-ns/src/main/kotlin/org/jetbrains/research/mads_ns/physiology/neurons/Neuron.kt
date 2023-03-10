@@ -24,6 +24,9 @@ data class SpikesSignals(
     override fun clone(): Signals {
         return this.copy()
     }
+    override fun state(): Map<String, Double> {
+        return mapOf("spiked" to if (spiked) 1.0 else 0.0, "threshold" to spikeThreshold)
+    }
 }
 
 @Serializable
@@ -34,6 +37,9 @@ data class STDPSignals(
     override fun clone(): Signals {
         return this.copy()
     }
+    override fun state(): Map<String, Double> {
+        return mapOf("trace" to stdpTrace, "decay" to stdpDecayCoefficient)
+    }
 }
 
 @Serializable
@@ -43,6 +49,9 @@ data class CurrentSignals(
     override fun clone(): Signals {
         return this.copy()
     }
+    override fun state(): Map<String, Double> {
+        return mapOf("I_e" to I_e)
+    }
 }
 
 @Serializable
@@ -51,6 +60,9 @@ data class PotentialSignals(
 ) : Signals {
     override fun clone(): Signals {
         return this.copy()
+    }
+    override fun state(): Map<String, Double> {
+        return mapOf("V" to V)
     }
 }
 

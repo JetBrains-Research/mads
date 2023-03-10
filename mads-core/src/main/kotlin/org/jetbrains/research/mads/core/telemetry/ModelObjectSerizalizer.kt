@@ -31,7 +31,7 @@ class ModelObjectSerizalizer: KSerializer<ModelObject> {
         element<String>("id")
         element<String>("parentId")
         element<List<String>>("connections")
-        element<Map<String, String>>("signals")
+        element<Map<String, Map<String, Double>>>("signals")
     }
 
     override fun deserialize(decoder: Decoder): ModelObject {
@@ -48,15 +48,16 @@ class ModelObjectSerizalizer: KSerializer<ModelObject> {
                 , ListSerializer(String.serializer()) //TODO: change to map
                 , value.connections.flatMap {
                     connOfType -> connOfType.value.map {
-                        connOfType.key::class.simpleName+'→'+it.hashCode().toString()
+                        connOfType.key::class.simpleName+"→"+it.hashCode().toString()
                     }
                 }
             )
             encodeSerializableElement(descriptor
                 ,4
-                , MapSerializer(String.serializer(), String.serializer())
+                , MapSerializer(String.serializer(), MapSerializer(String.serializer(), Double.serializer()))
                 , value.signals.map {
-                    (k,v) -> (k.simpleName ?: "No Simple Name") to v.toString()
+                    (k,v) -> (k.simpleName ?: "No Simple Name") to v.state()
+//                    (k,v) -> (k.simpleName ?: "No Simple Name") to v.toString()
 //                    (k,v) -> (k.simpleName ?: "No Simple Name") to Json{encodeDefaults=true}.encodeToString(v)
 //                    (k,v) -> (k.simpleName ?: "No Simple Name") to Json.encodeToString(k.serializer(), v)
                 }.toMap()

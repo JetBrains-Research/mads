@@ -24,6 +24,9 @@ data class IzhSignals(
     override fun clone(): Signals {
         return this.copy()
     }
+    override fun state(): Map<String, Double> {
+        return mapOf("U" to U)
+    }
 }
 
 object IzhMechanisms {
