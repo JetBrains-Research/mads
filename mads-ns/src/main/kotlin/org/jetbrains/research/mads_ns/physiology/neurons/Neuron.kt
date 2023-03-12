@@ -29,8 +29,8 @@ class CurrentSignals(I_e: Double = 0.0) : Signals() {
     var I_e: Double by observable(I_e)
 }
 
-class ProbabilisticSpikingSignals : Signals() {
-    var spikeProbability: Double by observable(0.0)
+class ProbabilisticSpikingSignals(probability: Double = 0.0) : Signals() {
+    var spikeProbability: Double by observable(probability)
 }
 
 class PotentialSignals : Signals() {
