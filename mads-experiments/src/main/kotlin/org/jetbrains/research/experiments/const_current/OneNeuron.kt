@@ -4,6 +4,7 @@ import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.configure
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.telemetry.FileSaver
+import org.jetbrains.research.mads.core.telemetry.JsonModelExporter
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
@@ -13,11 +14,12 @@ import org.jetbrains.research.mads_ns.pathways.hhPathway
 import org.jetbrains.research.mads_ns.pathways.izhPathway
 import org.jetbrains.research.mads_ns.pathways.lifPathway
 import org.jetbrains.research.mads_ns.physiology.neurons.*
+import kotlin.io.path.Path
 import kotlin.random.Random
 
 fun main() {
-//    val currents = arrayOf<Double>(10.0)
-    val currents = arrayOf<Double>(5.0, 10.0, 20.0, 30.0, 50.0)
+    val currents = arrayOf<Double>(10.0)
+//    val currents = arrayOf<Double>(5.0, 10.0, 20.0, 30.0, 50.0)
 //    var currents = arrayOf<Double>(-10.0, -5.0, 0.0, 5.0, 10.0)
     val startTime = System.currentTimeMillis()
     val modelingTime = 500 * millisecond
@@ -84,8 +86,13 @@ fun experimentWithCurrents(current: Double, logFolder: String, neuronFun: () -> 
         objects.add(electrode)
     }
 
+    val path = Path("log/const_current/OneNeuron/${current}_nA/${logFolder}/states.json")
+    val modelExporter: JsonModelExporter = JsonModelExporter(path)
     val s = Model(objects, config)
+    s?.let { modelExporter.write(it) }
     val stopTime = (time.toBigDecimal() / config.timeResolution.toBigDecimal()).toLong()
     s?.simulate(saver) { it.currentTime() > stopTime }
+    s?.let { modelExporter.write(it) }
+    modelExporter.close()
     saver.closeModelWriters()
 }

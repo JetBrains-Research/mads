@@ -1,14 +1,14 @@
 package org.jetbrains.research.mads.core.types
 
 import kotlinx.serialization.Serializable
-import kotlin.reflect.KClass
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.desd.ModelEvent
-import org.jetbrains.research.mads.core.telemetry.ModelObjectSerizalizer
+import org.jetbrains.research.mads.core.telemetry.ModelObjectSerializer
+import kotlin.reflect.KClass
 
 object EmptyModelObject : ModelObject()
 
-@Serializable(with= ModelObjectSerizalizer::class)
+@Serializable(with= ModelObjectSerializer::class)
 abstract class ModelObject(vararg signals: Signals) {
 
     var type: String = ""

@@ -1,5 +1,7 @@
 package org.jetbrains.research.mads.core.types
 
+import kotlinx.serialization.Serializable
+import org.jetbrains.research.mads.core.telemetry.SignalsSerializer
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
@@ -21,6 +23,7 @@ abstract class ObservableProperty<T>(initialValue: T) : ReadWriteProperty<Any?, 
     protected abstract fun onValueChanged(property: KProperty<*>)
 }
 
+@Serializable(with = SignalsSerializer::class)
 open class Signals {
     private val updatedProperties = mutableSetOf<KProperty<*>>()
 
@@ -44,6 +47,21 @@ open class Signals {
             }
         }
         updatedProperties.clear()
+        return updatedMap
+    }
+
+    fun getProperties(): Map<String, Any> {
+        val kClass = this::class
+        val memberProperties = kClass.memberProperties
+
+        val updatedMap = mutableMapOf<String, Any>()
+        memberProperties.forEach {
+            @Suppress("UNCHECKED_CAST")
+            val kProp = it as? KProperty1<Signals, *>
+            kProp?.let {
+                updatedMap[kProp.name] = kProp.get(this) as Any
+            }
+        }
         return updatedMap
     }
 

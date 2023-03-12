@@ -1,20 +1,23 @@
 package org.jetbrains.research.mads.core.simulation
 
+import kotlinx.serialization.Serializable
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
 import org.jetbrains.research.mads.core.telemetry.EmptySaver
+import org.jetbrains.research.mads.core.telemetry.ModelStateSerializer
 import org.jetbrains.research.mads.core.telemetry.Saver
 import org.jetbrains.research.mads.core.types.ModelObject
 import java.util.stream.Collectors
 
 object RootObject : ModelObject()
 
+@Serializable(with= ModelStateSerializer::class)
 class Model private constructor(
     objects: List<ModelObject>,
     private val configuration: Configuration
 ) : ModelObject() {
 
-    private var tStart: Long = 0
+    var tStart: Long = 0
     private val dispatcher = EventsDispatcher()
     private val progressBar: ProgressBarRotating = ProgressBarRotating(250, "step: 0")
 

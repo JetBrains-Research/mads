@@ -1,12 +1,9 @@
 package org.jetbrains.research.mads.core.telemetry
 
-import java.nio.file.Path
-import kotlin.io.path.Path
-import java.io.OutputStreamWriter
-import java.io.File
-
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
 import org.jetbrains.research.mads.core.simulation.Model
+import java.io.File
+import java.nio.file.Path
 
 val format = Json { prettyPrint = true }
 
