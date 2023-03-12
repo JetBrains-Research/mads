@@ -6,6 +6,7 @@ import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.millisecond
 import org.jetbrains.research.mads_ns.electrode.Electrode
 import org.jetbrains.research.mads_ns.electrode.ElectrodeConnection
+import org.jetbrains.research.mads_ns.electrode.ElectrodeConstants
 import org.jetbrains.research.mads_ns.electrode.ElectrodeMechanisms
 
 fun electrodePathway() = pathway {
@@ -13,6 +14,7 @@ fun electrodePathway() = pathway {
     mechanism(mechanism = ElectrodeMechanisms.PulseDynamic) {
         duration = 10
         condition = Always
+        constants = ElectrodeConstants
     }
 }
 

@@ -26,14 +26,22 @@ class ElectrodeArray(private val provider: ImageProvider,
         }
     }
 
+    fun capacity() : Int {
+        return electrodesGrid.size
+    }
+
     fun getElectrodeByCoordinate(x: Int, y: Int): Electrode {
         val flatCoordinate = y * width + x
-        if (flatCoordinate > electrodesGrid.size) {
+        return this[flatCoordinate]
+    }
+
+    operator fun get(index: Int): Electrode {
+        if (index > electrodesGrid.size) {
             val exceptionString = String.format("Trying to get an electrode with bad coordinate!")
             throw RuntimeException(exceptionString)
         }
 
-        return electrodesGrid[flatCoordinate]
+        return electrodesGrid[index]
     }
 
     fun getProvider(): ImageProvider {
