@@ -7,7 +7,7 @@ import kotlin.random.Random
 
 object ElectrodeConnection : ConnectionType
 
-class Electrode(current: CurrentSignals, val rnd: Random) : ModelObject(current, ProbabilisticSpikingSignals(0.0))
+class Electrode(current: CurrentSignals, val rnd: Random) : ModelObject(current, ProbabilisticSpikingSignals())
 
 object ElectrodeConstants : Constants {
     // constants
