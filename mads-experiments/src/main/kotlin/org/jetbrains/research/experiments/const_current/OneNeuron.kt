@@ -4,7 +4,6 @@ import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.configure
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.telemetry.FileSaver
-import org.jetbrains.research.mads.core.telemetry.JsonModelExporter
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
@@ -67,7 +66,8 @@ fun main() {
 }
 
 fun experimentWithCurrents(current: Double, logFolder: String, neuronFun: () -> Neuron, config: Configuration, time: Double, seed: Long) {
-    val saver = FileSaver("log/const_current/${current}_nA/${logFolder}/")
+    val dir = Path("log/const_current/OneNeuron/${current}_nA/${logFolder}")
+    val saver = FileSaver(dir)
     saver.addSignalsNames(SpikesSignals::spiked)
     saver.addSignalsNames(PotentialSignals::V)
 
@@ -86,13 +86,8 @@ fun experimentWithCurrents(current: Double, logFolder: String, neuronFun: () -> 
         objects.add(electrode)
     }
 
-    val path = Path("log/const_current/OneNeuron/${current}_nA/${logFolder}/states.json")
-    val modelExporter: JsonModelExporter = JsonModelExporter(path)
     val s = Model(objects, config)
-    s?.let { modelExporter.write(it) }
     val stopTime = (time.toBigDecimal() / config.timeResolution.toBigDecimal()).toLong()
     s?.simulate(saver) { it.currentTime() > stopTime }
-    s?.let { modelExporter.write(it) }
-    modelExporter.close()
     saver.closeModelWriters()
 }

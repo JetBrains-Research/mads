@@ -6,14 +6,12 @@ import java.io.File
 import java.io.OutputStreamWriter
 import java.nio.file.Path
 
-class CsvModelExporter {
-    private lateinit var writer: OutputStreamWriter
+class CsvModelExporter(path: Path, header: String) {
+    private var writer: OutputStreamWriter = initWriter(path, header)
     private lateinit var channel: Channel<String>
 
     @OptIn(DelicateCoroutinesApi::class)
-    fun open(path: Path, fileName: String, header: String) {
-        writer = File(path.toString() + File.separator + fileName).writer()
-        writer.write(header)
+    fun open() {
         channel = Channel()
 
         val writerJob = GlobalScope.launch {
@@ -41,5 +39,12 @@ class CsvModelExporter {
 
     suspend fun write(message: String) {
         channel.send(message)
+    }
+
+    private fun initWriter(path: Path, header: String) : OutputStreamWriter {
+        writer = File(path.toUri()).writer()
+        writer.write(header)
+
+        return writer
     }
 }

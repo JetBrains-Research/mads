@@ -14,13 +14,15 @@ import org.jetbrains.research.mads_ns.physiology.neurons.LIFConstants
 import org.jetbrains.research.mads_ns.physiology.neurons.LIFNeuron
 import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseSignals
+import kotlin.io.path.Path
 
 fun main() {
     simpleLIFLearning()
 }
 
 fun simpleLIFLearning() {
-    val saver = FileSaver("log/lifSimpleLearning/${System.currentTimeMillis()}/")
+    val dir = Path("log/lifSimpleLearning/${System.currentTimeMillis()}/")
+    val saver = FileSaver(dir)
 
     val modelingTime = 10 * minute
     val nExc = 64

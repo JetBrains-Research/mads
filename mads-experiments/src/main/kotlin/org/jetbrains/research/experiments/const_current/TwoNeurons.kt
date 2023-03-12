@@ -11,6 +11,7 @@ import org.jetbrains.research.mads_ns.electrode.Electrode
 import org.jetbrains.research.mads_ns.pathways.*
 import org.jetbrains.research.mads_ns.physiology.neurons.*
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseSignals
+import kotlin.io.path.Path
 import kotlin.random.Random
 
 fun main() {
@@ -53,7 +54,8 @@ fun main() {
 }
 
 fun experimentWithTwoNeurons(current: Double, logFolder: String, neuronFun: () -> Neuron, config: Configuration, time: Double, seed: Long) {
-    val saver = FileSaver("log/const_current/TwoNeurons/${current}_nA/${logFolder}/")
+    val dir = Path("log/const_current/TwoNeurons/${current}_nA/${logFolder}")
+    val saver = FileSaver(dir)
     saver.addSignalsNames(SpikesSignals::spiked)    // here we have boolean true for spike occurrence
     saver.addSignalsNames(PotentialSignals::V)      // here is membrane potential (both cells)
     saver.addSignalsNames(CurrentSignals::I_e)      // here is current (electrode and synapse)

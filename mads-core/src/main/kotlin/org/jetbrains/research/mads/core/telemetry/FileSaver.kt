@@ -1,25 +1,27 @@
 package org.jetbrains.research.mads.core.telemetry
 
 import kotlinx.coroutines.*
+import org.jetbrains.research.mads.core.simulation.Model
 import java.io.File
-import java.nio.file.Paths
+import java.nio.file.Path
 import kotlin.reflect.KProperty
 import kotlin.reflect.jvm.javaField
 
-class FileSaver(dir: String) : Saver {
+class FileSaver(dir: Path) : Saver {
     private val scope = CoroutineScope(Dispatchers.IO + Job() + SupervisorJob())
-    private var modelWriter : CsvModelExporter = CsvModelExporter()
+    private val modelChangesWriter : CsvModelExporter
+    private val modelStateWriter : JsonModelExporter
     private val sigSet = mutableSetOf<String>()
 
     init {
         mkdirs(dir)
-        val csvModelExporter = CsvModelExporter()
-        csvModelExporter.open(
-            Paths.get(dir, File.separator),
-            "signals.csv",
-            "time,object,type,signal,value\n"
-        )
-        modelWriter = csvModelExporter
+        val signalsFileName = "signals.csv"
+        val signalsHeader = "time,object,type,signal,value\n"
+        val stateFileName = "state.json"
+        modelChangesWriter = CsvModelExporter(dir.resolve(signalsFileName), signalsHeader)
+        modelStateWriter = JsonModelExporter(dir.resolve(stateFileName))
+
+        modelChangesWriter.open()
     }
 
     override fun addSignalsNames(signal: KProperty<*>) {
@@ -30,7 +32,7 @@ class FileSaver(dir: String) : Saver {
         scope.launch {
             signals.forEach { signal ->
                 if (sigSet.contains(signal.key)) {
-                    modelWriter.write(
+                    modelChangesWriter.write(
                         (arrayOf(
                             tick.toString(),
                             id.toString(),
@@ -44,11 +46,18 @@ class FileSaver(dir: String) : Saver {
         }
     }
 
-    fun closeModelWriters() {
-        modelWriter.close()
+    override fun logState(model: Model) {
+//        scope.launch {
+            modelStateWriter.write(model)
+//        }
     }
 
-    private fun mkdirs(dir: String) {
-        File(dir).mkdirs()
+    fun closeModelWriters() {
+        modelChangesWriter.close()
+        modelStateWriter.close()
+    }
+
+    private fun mkdirs(dir: Path) {
+        File(dir.toUri()).mkdirs()
     }
 }

@@ -15,12 +15,10 @@ class CsvModelExporterTest {
 
 
     private fun prepare() {
-        csvModelExporter = CsvModelExporter()
-        csvModelExporter.open(
-            Path(System.getProperty("user.dir") + "/" + "results" + File.separator),
-            "KotlinTEST_CSV_EXPORTER2.csv",
-            "Output,Output1,Output2,Output3,Output4\n"
-        )
+        csvModelExporter = CsvModelExporter(
+            path = Path(System.getProperty("user.dir") + File.separator + "results" + File.separator + "KotlinTEST_CSV_EXPORTER2.csv"),
+            header = "Output,Output1,Output2,Output3,Output4\n")
+        csvModelExporter.open()
         texts = mutableListOf()
 
     }
