@@ -17,8 +17,8 @@ import kotlin.io.path.Path
 import kotlin.random.Random
 
 fun main() {
-    val currents = arrayOf<Double>(10.0)
-//    val currents = arrayOf<Double>(5.0, 10.0, 20.0, 30.0, 50.0)
+//    val currents = arrayOf<Double>(10.0)
+    val currents = arrayOf<Double>(5.0, 10.0, 20.0, 30.0, 50.0)
 //    var currents = arrayOf<Double>(-10.0, -5.0, 0.0, 5.0, 10.0)
     val startTime = System.currentTimeMillis()
     val modelingTime = 500 * millisecond

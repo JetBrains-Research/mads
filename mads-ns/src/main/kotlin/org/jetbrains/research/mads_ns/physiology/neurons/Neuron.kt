@@ -1,14 +1,15 @@
 package org.jetbrains.research.mads_ns.physiology.neurons
 
-import org.jetbrains.research.mads.core.types.MechanismParameters
-import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.core.types.Response
-import org.jetbrains.research.mads.core.types.Signals
+import org.jetbrains.research.mads.core.types.*
 import org.jetbrains.research.mads_ns.electrode.ElectrodeConnection
 import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReceiver
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReleaser
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseSignals
+
+class SpikeConstants(val I_transfer: Double = 5.0) : Constants {
+
+}
 
 abstract class Neuron(
     spikeThreshold: Double = 0.0,
@@ -114,7 +115,7 @@ fun Neuron.spikeTransfer(params: MechanismParameters): List<Response> {
         if (it is Synapse) {
             val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
             val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
-            val delta = synapseSignals.weight * synapseSignals.synapseSign * 100.0 // 100.0 – mA
+            val delta = synapseSignals.weight * synapseSignals.synapseSign * (params.constants as SpikeConstants).I_transfer // 100.0 – mA
             result.add(
                 it.createResponse {
                     currentSignals.I_e += delta
