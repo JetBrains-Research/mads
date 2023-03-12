@@ -32,13 +32,18 @@ class Synapse(
     }
 }
 
-data class SynapseSignals(
-    var weight: Double = 1.0,
-    var synapseSign: Double = 1.0,
-) : Signals {
-    override fun clone(): Signals {
-        return this.copy()
-    }
+//data class SynapseSignals(
+//    var weight: Double = 1.0,
+//    var synapseSign: Double = 1.0,
+//) : Signals {
+//    override fun clone(): Signals {
+//        return this.copy()
+//    }
+//}
+
+class SynapseSignals(weight: Double = 1.0) : Signals() {
+    var weight: Double by observable(weight)
+    var synapseSign: Double by observable(1.0)
 }
 
 object SynapseMechanisms {
@@ -53,7 +58,7 @@ fun Synapse.weightDecayMechanism(params: MechanismParameters): List<Response> {
     val delta = newWeight - synapseSignals.weight
 
     return arrayListOf(
-        this.createResponse("dWeight",delta.toString()) {
+        this.createResponse {
             synapseSignals.weight += delta
         }
     )
@@ -64,7 +69,7 @@ fun Synapse.currentDecay(params: MechanismParameters): List<Response> {
     val delta = -(currentSignals.I_e / 2)
 
     return arrayListOf(
-        this.createResponse("dI",delta.toString()) {
+        this.createResponse {
             currentSignals.I_e += delta
         }
     )
@@ -84,7 +89,7 @@ fun Synapse.STDPWeightUpdateMechanism(params: MechanismParameters): List<Respons
     val delta = newWeight - synapseSignals.weight
 
     return arrayListOf(
-        this.createResponse("dWeight",delta.toString()) {
+        this.createResponse {
             synapseSignals.weight += delta
         }
     )

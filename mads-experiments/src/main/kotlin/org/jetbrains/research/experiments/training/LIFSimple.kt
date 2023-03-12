@@ -20,7 +20,7 @@ fun main() {
 }
 
 fun simpleLIFLearning() {
-    FileSaver.initModelWriters("log/lifSimpleLearning/${System.currentTimeMillis()}/")
+    val saver = FileSaver("log/lifSimpleLearning/${System.currentTimeMillis()}/")
 
     val modelingTime = 10 * minute
     val nExc = 64
@@ -76,6 +76,6 @@ fun simpleLIFLearning() {
 
     val s = Model(objects, config)
 
-    s?.simulate { it.currentTime() > modelingTime }
-    FileSaver.closeModelWriters()
+    s?.simulate(saver) { it.currentTime() > modelingTime }
+    saver.closeModelWriters()
 }

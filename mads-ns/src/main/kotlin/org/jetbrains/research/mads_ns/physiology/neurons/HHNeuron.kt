@@ -23,14 +23,10 @@ object HHConstants : Constants {
     const val V_thresh = -50.0
 }
 
-data class HHSignals(
-    var N: Double = 0.32,
-    var M: Double = 0.05,
-    var H: Double = 0.6
-) : Signals {
-    override fun clone(): Signals {
-        return this.copy()
-    }
+class HHSignals : Signals() {
+    var N: Double by observable(0.32)
+    var M: Double by observable(0.05)
+    var H: Double by observable(0.6)
 }
 
 object HHMechanisms {
@@ -55,10 +51,9 @@ fun HHNeuron.VDynamic(params: MechanismParameters): List<Response> {
     val delta = params.dt * ((i.I_e - IK - INa - IL) / HHConstants.C_m)
 
     return arrayListOf(
-        this.createResponse("dV",delta.toString()) {
+        this.createResponse {
             u.V += delta
-        },
-        this.createResponse("VVal",u.V.toString()) { }
+        }
     )
 }
 
@@ -73,7 +68,7 @@ fun HHNeuron.NDynamic(params: MechanismParameters): List<Response> {
     val delta = params.dt * ((AlphaN(V) * (1.0 - n)) - (BetaN(V) * n))
 
     return arrayListOf(
-        this.createResponse("dN",delta.toString()) {
+        this.createResponse {
             s.N += delta
         }
     )
@@ -90,7 +85,7 @@ fun HHNeuron.MDynamic(params: MechanismParameters): List<Response> {
     val delta = params.dt * ((AlphaM(V) * (1.0 - m)) - (BetaM(V) * m))
 
     return arrayListOf(
-        this.createResponse("dM",delta.toString()) {
+        this.createResponse {
             s.M += delta
         }
     )
@@ -107,7 +102,7 @@ fun HHNeuron.HDynamic(params: MechanismParameters): List<Response> {
     val delta = params.dt * ((AlphaH(V) * (1.0 - h)) - (BetaH(V) * h))
 
     return arrayListOf(
-        this.createResponse("dH",delta.toString()) {
+        this.createResponse {
             s.H += delta
         }
     )

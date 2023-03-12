@@ -1,9 +1,9 @@
 package org.jetbrains.research.mads.core.telemetry
 
-import org.jetbrains.research.mads.core.types.Response
+import kotlin.reflect.KProperty
 
-object EmptySaver : ResponseSaver {
-    override fun logResponse(tick: Long, response: Response): Response {
-        return response
-    }
+object EmptySaver : Saver {
+    override fun addSignalsNames(signal: KProperty<*>) { }
+
+    override fun logChangedSignals(tick: Long, id: Int, type: String, signals: Map<String, String>) { }
 }
