@@ -9,7 +9,7 @@ import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.microsecond
-import org.jetbrains.research.mads.core.types.minute
+import org.jetbrains.research.mads.core.types.second
 import org.jetbrains.research.mads_ns.data_provider.MnistProvider
 import org.jetbrains.research.mads_ns.electrode.ElectrodeArray
 import org.jetbrains.research.mads_ns.pathways.electrodeArrayPathway
@@ -19,6 +19,7 @@ import org.jetbrains.research.mads_ns.pathways.synapsePathway
 import org.jetbrains.research.mads_ns.physiology.neurons.LIFConstants
 import org.jetbrains.research.mads_ns.physiology.neurons.LIFNeuron
 import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
+import org.jetbrains.research.mads_ns.physiology.neurons.SpikesSignals
 import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
 import java.nio.file.Paths
 import kotlin.io.path.Path
@@ -26,7 +27,7 @@ import kotlin.io.path.absolutePathString
 
 fun main() {
     val startTime = System.currentTimeMillis()
-    val modelingTime = 10 * minute
+    val modelingTime = 10 * second  // approx 100 samples
 //    val randomSeed = 12345L
     println("Experiment start time $startTime")
 
@@ -46,6 +47,8 @@ fun main() {
 fun learningExperiment(logFolder: String, neuronFun: () -> Neuron, config: Configuration, time: Double) {
     val dir = Path("log/learningExcMnist/${logFolder}")
     val saver = FileSaver(dir)
+    saver.addSignalsNames(SpikesSignals::spiked)    // writing some spikes
+
     val nExc = 64
 
     val targetClasses = arrayListOf("1", "3")
