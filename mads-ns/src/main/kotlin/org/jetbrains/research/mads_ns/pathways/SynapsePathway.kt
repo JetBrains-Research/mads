@@ -12,7 +12,7 @@ fun synapsePathway() = pathway<Synapse> {
 //        duration = 100
 //    }
     mechanism(mechanism = SynapseMechanisms.CurrentDecay) {
-        duration = 100
+        duration = 1
         condition = {
             val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
             currentSignals.I_e > 0.01

@@ -57,8 +57,8 @@ fun experimentWithTwoNeurons(current: Double, logFolder: String, neuronFun: () -
     val dir = Path("log/const_current/TwoNeurons/${current}_nA/${logFolder}")
     val saver = FileSaver(dir)
     saver.addSignalsNames(SpikesSignals::spiked)    // here we have boolean true for spike occurrence
-    saver.addSignalsNames(PotentialSignals::V)      // here is membrane potential (both cells)
-    saver.addSignalsNames(CurrentSignals::I_e)      // here is current (electrode and synapse)
+//    saver.addSignalsNames(PotentialSignals::V)      // here is membrane potential (both cells)
+//    saver.addSignalsNames(CurrentSignals::I_e)      // here is current (electrode and synapse)
 
     val rnd = Random(seed)
 
