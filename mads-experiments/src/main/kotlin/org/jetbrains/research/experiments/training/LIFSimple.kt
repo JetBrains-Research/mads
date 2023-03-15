@@ -13,7 +13,7 @@ import org.jetbrains.research.mads.core.types.second
 import org.jetbrains.research.mads_ns.data_provider.MnistProvider
 import org.jetbrains.research.mads_ns.electrode.ElectrodeArray
 import org.jetbrains.research.mads_ns.pathways.electrodeArrayPathway
-import org.jetbrains.research.mads_ns.pathways.electrodePathway
+import org.jetbrains.research.mads_ns.pathways.electrodePulsePathway
 import org.jetbrains.research.mads_ns.pathways.lifPathway
 import org.jetbrains.research.mads_ns.pathways.synapsePathway
 import org.jetbrains.research.mads_ns.physiology.neurons.LIFConstants
@@ -36,7 +36,7 @@ fun main() {
         { -> LIFNeuron(LIFConstants.V_thresh) },
         configure {
             timeResolution = microsecond
-            addPathway(electrodePathway())
+            addPathway(electrodePulsePathway())
             addPathway(synapsePathway())
             addPathway(electrodeArrayPathway())
             addPathway(lifPathway())

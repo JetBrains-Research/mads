@@ -3,18 +3,33 @@ package org.jetbrains.research.mads_ns.pathways
 import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.types.ModelObject
+import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
-import org.jetbrains.research.mads_ns.electrode.Electrode
-import org.jetbrains.research.mads_ns.electrode.ElectrodeConnection
-import org.jetbrains.research.mads_ns.electrode.ElectrodeConstants
-import org.jetbrains.research.mads_ns.electrode.ElectrodeMechanisms
+import org.jetbrains.research.mads_ns.electrode.*
 
-fun electrodePathway() = pathway {
+fun electrodePulsePathway() = pathway {
     timeResolution = millisecond
     mechanism(mechanism = ElectrodeMechanisms.PulseDynamic) {
         duration = 10
         condition = Always
-        constants = ElectrodeConstants
+        constants = ElectrodePulseConstants
+    }
+}
+fun electrodePeriodicPulsePathway() = pathway {
+    timeResolution = millisecond
+    mechanism(mechanism = ElectrodeMechanisms.PeriodicPulseDynamic) {
+        duration = 1
+        condition = Always
+        constants = ElectrodePulseConstants
+    }
+}
+
+fun electrodeNoisePathway() = pathway {
+    timeResolution = microsecond
+    mechanism(mechanism = ElectrodeMechanisms.NoiseDynamic) {
+        duration = 500
+        condition = Always
+        constants = ElectrodeNoiseConstants
     }
 }
 

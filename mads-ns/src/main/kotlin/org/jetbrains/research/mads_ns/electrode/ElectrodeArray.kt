@@ -6,7 +6,7 @@ import org.jetbrains.research.mads.core.types.Response
 import org.jetbrains.research.mads_ns.data_provider.ImageProvider
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.physiology.neurons.ProbabilisticSpikingSignals
-import kotlin.random.Random
+import java.util.*
 
 
 class ElectrodeArray(private val provider: ImageProvider,
@@ -21,7 +21,7 @@ class ElectrodeArray(private val provider: ImageProvider,
 
         for (i in 0..width) {
             for (j in 0..height) {
-                electrodesGrid.add(Electrode(CurrentSignals(I_e = 0.0), rnd))
+                electrodesGrid.add(Electrode(rnd, CurrentSignals(I_e = 0.0)))
             }
         }
     }

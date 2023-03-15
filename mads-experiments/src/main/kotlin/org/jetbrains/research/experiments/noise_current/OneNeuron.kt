@@ -1,4 +1,4 @@
-package org.jetbrains.research.experiments.const_current
+package org.jetbrains.research.experiments.noise_current
 
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.configure
@@ -10,55 +10,66 @@ import org.jetbrains.research.mads.core.types.millisecond
 import org.jetbrains.research.mads_ns.electrode.Electrode
 import org.jetbrains.research.mads_ns.pathways.*
 import org.jetbrains.research.mads_ns.physiology.neurons.*
-import org.jetbrains.research.mads_ns.physiology.synapses.SynapseSignals
 import java.util.*
 import kotlin.io.path.Path
 
 fun main() {
-    val currents = arrayOf<Double>(10.0, 20.0)
+//    val currents = arrayOf<Double>(10.0)
+    val currents = arrayOf<Double>(5.0, 10.0)
+//    var currents = arrayOf<Double>(-10.0, -5.0, 0.0, 5.0, 10.0)
     val startTime = System.currentTimeMillis()
     val modelingTime = 500 * millisecond
     val randomSeed = 12345L
     println("Experiment start time $startTime")
 
+//    for (i in 0..100) {
+//        experimentWithCurrents(currents[0], "hh/${System.currentTimeMillis()}",
+//            { -> HHNeuron(HHConstants.V_thresh, HHSignals()) },
+//            configure {
+//                timeResolution = microsecond
+//                addPathway(hhPathway())
+//            },
+//            modelingTime, randomSeed
+//        )
+//    }
+
     for (current in currents) {
         println("Experiments with $current nA current")
-        experimentWithTwoNeurons(current, "lif/${startTime}",
+        experimentWithCurrents(current, "lif/${startTime}",
             { -> LIFNeuron(LIFConstants.V_thresh) },
             configure {
                 timeResolution = microsecond
                 addPathway(lifPathway())
-                addPathway(synapsePathway())
+                addPathway(electrodeNoisePathway())
             },
             modelingTime, randomSeed
         )
-        experimentWithTwoNeurons(current, "izh/${startTime}",
+        experimentWithCurrents(current, "izh/${startTime}",
             { -> IzhNeuron() },
             configure {
                 timeResolution = microsecond
                 addPathway(izhPathway())
-                addPathway(synapsePathway())
+                addPathway(electrodeNoisePathway())
             },
             modelingTime, randomSeed
         )
-        experimentWithTwoNeurons(current, "hh/${startTime}",
+        experimentWithCurrents(current, "hh/${startTime}",
             { -> HHNeuron(HHConstants.V_thresh, HHSignals()) },
             configure {
                 timeResolution = microsecond
                 addPathway(hhPathway())
-                addPathway(synapsePathway())
+                addPathway(electrodeNoisePathway())
             },
             modelingTime, randomSeed
         )
     }
 }
 
-fun experimentWithTwoNeurons(current: Double, logFolder: String, neuronFun: () -> Neuron, config: Configuration, time: Double, seed: Long) {
-    val dir = Path("log/const_current/TwoNeurons/${current}_nA/${logFolder}")
+fun experimentWithCurrents(current: Double, logFolder: String, neuronFun: () -> Neuron, config: Configuration, time: Double, seed: Long) {
+    val dir = Path("log/noise_current/OneNeuron/${current}_nA/${logFolder}")
     val saver = FileSaver(dir)
-    saver.addSignalsNames(SpikesSignals::spiked)    // here we have boolean true for spike occurrence
-//    saver.addSignalsNames(PotentialSignals::V)      // here is membrane potential (both cells)
-//    saver.addSignalsNames(CurrentSignals::I_e)      // here is current (electrode and synapse)
+    saver.addSignalsNames(SpikesSignals::spiked)
+//    saver.addSignalsNames(PotentialSignals::V)
 
     val rnd = Random(seed)
 
@@ -66,18 +77,12 @@ fun experimentWithTwoNeurons(current: Double, logFolder: String, neuronFun: () -
     val neuronCount = 1
 
     for (i in 0 until neuronCount) {
-        val cellF = neuronFun()
-        val cellS = neuronFun()
+        val cell = neuronFun()
         val electrode = Electrode(rnd, CurrentSignals(I_e = current))
-        electrode.connectToCell(cellF)
-        val synapse = connectCellsWithSynapse(cellF, cellS, false, CurrentSignals(0.0), SynapseSignals())
-        cellF.type = "first_neuron"
-        cellS.type = "second_neuron"
+        cell.type = "neuron"
         electrode.type = "electrode"
-        synapse.type = "synapse"
-        objects.add(cellF)
-        objects.add(cellS)
-        objects.add(synapse)
+        electrode.connectToCell(cell)
+        objects.add(cell)
         objects.add(electrode)
     }
 

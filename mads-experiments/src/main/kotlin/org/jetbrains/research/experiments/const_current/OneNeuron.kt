@@ -13,8 +13,8 @@ import org.jetbrains.research.mads_ns.pathways.hhPathway
 import org.jetbrains.research.mads_ns.pathways.izhPathway
 import org.jetbrains.research.mads_ns.pathways.lifPathway
 import org.jetbrains.research.mads_ns.physiology.neurons.*
+import java.util.*
 import kotlin.io.path.Path
-import kotlin.random.Random
 
 fun main() {
 //    val currents = arrayOf<Double>(10.0)
@@ -47,7 +47,7 @@ fun main() {
             modelingTime, randomSeed
         )
         experimentWithCurrents(current, "izh/${startTime}",
-            { -> IzhNeuron(IzhConstantsRS.V_thresh, IzhSignals()) },
+            { -> IzhNeuron() },
             configure {
                 timeResolution = microsecond
                 addPathway(izhPathway())
@@ -78,7 +78,7 @@ fun experimentWithCurrents(current: Double, logFolder: String, neuronFun: () -> 
 
     for (i in 0 until neuronCount) {
         val cell = neuronFun()
-        val electrode = Electrode(CurrentSignals(I_e = current), rnd)
+        val electrode = Electrode(rnd, CurrentSignals(I_e = current))
         cell.type = "neuron"
         electrode.type = "electrode"
         electrode.connectToCell(cell)

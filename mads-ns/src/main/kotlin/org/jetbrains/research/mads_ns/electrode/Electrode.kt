@@ -3,20 +3,63 @@ package org.jetbrains.research.mads_ns.electrode
 import org.jetbrains.research.mads.core.types.*
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.physiology.neurons.ProbabilisticSpikingSignals
-import kotlin.random.Random
+import java.util.*
 
 object ElectrodeConnection : ConnectionType
 
-class Electrode(current: CurrentSignals, val rnd: Random) : ModelObject(current, ProbabilisticSpikingSignals())
+class PeriodicPulsationSignals(cycleCounter: Int = 100, pulseValue: Double = 5.0) : Signals() {
+    var cycle: Int by observable(cycleCounter)
+    var iteration: Int by observable(0)
+    var pulse: Double by observable(pulseValue)
+}
 
-object ElectrodeConstants : Constants {
+class Electrode(val rnd: Random, vararg signals: Signals) : ModelObject(ProbabilisticSpikingSignals(), *signals)
+
+object ElectrodePulseConstants : Constants {
     // constants
     const val pulseProbability: Double = 0.5
     const val pulseValue: Double = 5.0
 }
 
+object ElectrodeNoiseConstants : Constants {
+    // constants
+    const val std: Double = 0.5
+    const val meanValue: Double = 5.0
+}
+
 object ElectrodeMechanisms {
+    val PeriodicPulseDynamic = Electrode::PeriodicPulseDynamic
     val PulseDynamic = Electrode::PulseDynamic
+    val NoiseDynamic = Electrode::NoiseDynamic
+}
+
+fun Electrode.PeriodicPulseDynamic(params: MechanismParameters): List<Response> {
+    val s = this.signals[CurrentSignals::class] as CurrentSignals
+    val pps = this.signals[PeriodicPulsationSignals::class] as PeriodicPulsationSignals
+    val iteration = pps.iteration
+    val cycle = pps.cycle
+
+    if (iteration % cycle == 0) {
+        return arrayListOf(
+            this.createResponse {
+                s.I_e += pps.pulse
+                pps.iteration++
+            }
+        )
+    } else if (s.I_e > 0.0) {
+        return arrayListOf(
+            this.createResponse {
+                s.I_e -= pps.pulse
+                pps.iteration++
+            }
+        )
+    } else {
+        return arrayListOf(
+            this.createResponse {
+                pps.iteration++
+            }
+        )
+    }
 }
 
 fun Electrode.PulseDynamic(params: MechanismParameters): List<Response> {
@@ -25,10 +68,25 @@ fun Electrode.PulseDynamic(params: MechanismParameters): List<Response> {
 
     var I = 0.0
     if (s.I_e == 0.0 && rnd.nextDouble() < spikeProbability) {
-        I = (params.constants as ElectrodeConstants).pulseValue
+        I = (params.constants as ElectrodePulseConstants).pulseValue
     }
 
     val delta = I - s.I_e
+
+    return arrayListOf(
+        this.createResponse {
+            s.I_e += delta
+        }
+    )
+}
+
+fun Electrode.NoiseDynamic(params: MechanismParameters): List<Response> {
+    val s = this.signals[CurrentSignals::class] as CurrentSignals
+    val constants = params.constants as ElectrodeNoiseConstants
+
+    val newI = rnd.nextGaussian() * constants.std + constants.meanValue
+
+    val delta = newI- s.I_e
 
     return arrayListOf(
         this.createResponse {
