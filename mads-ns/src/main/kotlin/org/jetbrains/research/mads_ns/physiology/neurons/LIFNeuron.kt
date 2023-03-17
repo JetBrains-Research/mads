@@ -2,7 +2,7 @@ package org.jetbrains.research.mads_ns.physiology.neurons
 
 import org.jetbrains.research.mads.core.types.*
 
-object LIFConstants : Constants {
+object LIFConstants : ObjectConstants {
     const val tau_mem       = 20.0
     const val E_leak        = -60.0
     const val V_reset       = -70.0

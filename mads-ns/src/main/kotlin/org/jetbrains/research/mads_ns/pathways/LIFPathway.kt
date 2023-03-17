@@ -6,7 +6,7 @@ import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads_ns.physiology.neurons.LIFMechanisms
 import org.jetbrains.research.mads_ns.physiology.neurons.LIFNeuron
 import org.jetbrains.research.mads_ns.physiology.neurons.NeuronMechanisms
-import org.jetbrains.research.mads_ns.physiology.neurons.SpikeConstants
+import org.jetbrains.research.mads_ns.physiology.neurons.SpikeTransferConstants
 
 fun lifPathway() = pathway<LIFNeuron> {
     timeResolution = microsecond
@@ -29,6 +29,6 @@ fun lifPathway() = pathway<LIFNeuron> {
     mechanism(mechanism = NeuronMechanisms.SpikeTransfer) {
         duration = 100
         condition = { overThresholdAndNotSpiked(it) }
-        constants = SpikeConstants()
+        constants = SpikeTransferConstants()
     }
 }

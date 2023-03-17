@@ -12,7 +12,7 @@ data class ConfiguredMechanism<MO : ModelObject>(
 
 class ConfiguredMechanismBuilder<MO : ModelObject>(private val mechanism: ((MO, MechanismParameters) -> List<Response>),
                                                                              private val pathwayResolution: Double) {
-    var constants: Constants = EmptyConstants
+    var constants: MechanismConstants = EmptyConstants
     var duration: Int = 1
     var condition: ((MO) -> Boolean) = Always
 

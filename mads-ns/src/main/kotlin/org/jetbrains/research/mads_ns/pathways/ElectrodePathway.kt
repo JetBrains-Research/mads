@@ -12,7 +12,7 @@ fun electrodePulsePathway() = pathway {
     mechanism(mechanism = ElectrodeMechanisms.PulseDynamic) {
         duration = 10
         condition = Always
-        constants = ElectrodePulseConstants
+        constants = PulseConstants()
     }
 }
 fun electrodePeriodicPulsePathway() = pathway {
@@ -20,7 +20,7 @@ fun electrodePeriodicPulsePathway() = pathway {
     mechanism(mechanism = ElectrodeMechanisms.PeriodicPulseDynamic) {
         duration = 1
         condition = Always
-        constants = ElectrodePulseConstants
+        constants = PulseConstants()
     }
 }
 
@@ -29,7 +29,7 @@ fun electrodeNoisePathway() = pathway {
     mechanism(mechanism = ElectrodeMechanisms.NoiseDynamic) {
         duration = 500
         condition = Always
-        constants = ElectrodeNoiseConstants
+        constants = NoiseConstants()
     }
 }
 

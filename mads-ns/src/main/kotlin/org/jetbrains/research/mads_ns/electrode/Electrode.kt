@@ -15,17 +15,9 @@ class PeriodicPulsationSignals(cycleCounter: Int = 100, pulseValue: Double = 5.0
 
 class Electrode(val rnd: Random, vararg signals: Signals) : ModelObject(ProbabilisticSpikingSignals(), *signals)
 
-object ElectrodePulseConstants : Constants {
-    // constants
-    const val pulseProbability: Double = 0.5
-    const val pulseValue: Double = 5.0
-}
+class PulseConstants(val pulseValue: Double = 5.0) : MechanismConstants
 
-object ElectrodeNoiseConstants : Constants {
-    // constants
-    const val std: Double = 0.5
-    const val meanValue: Double = 5.0
-}
+class NoiseConstants(val std: Double = 0.5, val meanValue: Double = 5.0) : MechanismConstants
 
 object ElectrodeMechanisms {
     val PeriodicPulseDynamic = Electrode::PeriodicPulseDynamic
@@ -68,7 +60,7 @@ fun Electrode.PulseDynamic(params: MechanismParameters): List<Response> {
 
     var I = 0.0
     if (s.I_e == 0.0 && rnd.nextDouble() < spikeProbability) {
-        I = (params.constants as ElectrodePulseConstants).pulseValue
+        I = (params.constants as PulseConstants).pulseValue
     }
 
     val delta = I - s.I_e
@@ -82,7 +74,7 @@ fun Electrode.PulseDynamic(params: MechanismParameters): List<Response> {
 
 fun Electrode.NoiseDynamic(params: MechanismParameters): List<Response> {
     val s = this.signals[CurrentSignals::class] as CurrentSignals
-    val constants = params.constants as ElectrodeNoiseConstants
+    val constants = params.constants as NoiseConstants
 
     val newI = rnd.nextGaussian() * constants.std + constants.meanValue
 

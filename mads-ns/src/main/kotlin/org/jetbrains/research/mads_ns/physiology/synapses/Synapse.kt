@@ -8,10 +8,7 @@ object SynapseReleaser: ConnectionType
 
 object SynapseReceiver: ConnectionType
 
-object SynapseConstants : Constants {
-    const val weightDecayCoefficient = 0.99
-    const val spikeWeight: Double = 1.0
-}
+class WeightDecayConstants(val weightDecayCoefficient: Double = 0.99) : MechanismConstants
 
 class Synapse(
     var releaser: ModelObject,
@@ -32,15 +29,6 @@ class Synapse(
     }
 }
 
-//data class SynapseSignals(
-//    var weight: Double = 1.0,
-//    var synapseSign: Double = 1.0,
-//) : Signals {
-//    override fun clone(): Signals {
-//        return this.copy()
-//    }
-//}
-
 class SynapseSignals(weight: Double = 1.0) : Signals() {
     var weight: Double by observable(weight)
     var synapseSign: Double by observable(1.0)
@@ -54,7 +42,7 @@ object SynapseMechanisms {
 
 fun Synapse.weightDecayMechanism(params: MechanismParameters): List<Response> {
     val synapseSignals = this.signals[SynapseSignals::class] as SynapseSignals
-    val newWeight = synapseSignals.weight * SynapseConstants.weightDecayCoefficient
+    val newWeight = synapseSignals.weight * (params.constants as WeightDecayConstants).weightDecayCoefficient
     val delta = newWeight - synapseSignals.weight
 
     return arrayListOf(

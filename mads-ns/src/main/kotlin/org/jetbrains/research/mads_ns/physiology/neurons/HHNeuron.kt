@@ -4,7 +4,7 @@ import org.jetbrains.research.mads.core.types.*
 import kotlin.math.exp
 import kotlin.math.pow
 
-object HHConstants : Constants {
+object HHConstants : ObjectConstants {
     // constants
     // mS/cm^2
     const val g_L = 0.3

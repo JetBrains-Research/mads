@@ -8,8 +8,9 @@ import org.jetbrains.research.mads_ns.physiology.synapses.*
 
 fun synapsePathway() = pathway<Synapse> {
     timeResolution = microsecond
-//    mechanism(mechanism = SynapseMechanisms.SynapseDecay) {
+//    mechanism(mechanism = SynapseMechanisms.WeightDecay) {
 //        duration = 100
+//        constants = WeightDecayConstants()
 //    }
     mechanism(mechanism = SynapseMechanisms.CurrentDecay) {
         duration = 1
@@ -30,14 +31,14 @@ fun connectCellsWithSynapse(
     currentSignals: CurrentSignals,
     synapseSignals: SynapseSignals
 ): Synapse {
-    val synapse: Synapse = Synapse(releaser, receiver, inhibitory, currentSignals, synapseSignals)
+    val synapse = Synapse(releaser, receiver, inhibitory, currentSignals, synapseSignals)
 
     if(!receiver.connections.containsKey(SynapseReceiver)) {
-        receiver.connections[SynapseReceiver] = HashSet<ModelObject>()
+        receiver.connections[SynapseReceiver] = HashSet()
     }
 
     if(!releaser.connections.containsKey(SynapseReleaser)) {
-        releaser.connections[SynapseReleaser] = HashSet<ModelObject>()
+        releaser.connections[SynapseReleaser] = HashSet()
     }
 
     receiver.connections[SynapseReceiver]?.add(synapse)

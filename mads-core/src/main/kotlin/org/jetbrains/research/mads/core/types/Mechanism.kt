@@ -1,7 +1,7 @@
 package org.jetbrains.research.mads.core.types
 
 data class MechanismParameters(
-    val constants: Constants,
+    val constants: MechanismConstants,
     val dt: Double
 )
 
