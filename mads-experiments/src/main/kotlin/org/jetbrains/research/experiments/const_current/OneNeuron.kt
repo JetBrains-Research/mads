@@ -1,44 +1,33 @@
 package org.jetbrains.research.experiments.const_current
 
-import org.jetbrains.research.mads.core.configuration.Configuration
+import org.jetbrains.research.experiments.experimentWithElectrodeAndNeuron
 import org.jetbrains.research.mads.core.configuration.configure
-import org.jetbrains.research.mads.core.simulation.Model
-import org.jetbrains.research.mads.core.telemetry.FileSaver
-import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
-import org.jetbrains.research.mads_ns.electrode.Electrode
-import org.jetbrains.research.mads_ns.pathways.connectToCell
 import org.jetbrains.research.mads_ns.pathways.hhPathway
 import org.jetbrains.research.mads_ns.pathways.izhPathway
 import org.jetbrains.research.mads_ns.pathways.lifPathway
 import org.jetbrains.research.mads_ns.physiology.neurons.*
-import java.util.*
-import kotlin.io.path.Path
+import kotlin.reflect.KProperty
 
 fun main() {
-//    val currents = arrayOf<Double>(10.0)
-    val currents = arrayOf<Double>(5.0, 10.0, 20.0, 30.0, 50.0)
-//    var currents = arrayOf<Double>(-10.0, -5.0, 0.0, 5.0, 10.0)
+    val experimentName = "const_current"
+    val currents = arrayOf(5.0, 10.0, 20.0, 30.0, 50.0)
     val startTime = System.currentTimeMillis()
     val modelingTime = 500 * millisecond
     val randomSeed = 12345L
+    val logSignals = arrayListOf<KProperty<*>>(
+        SpikesSignals::spiked,
+        PotentialSignals::V,
+        CurrentSignals::I_e
+    )
     println("Experiment start time $startTime")
-
-//    for (i in 0..100) {
-//        experimentWithCurrents(currents[0], "hh/${System.currentTimeMillis()}",
-//            { -> HHNeuron(HHConstants.V_thresh, HHSignals()) },
-//            configure {
-//                timeResolution = microsecond
-//                addPathway(hhPathway())
-//            },
-//            modelingTime, randomSeed
-//        )
-//    }
 
     for (current in currents) {
         println("Experiments with $current nA current")
-        experimentWithCurrents(current, "lif/${startTime}",
+        experimentWithElectrodeAndNeuron(
+            experimentName,"${current}_microA/lif/${startTime}",
+            logSignals, current,
             { -> LIFNeuron(LIFConstants.V_thresh) },
             configure {
                 timeResolution = microsecond
@@ -46,7 +35,9 @@ fun main() {
             },
             modelingTime, randomSeed
         )
-        experimentWithCurrents(current, "izh/${startTime}",
+        experimentWithElectrodeAndNeuron(
+            experimentName,"${current}_microA/lif/${startTime}",
+            logSignals, current,
             { -> IzhNeuron() },
             configure {
                 timeResolution = microsecond
@@ -54,7 +45,9 @@ fun main() {
             },
             modelingTime, randomSeed
         )
-        experimentWithCurrents(current, "hh/${startTime}",
+        experimentWithElectrodeAndNeuron(
+            experimentName,"${current}_microA/lif/${startTime}",
+            logSignals, current,
             { -> HHNeuron(HHConstants.V_thresh, HHSignals()) },
             configure {
                 timeResolution = microsecond
@@ -63,31 +56,4 @@ fun main() {
             modelingTime, randomSeed
         )
     }
-}
-
-fun experimentWithCurrents(current: Double, logFolder: String, neuronFun: () -> Neuron, config: Configuration, time: Double, seed: Long) {
-    val dir = Path("log/const_current/OneNeuron/${current}_nA/${logFolder}")
-    val saver = FileSaver(dir)
-    saver.addSignalsNames(SpikesSignals::spiked)
-    saver.addSignalsNames(PotentialSignals::V)
-
-    val rnd = Random(seed)
-
-    val objects: ArrayList<ModelObject> = arrayListOf()
-    val neuronCount = 1
-
-    for (i in 0 until neuronCount) {
-        val cell = neuronFun()
-        val electrode = Electrode(rnd, CurrentSignals(I_e = current))
-        cell.type = "neuron"
-        electrode.type = "electrode"
-        electrode.connectToCell(cell)
-        objects.add(cell)
-        objects.add(electrode)
-    }
-
-    val s = Model(objects, config)
-    val stopTime = (time.toBigDecimal() / config.timeResolution.toBigDecimal()).toLong()
-    s?.simulate(saver) { it.currentTime() > stopTime }
-    saver.closeModelWriters()
 }

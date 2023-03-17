@@ -17,7 +17,7 @@ class Electrode(val rnd: Random, vararg signals: Signals) : ModelObject(Probabil
 
 class PulseConstants(val pulseValue: Double = 5.0) : MechanismConstants
 
-class NoiseConstants(val std: Double = 0.5, val meanValue: Double = 5.0) : MechanismConstants
+class NoiseConstants(val std: Double = 2.5, val meanValue: Double = 5.0) : MechanismConstants
 
 object ElectrodeMechanisms {
     val PeriodicPulseDynamic = Electrode::PeriodicPulseDynamic
