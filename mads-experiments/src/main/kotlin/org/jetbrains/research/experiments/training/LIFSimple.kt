@@ -56,8 +56,8 @@ fun learningExperiment(logFolder: String, neuronFun: () -> Neuron, config: Confi
     val dataDir = Paths.get("data/MNIST_training/")
     val provider = MnistProvider(dataDir.absolutePathString(), targetClasses)
     val electrodesArray = ElectrodeArray(provider, 10.0)
-    val firstLayer: List<Neuron> = createPopulation(electrodesArray.capacity(), neuronFun)
-    val secondLayer: List<Neuron> = createPopulation(nExc, neuronFun)
+    val firstLayer: List<Neuron> = createPopulation(electrodesArray.capacity(), "firstLayer", neuronFun)
+    val secondLayer: List<Neuron> = createPopulation(nExc, "secondLayer", neuronFun)
     connectElectrodeArray(electrodesArray, firstLayer)
     val synapses: List<Synapse> = connectPopulations(firstLayer, secondLayer)
 

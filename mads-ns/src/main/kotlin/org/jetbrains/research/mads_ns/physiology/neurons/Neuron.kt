@@ -6,6 +6,7 @@ import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReceiver
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReleaser
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseSignals
+import java.util.*
 
 class SpikeTransferConstants(val I_transfer: Double = 5.0) : MechanismConstants
 
@@ -44,9 +45,19 @@ object NeuronMechanisms {
     val STDPDecay = Neuron::STDPDecay
 }
 
+object TInputConstants : MechanismConstants {
+    val rnd = Random(12345L)
+}
+
 fun Neuron.IDynamic(params: MechanismParameters): List<Response> {
     val currentSignals = this.signals[CurrentSignals::class] as CurrentSignals
-    var I_e = 0.0
+
+    var I_e =
+        when (this.type) {
+            "excitatory" -> 5.0 * (params.constants as TInputConstants).rnd.nextGaussian()
+            "inhibitory" -> 2.0 * (params.constants as TInputConstants).rnd.nextGaussian()
+            else -> currentSignals.I_e
+        }
 
     this.connections[ElectrodeConnection]?.forEach {
         val signals = it.signals[CurrentSignals::class] as CurrentSignals

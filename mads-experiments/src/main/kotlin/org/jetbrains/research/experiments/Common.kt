@@ -10,10 +10,12 @@ import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReceiver
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReleaser
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseSignals
 
-fun createPopulation(capacity: Int, neuronFun: () -> Neuron) : List<Neuron> {
+fun createPopulation(capacity: Int, type: String, neuronFun: () -> Neuron) : List<Neuron> {
     val population: ArrayList<Neuron> = arrayListOf()
     for (i in 0 until capacity) {
-        population.add(neuronFun())
+        val neuron = neuronFun()
+        neuron.type = type
+        population.add(neuron)
     }
 
     return population
