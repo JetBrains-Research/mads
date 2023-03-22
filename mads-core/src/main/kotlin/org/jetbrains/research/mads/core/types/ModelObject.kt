@@ -15,7 +15,7 @@ abstract class ModelObject(vararg signals: Signals) {
     var parent: ModelObject = EmptyModelObject
     val events: ArrayList<ModelEvent> = ArrayList()
 
-    val childObjects: HashSet<ModelObject> = HashSet()
+    private val childObjects: HashSet<ModelObject> = HashSet()
     val connections: MutableMap<ConnectionType, HashSet<ModelObject>> = mutableMapOf()
 
     var initialized = false
@@ -87,8 +87,24 @@ abstract class ModelObject(vararg signals: Signals) {
     }
 
     fun removeObject(removedObject: ModelObject): List<ModelObject> {
+        removedObject.events.forEach { it.disruptEvent() }
+        removedObject.events.clear()
         childObjects.remove(removedObject)
-        return arrayListOf()
+        return arrayListOf(this)
+    }
+
+    fun addConnection(connection: ModelObject, connectionType: ConnectionType): List<ModelObject> {
+        if (!connections.containsKey(connectionType)) {
+            connections[connectionType] = HashSet()
+        }
+
+        connections[connectionType]!!.add(connection)
+        return arrayListOf(this, connection)
+    }
+
+    fun removeConnection(connection: ModelObject, connectionType: ConnectionType): List<ModelObject> {
+        connections[connectionType]!!.remove(connection)
+        return arrayListOf(this)
     }
 }
 

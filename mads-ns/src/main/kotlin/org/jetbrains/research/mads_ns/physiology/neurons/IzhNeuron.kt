@@ -71,7 +71,7 @@ fun IzhNeuron.VDynamic(params: MechanismParameters): List<Response> {
 fun IzhNeuron.UDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val izh = this.signals[IzhSignals::class] as IzhSignals
-    val consts = IzhRS
+    val consts = izhType
 
     val spiked = (u.V > consts.V_thresh)
     val delta =

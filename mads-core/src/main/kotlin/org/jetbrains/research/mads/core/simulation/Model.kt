@@ -28,8 +28,7 @@ class Model private constructor(
         configuration.createEvents(this)
         this.checkConditions()
         objects.forEach {
-            childObjects.add(it)
-            it.parent = this
+            addObject(it)
             configuration.createEvents(it)
             it.checkConditions()
         }
