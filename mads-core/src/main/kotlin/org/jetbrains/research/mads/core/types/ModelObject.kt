@@ -1,6 +1,7 @@
 package org.jetbrains.research.mads.core.types
 
 import kotlinx.serialization.Serializable
+import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.desd.ModelEvent
 import org.jetbrains.research.mads.core.telemetry.ModelObjectSerializer
@@ -8,8 +9,12 @@ import kotlin.reflect.KClass
 
 object EmptyModelObject : ModelObject()
 
-@Serializable(with= ModelObjectSerializer::class)
+@Serializable(with = ModelObjectSerializer::class)
 abstract class ModelObject(vararg signals: Signals) {
+
+    internal companion object {
+        internal var configuration: Configuration = Configuration()
+    }
 
     var type: String = ""
     var parent: ModelObject = EmptyModelObject
@@ -17,10 +22,6 @@ abstract class ModelObject(vararg signals: Signals) {
 
     private val childObjects: HashSet<ModelObject> = HashSet()
     val connections: MutableMap<ConnectionType, HashSet<ModelObject>> = mutableMapOf()
-
-    var initialized = false
-        private set
-
     val signals: MutableMap<KClass<out Signals>, Signals> = mutableMapOf()
 
     init {
@@ -37,20 +38,32 @@ abstract class ModelObject(vararg signals: Signals) {
             .toList()
     }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun <MO : ModelObject> createEvents(pathway: Pathway<MO>) {
-        this as MO
-        pathway.configuredMechanisms.forEach {
-            val mch = applyObjectToMechanism(it.mechanism, this)
-            val cnd = applyObjectToCondition(it.condition, this)
-            val event = ModelEvent(mch, cnd, it.duration * pathway.timeResolutionCoefficient)
-            events.add(event)
-        }
+    fun addObject(addedObject: ModelObject): List<ModelObject> {
+        addedObject.parent = this
+        addedObject.createEvents(configuration.getPathways(addedObject::class))
+        childObjects.add(addedObject)
+        return arrayListOf(this, addedObject)
     }
 
-    internal fun createEvents(pathways: ArrayList<Pathway<out ModelObject>>) {
-        pathways.forEach { createEvents(it) }
-        initialized = true
+    fun removeObject(removedObject: ModelObject): List<ModelObject> {
+        removedObject.events.forEach { it.disruptEvent() }
+        removedObject.events.clear()
+        childObjects.remove(removedObject)
+        return arrayListOf(this)
+    }
+
+    fun addConnection(connection: ModelObject, connectionType: ConnectionType): List<ModelObject> {
+        if (!connections.containsKey(connectionType)) {
+            connections[connectionType] = HashSet()
+        }
+
+        connections[connectionType]!!.add(connection)
+        return arrayListOf(this, connection)
+    }
+
+    fun removeConnection(connection: ModelObject, connectionType: ConnectionType): List<ModelObject> {
+        connections[connectionType]!!.remove(connection)
+        return arrayListOf(this)
     }
 
     fun createResponse(applyFn: () -> Unit) : Response {
@@ -80,31 +93,19 @@ abstract class ModelObject(vararg signals: Signals) {
         return responses
     }
 
-    fun addObject(addedObject: ModelObject): List<ModelObject> {
-        addedObject.parent = this
-        childObjects.add(addedObject)
-        return arrayListOf(this, addedObject)
+    protected fun createEvents(pathways: List<Pathway<out ModelObject>>) {
+        pathways.forEach { createEvents(it) }
     }
 
-    fun removeObject(removedObject: ModelObject): List<ModelObject> {
-        removedObject.events.forEach { it.disruptEvent() }
-        removedObject.events.clear()
-        childObjects.remove(removedObject)
-        return arrayListOf(this)
-    }
-
-    fun addConnection(connection: ModelObject, connectionType: ConnectionType): List<ModelObject> {
-        if (!connections.containsKey(connectionType)) {
-            connections[connectionType] = HashSet()
+    @Suppress("UNCHECKED_CAST")
+    private fun <MO : ModelObject> createEvents(pathway: Pathway<MO>) {
+        this as MO
+        pathway.configuredMechanisms.forEach {
+            val mch = applyObjectToMechanism(it.mechanism, this)
+            val cnd = applyObjectToCondition(it.condition, this)
+            val event = ModelEvent(mch, cnd, it.duration * pathway.timeResolutionCoefficient)
+            events.add(event)
         }
-
-        connections[connectionType]!!.add(connection)
-        return arrayListOf(this, connection)
-    }
-
-    fun removeConnection(connection: ModelObject, connectionType: ConnectionType): List<ModelObject> {
-        connections[connectionType]!!.remove(connection)
-        return arrayListOf(this)
     }
 }
 

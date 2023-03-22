@@ -23,15 +23,15 @@ class Configuration {
         }
     }
 
-    fun createEvents(obj: ModelObject) {
-        objPathways[obj::class]?.let { obj.createEvents(it) }
+    internal fun getPathways(obj: KClass<out ModelObject>) : List<Pathway<out ModelObject>> {
+        return objPathways[obj] ?: listOf()
     }
 
-    fun hasErrors() :Boolean {
+    internal fun hasErrors(): Boolean {
         return errors.size > 0
     }
 
-    fun errors() : List<String> {
+    internal fun errors(): List<String> {
         return errors
     }
 }

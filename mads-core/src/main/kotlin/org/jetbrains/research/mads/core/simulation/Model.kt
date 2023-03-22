@@ -11,10 +11,9 @@ import java.util.stream.Collectors
 
 object RootObject : ModelObject()
 
-@Serializable(with= ModelStateSerializer::class)
+@Serializable(with = ModelStateSerializer::class)
 class Model private constructor(
-    objects: List<ModelObject>,
-    private val configuration: Configuration
+    objects: List<ModelObject>
 ) : ModelObject() {
 
     var tStart: Long = 0
@@ -25,11 +24,10 @@ class Model private constructor(
         println("Simulation step size is equal to ${configuration.timeResolution} seconds")
         progressBar.start()
         parent = RootObject
-        configuration.createEvents(this)
-        this.checkConditions()
+        createEvents(configuration.getPathways(this::class))
+        checkConditions()
         objects.forEach {
             addObject(it)
-            configuration.createEvents(it)
             it.checkConditions()
         }
 
@@ -61,7 +59,6 @@ class Model private constructor(
             updatedObjects.parallelStream()
                 .forEach {
                     saver.logChangedSignals(currentTime, it.hashCode(), it.type, it.getChangedSignals())
-                    if (!it.initialized) configuration.createEvents(it)
                     it.checkConditions()
                 }
 
@@ -83,7 +80,9 @@ class Model private constructor(
         println("Total of $totalModelingTime seconds were simulated")
         print("Saving last state...\r")
         saver.logState(this)
-        println("Last state of model is saved\n")
+        println("Last state of model is saved")
+        configuration = Configuration()
+        println("Configuration was unload for every ModelObject\n")
     }
 
     fun currentTime(): Long {
@@ -102,7 +101,8 @@ class Model private constructor(
                 return null
             }
 
-            return Model(objects, configuration)
+            ModelObject.configuration = configuration
+            return Model(objects)
         }
     }
 }
