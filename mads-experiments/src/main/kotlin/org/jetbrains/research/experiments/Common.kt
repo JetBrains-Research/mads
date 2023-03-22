@@ -53,7 +53,7 @@ fun connectPopulations(source: List<Neuron>, destination: List<Neuron>) : List<S
             val weight = 1.0
             val syn = connectCellsWithSynapse(
                 source[i],
-                source[j],
+                destination[j],
                 false,
                 CurrentSignals(0.0),
                 SynapseSignals(weight = weight)
