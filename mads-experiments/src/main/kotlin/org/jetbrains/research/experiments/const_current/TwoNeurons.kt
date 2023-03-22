@@ -1,5 +1,6 @@
 package org.jetbrains.research.experiments.const_current
 
+import org.jetbrains.research.experiments.connectCellsWithSynapse
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.configure
 import org.jetbrains.research.mads.core.simulation.Model

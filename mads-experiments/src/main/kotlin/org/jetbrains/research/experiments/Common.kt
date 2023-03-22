@@ -1,11 +1,13 @@
 package org.jetbrains.research.experiments
 
+import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads_ns.electrode.ElectrodeArray
-import org.jetbrains.research.mads_ns.pathways.connectCellsWithSynapse
 import org.jetbrains.research.mads_ns.pathways.connectToCell
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
 import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
+import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReceiver
+import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReleaser
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseSignals
 
 fun createPopulation(capacity: Int, neuronFun: () -> Neuron) : List<Neuron> {
@@ -27,6 +29,20 @@ fun connectElectrodeArray(electrodeArray: ElectrodeArray, population: List<Neuro
         val electrode = electrodeArray[i]
         electrode.connectToCell(population[i])
     }
+}
+
+fun connectCellsWithSynapse(
+    releaser: ModelObject,
+    receiver: ModelObject,
+    inhibitory: Boolean,
+    currentSignals: CurrentSignals,
+    synapseSignals: SynapseSignals
+): Synapse {
+    val synapse = Synapse(releaser, receiver, inhibitory, currentSignals, synapseSignals)
+    receiver.addConnection(synapse, SynapseReceiver)
+    releaser.addConnection(synapse, SynapseReleaser)
+
+    return synapse
 }
 
 fun connectPopulations(source: List<Neuron>, destination: List<Neuron>) : List<Synapse> {

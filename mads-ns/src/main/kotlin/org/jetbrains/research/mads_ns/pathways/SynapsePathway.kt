@@ -1,10 +1,10 @@
 package org.jetbrains.research.mads_ns.pathways
 
 import org.jetbrains.research.mads.core.configuration.pathway
-import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.millisecond
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
-import org.jetbrains.research.mads_ns.physiology.synapses.*
+import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
+import org.jetbrains.research.mads_ns.physiology.synapses.SynapseMechanisms
 
 fun synapsePathway() = pathway<Synapse> {
     timeResolution = millisecond
@@ -24,16 +24,3 @@ fun synapsePathway() = pathway<Synapse> {
 //    }
 }
 
-fun connectCellsWithSynapse(
-    releaser: ModelObject,
-    receiver: ModelObject,
-    inhibitory: Boolean,
-    currentSignals: CurrentSignals,
-    synapseSignals: SynapseSignals
-): Synapse {
-    val synapse = Synapse(releaser, receiver, inhibitory, currentSignals, synapseSignals)
-    receiver.addConnection(synapse, SynapseReceiver)
-    releaser.addConnection(synapse, SynapseReleaser)
-
-    return synapse
-}
