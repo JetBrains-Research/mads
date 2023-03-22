@@ -13,6 +13,11 @@ class PeriodicPulsationSignals(cycleCounter: Int = 100, pulseValue: Double = 5.0
     var pulse: Double by observable(pulseValue)
 }
 
+class NoiseSignals(meanValue: Double = 0.0, std: Double = 1.0) : Signals() {
+    val meanValue: Double by observable(meanValue)
+    val std: Double by observable(std)
+}
+
 class Electrode(val rnd: Random, vararg signals: Signals) : ModelObject(ProbabilisticSpikingSignals(), *signals)
 
 class PulseConstants(val pulseValue: Double = 5.0) : MechanismConstants
@@ -74,11 +79,11 @@ fun Electrode.PulseDynamic(params: MechanismParameters): List<Response> {
 
 fun Electrode.NoiseDynamic(params: MechanismParameters): List<Response> {
     val s = this.signals[CurrentSignals::class] as CurrentSignals
-    val constants = params.constants as NoiseConstants
+    val n = this.signals[NoiseSignals::class] as NoiseSignals
 
-    val newI = rnd.nextGaussian() * constants.std + constants.meanValue
+    val newI = rnd.nextGaussian() * n.std + n.meanValue
 
-    val delta = newI- s.I_e
+    val delta = newI - s.I_e
 
     return arrayListOf(
         this.createResponse {

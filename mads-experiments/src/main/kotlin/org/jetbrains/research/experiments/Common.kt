@@ -1,6 +1,7 @@
 package org.jetbrains.research.experiments
 
 import org.jetbrains.research.mads.core.types.ModelObject
+import org.jetbrains.research.mads_ns.electrode.Electrode
 import org.jetbrains.research.mads_ns.electrode.ElectrodeArray
 import org.jetbrains.research.mads_ns.pathways.connectToCell
 import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
@@ -19,6 +20,17 @@ fun createPopulation(capacity: Int, type: String, neuronFun: () -> Neuron) : Lis
     }
 
     return population
+}
+
+fun connectElectrodes(population: List<Neuron>, electrodeFn: (Long) -> Electrode) : List<Electrode> {
+    val electrodes: ArrayList<Electrode> = arrayListOf()
+    for (i in population.indices) {
+        val electrode : Electrode = electrodeFn(12345L + i)
+        electrode.connectToCell(population[i])
+        electrodes.add(electrode)
+    }
+
+    return electrodes
 }
 
 fun connectElectrodeArray(electrodeArray: ElectrodeArray, population: List<Neuron>) {
@@ -47,18 +59,17 @@ fun connectCellsWithSynapse(
     return synapse
 }
 
-fun connectPopulations(source: List<Neuron>, destination: List<Neuron>) : List<Synapse> {
+fun connectPopulations(source: List<Neuron>, destination: List<Neuron>, weight: () -> Double = { 1.0 }) : List<Synapse> {
     val synapses: ArrayList<Synapse> = arrayListOf()
 
     for(i in source.indices) {
         for (j in destination.indices) {
-            val weight = 1.0
             val syn = connectCellsWithSynapse(
                 source[i],
                 destination[j],
                 false,
                 CurrentSignals(0.0),
-                SynapseSignals(weight = weight)
+                SynapseSignals(weight = weight())
             )
             synapses.add(syn)
         }
