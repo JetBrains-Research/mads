@@ -58,7 +58,7 @@ class Model private constructor(
             // 3. calculate conditions -> map of events
             updatedObjects.parallelStream()
                 .forEach {
-                    saver.logChangedSignals(currentTime, it.hashCode(), it.type, it.getChangedSignals())
+                    saver.logChangedState(currentTime, it)
                     it.checkConditions()
                 }
 

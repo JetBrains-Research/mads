@@ -13,7 +13,12 @@ object EmptyModelObject : ModelObject()
 abstract class ModelObject(vararg signals: Signals) {
 
     internal companion object {
+        // access to modeling configuration as per class singleton
         internal var configuration: Configuration = Configuration()
+
+        // changed objects static section
+        private const val added = "added"
+        private const val removed = "removed"
     }
 
     var type: String = ""
@@ -23,6 +28,8 @@ abstract class ModelObject(vararg signals: Signals) {
     private val childObjects: HashSet<ModelObject> = HashSet()
     val connections: MutableMap<ConnectionType, HashSet<ModelObject>> = mutableMapOf()
     val signals: MutableMap<KClass<out Signals>, Signals> = mutableMapOf()
+
+    private val operatedChildren: MutableMap<ModelObject, String> = mutableMapOf()
 
     init {
         signals.forEach { this.signals[it::class] = it }
@@ -42,6 +49,7 @@ abstract class ModelObject(vararg signals: Signals) {
         addedObject.parent = this
         addedObject.createEvents(configuration.getPathways(addedObject::class))
         childObjects.add(addedObject)
+        operatedChildren[addedObject] = added
         return arrayListOf(this, addedObject)
     }
 
@@ -49,6 +57,7 @@ abstract class ModelObject(vararg signals: Signals) {
         removedObject.events.forEach { it.disruptEvent() }
         removedObject.events.clear()
         childObjects.remove(removedObject)
+        operatedChildren[removedObject] = removed
         return arrayListOf(this)
     }
 
@@ -64,6 +73,13 @@ abstract class ModelObject(vararg signals: Signals) {
     fun removeConnection(connection: ModelObject, connectionType: ConnectionType): List<ModelObject> {
         connections[connectionType]!!.remove(connection)
         return arrayListOf(this)
+    }
+
+    fun getChangedObjects() : Map<ModelObject, String> {
+        val result = operatedChildren.toMap()
+        operatedChildren.clear()
+
+        return result
     }
 
     fun createResponse(applyFn: () -> Unit) : Response {
