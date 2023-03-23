@@ -20,9 +20,19 @@ import kotlin.math.pow
 import kotlin.reflect.KProperty
 
 fun main() {
-    val experimentName = "POP.1.1"
+    val experimentName = "POP.2"
+    val timePart = System.currentTimeMillis().toString()
+    val noiseStds = arrayOf(2.0, 5.0, 7.0, 10.0)
+    noiseStds.forEach { noiseEXC ->
+        noiseStds.forEach { noiseINH ->
+            run(noiseEXC, noiseINH, "$experimentName/$timePart")
+        }
+    }
+}
+
+fun run(noiseEXC:Double, noiseINH:Double, logPrefix:String) {
     val startTime = System.currentTimeMillis()
-    val modelingTime = 500 * millisecond
+    val modelingTime = 5000 * millisecond
     val randomSeed = 12345L
     val logSignals = arrayListOf<KProperty<*>>(
         SpikesSignals::spiked,
@@ -31,12 +41,12 @@ fun main() {
     )
     println("Experiment start time $startTime")
 
-    val dir = Path("log/" + experimentName + "/izh/${startTime}")
+    val dir = Path("log/${logPrefix}/izh/${noiseEXC}/${noiseINH}")
     val saver = FileSaver(dir)
     logSignals.forEach { saver.addSignalsNames(it) }
 
-    val nExc = 1   // count of excitatory neurons
-    val nInh = 1    // count of inhibitory neurons
+    val nExc = 10   // count of excitatory neurons
+    val nInh = 10    // count of inhibitory neurons
 
     val rE = Random(randomSeed)
     val rI = Random(randomSeed - 1)
@@ -63,8 +73,9 @@ fun main() {
     objects.addAll(eNeurons)
     objects.addAll(iNeurons)
 
-    val eElectrodes = connectElectrodes(eNeurons) { seed: Long -> Electrode(Random(seed), CurrentSignals(I_e = 0.0), NoiseSignals(std = 5.0)) }
-    val iElectrodes = connectElectrodes(iNeurons) { seed: Long -> Electrode(Random(seed), CurrentSignals(I_e = 0.0), NoiseSignals(std = 2.0)) }
+
+    val eElectrodes = connectElectrodes(eNeurons) { seed: Long -> Electrode(Random(seed), CurrentSignals(I_e = 0.0), NoiseSignals(std = noiseEXC)) }
+    val iElectrodes = connectElectrodes(iNeurons) { seed: Long -> Electrode(Random(seed), CurrentSignals(I_e = 0.0), NoiseSignals(std = noiseINH)) }
 
     objects.addAll(eElectrodes)
     objects.addAll(iElectrodes)
