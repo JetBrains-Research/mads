@@ -1,6 +1,7 @@
 package org.jetbrains.research.experiments.population
 
 import org.jetbrains.research.experiments.connectElectrodes
+import org.jetbrains.research.experiments.connectPopulations
 import org.jetbrains.research.experiments.createPopulation
 import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.configure
@@ -14,6 +15,7 @@ import org.jetbrains.research.mads_ns.electrode.Electrode
 import org.jetbrains.research.mads_ns.electrode.ElectrodeMechanisms
 import org.jetbrains.research.mads_ns.electrode.NoiseSignals
 import org.jetbrains.research.mads_ns.physiology.neurons.*
+import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.math.pow
@@ -25,12 +27,12 @@ fun main() {
     val noiseStds = arrayOf(2.0, 5.0, 7.0, 10.0)
     noiseStds.forEach { noiseEXC ->
         noiseStds.forEach { noiseINH ->
-            run(noiseEXC, noiseINH, "$experimentName/$timePart")
+            run(noiseEXC, noiseINH, "$experimentName/$timePart", true)
         }
     }
 }
 
-fun run(noiseEXC:Double, noiseINH:Double, logPrefix:String) {
+fun run(noiseEXC:Double, noiseINH:Double, logPrefix:String, connected: Boolean) {
     val startTime = System.currentTimeMillis()
     val modelingTime = 5000 * millisecond
     val randomSeed = 12345L
@@ -45,8 +47,8 @@ fun run(noiseEXC:Double, noiseINH:Double, logPrefix:String) {
     val saver = FileSaver(dir)
     logSignals.forEach { saver.addSignalsNames(it) }
 
-    val nExc = 10   // count of excitatory neurons
-    val nInh = 10    // count of inhibitory neurons
+    val nExc = 8   // count of excitatory neurons
+    val nInh = 2    // count of inhibitory neurons
 
     val rE = Random(randomSeed)
     val rI = Random(randomSeed - 1)
@@ -73,12 +75,20 @@ fun run(noiseEXC:Double, noiseINH:Double, logPrefix:String) {
     objects.addAll(eNeurons)
     objects.addAll(iNeurons)
 
-
     val eElectrodes = connectElectrodes(eNeurons) { seed: Long -> Electrode(Random(seed), CurrentSignals(I_e = 0.0), NoiseSignals(std = noiseEXC)) }
     val iElectrodes = connectElectrodes(iNeurons) { seed: Long -> Electrode(Random(seed), CurrentSignals(I_e = 0.0), NoiseSignals(std = noiseINH)) }
 
     objects.addAll(eElectrodes)
     objects.addAll(iElectrodes)
+
+    if (connected) {
+        val synapses: ArrayList<Synapse> = arrayListOf()
+        synapses.addAll(connectPopulations(eNeurons, eNeurons, weight = { 0.5 * rE.nextDouble() }))
+        synapses.addAll(connectPopulations(eNeurons, iNeurons, weight = { 0.5 * rE.nextDouble() }))
+        synapses.addAll(connectPopulations(iNeurons, eNeurons, weight = { -rI.nextDouble() }))
+        synapses.addAll(connectPopulations(iNeurons, iNeurons, weight = { -rI.nextDouble() }))
+        objects.addAll(synapses)
+    }
 
     val config = configure {
         timeResolution = microsecond
