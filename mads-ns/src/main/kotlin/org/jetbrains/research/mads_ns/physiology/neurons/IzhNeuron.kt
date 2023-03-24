@@ -58,6 +58,7 @@ fun IzhNeuron.VDynamic(params: MechanismParameters): List<Response> {
             consts.c - u.V
         } else {
             params.dt * (0.04 * u.V.pow(2.0) + 5 * u.V + 140 - izh.U + i.I_e * izhType.k)
+//            (0.04 * u.V.pow(2.0) + 5 * u.V + 140 - izh.U + i.I_e * izhType.k)
         }
 
     return arrayListOf(
@@ -79,6 +80,7 @@ fun IzhNeuron.UDynamic(params: MechanismParameters): List<Response> {
             consts.d
         } else {
             params.dt * (consts.a * (consts.b * u.V - izh.U))
+//            params.dt * (consts.a * (consts.b * u.V - izh.U))
         }
 
     return arrayListOf(

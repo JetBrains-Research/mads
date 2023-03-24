@@ -26,7 +26,7 @@ import kotlin.reflect.KProperty
 fun main() {
     val experimentName = "population"
     val startTime = System.currentTimeMillis()
-    val modelingTime = 500 * millisecond
+    val modelingTime = 1000 * millisecond
     val randomSeed = 12345L
     val logSignals = arrayListOf<KProperty<*>>(
         SpikesSignals::spiked,
@@ -60,6 +60,23 @@ fun main() {
             c = -65.0,
             d = 2.0))
     }
+
+    eNeurons.forEach {
+        val u = it.signals[PotentialSignals::class] as PotentialSignals
+        val izh = it.signals[IzhSignals::class] as IzhSignals
+        val consts = (it as IzhNeuron).izhType
+
+        izh.U = consts.b*u.V
+    }
+
+    iNeurons.forEach {
+        val u = it.signals[PotentialSignals::class] as PotentialSignals
+        val izh = it.signals[IzhSignals::class] as IzhSignals
+        val consts = (it as IzhNeuron).izhType
+
+        izh.U = consts.b*u.V
+    }
+
     objects.addAll(eNeurons)
     objects.addAll(iNeurons)
 
@@ -69,11 +86,14 @@ fun main() {
     objects.addAll(eElectrodes)
     objects.addAll(iElectrodes)
 
+//    val weightMultiplier = 1000/(nExc + nInh)
+    val weightMultiplier = 2.5
+
     val synapses: ArrayList<Synapse> = arrayListOf()
-    synapses.addAll(connectPopulations(eNeurons, eNeurons, weight = { 0.5 * rE.nextDouble() }))
-    synapses.addAll(connectPopulations(eNeurons, iNeurons, weight = { 0.5 * rE.nextDouble() }))
-    synapses.addAll(connectPopulations(iNeurons, eNeurons, weight = { -rI.nextDouble() }))
-    synapses.addAll(connectPopulations(iNeurons, iNeurons, weight = { -rI.nextDouble() }))
+    synapses.addAll(connectPopulations(eNeurons, eNeurons, weight = { weightMultiplier*0.5 * rE.nextDouble() }))
+    synapses.addAll(connectPopulations(eNeurons, iNeurons, weight = { weightMultiplier*0.5 * rE.nextDouble() }))
+    synapses.addAll(connectPopulations(iNeurons, eNeurons, weight = { -weightMultiplier*rI.nextDouble() }))
+    synapses.addAll(connectPopulations(iNeurons, iNeurons, weight = { -weightMultiplier*rI.nextDouble() }))
     objects.addAll(synapses)
 
     val config = configure {
@@ -113,6 +133,10 @@ fun customIzhPathway() = pathway<IzhNeuron> {
     mechanism(mechanism = NeuronMechanisms.SpikeTransfer) {
         duration = 500
         condition = { overThresholdAndNotSpiked(it) }
+        constants = SpikeTransferConstants(I_transfer = 1.0)
+    }
+    mechanism(mechanism = NeuronMechanisms.SpikeDecay) {
+        duration = 500
         constants = SpikeTransferConstants(I_transfer = 1.0)
     }
 }

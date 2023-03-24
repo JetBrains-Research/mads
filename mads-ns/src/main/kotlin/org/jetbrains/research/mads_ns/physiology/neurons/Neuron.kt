@@ -6,6 +6,8 @@ import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReceiver
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReleaser
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseSignals
+import kotlin.math.abs
+import kotlin.math.sign
 
 class SpikeTransferConstants(val I_transfer: Double = 5.0) : MechanismConstants
 
@@ -42,6 +44,7 @@ object NeuronMechanisms {
     val SpikeOff = Neuron::spikeOff
     val SpikeTransfer = Neuron::spikeTransfer
     val STDPDecay = Neuron::STDPDecay
+    val SpikeDecay = Neuron::spikeDecay
 }
 
 fun Neuron.IDynamic(params: MechanismParameters): List<Response> {
@@ -118,6 +121,25 @@ fun Neuron.spikeTransfer(params: MechanismParameters): List<Response> {
                 it.createResponse {
                     currentSignals.I_e += delta
                 }
+            )
+        }
+    }
+
+    return result
+}
+
+fun Neuron.spikeDecay(params: MechanismParameters): List<Response> {
+    val result = arrayListOf<Response>()
+
+    this.connections[SynapseReleaser]?.forEach {
+        if (it is Synapse) {
+            val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
+            val delta = -currentSignals.I_e*0.1
+
+            result.add(
+                    it.createResponse {
+                        currentSignals.I_e += delta
+                    }
             )
         }
     }
