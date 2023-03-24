@@ -55,8 +55,8 @@ fun main() {
     }
     val iNeurons: List<Neuron> = createPopulation(nInh, "inhibitory") { ->
         IzhNeuron(IzhConstants(
-            a = 0.02 + 0.08 * rI.nextDouble().pow(2),
-            b = 0.25 - 0.05 * rI.nextDouble().pow(2),
+            a = 0.02 + 0.08 * rI.nextDouble(),
+            b = 0.25 - 0.05 * rI.nextDouble(),
             c = -65.0,
             d = 2.0))
     }
