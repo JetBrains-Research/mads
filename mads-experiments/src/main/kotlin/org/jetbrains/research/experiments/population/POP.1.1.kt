@@ -33,7 +33,7 @@ fun main() {
 //    pop_13_3()
 //    pop_13_4()
 //    pop_13_5()
-    pop_13_8()
+    pop_13_10()
 }
 
 fun pop_3_1(
@@ -113,6 +113,20 @@ fun pop_13_8(
     runSimulation(5.0,2.0,78,100-78,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
     runSimulation(5.0,2.0,79,100-79,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
     runSimulation(5.0,2.0,80,20,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
+}
+
+fun pop_13_9(
+    experimentName:String="POP_13.9"
+) {
+    val timePart = System.currentTimeMillis().toString()
+    runSimulation(5.0,2.0,777,223,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
+}
+
+fun pop_13_10(
+    experimentName:String="POP_13.10"
+) {
+    val timePart = System.currentTimeMillis().toString()
+    runSimulation(5.0,2.0,790,210,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
 }
 
 

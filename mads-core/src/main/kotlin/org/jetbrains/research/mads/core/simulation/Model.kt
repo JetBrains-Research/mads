@@ -36,7 +36,7 @@ class Model private constructor(
     }
 
     fun simulate(saver: Saver = EmptySaver, stopCondition: (Model) -> Boolean) {
-        saver.logState(this)
+//        saver.logState(this)
 
         tStart = System.currentTimeMillis()
         var lastStep = 0L
@@ -79,7 +79,7 @@ class Model private constructor(
         val totalModelingTime = configuration.timeResolution.toBigDecimal().multiply(lastStep.toBigDecimal()).toDouble()
         println("Total of $totalModelingTime seconds were simulated")
         print("Saving last state...\r")
-        saver.logState(this)
+//        saver.logState(this)
         println("Last state of model is saved")
         configuration = Configuration()
         println("Configuration was unload for every ModelObject\n")
