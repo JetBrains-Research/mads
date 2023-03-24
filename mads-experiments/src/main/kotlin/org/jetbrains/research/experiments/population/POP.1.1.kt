@@ -21,18 +21,76 @@ import kotlin.io.path.Path
 import kotlin.math.pow
 import kotlin.reflect.KProperty
 
+enum class Connectedness {
+    NONE,
+    RANDOM,
+    CONSTANT
+}
+
 fun main() {
-    val experimentName = "POP.2"
+    pop_13_3()
+//    val experimentName = "POP.13"
+//    val timePart = System.currentTimeMillis().toString()
+//    val noiseStds = arrayOf(2.0, 5.0, 7.0, 10.0)
+//    noiseStds.forEach { noiseEXC ->
+//        noiseStds.forEach { noiseINH ->
+//            run(noiseEXC, noiseINH, "$experimentName/$timePart", true)
+//        }
+//    }
+}
+
+fun pop_3_1(
+    experimentName:String="POP_3.1"
+) {
     val timePart = System.currentTimeMillis().toString()
-    val noiseStds = arrayOf(2.0, 5.0, 7.0, 10.0)
-    noiseStds.forEach { noiseEXC ->
-        noiseStds.forEach { noiseINH ->
-            run(noiseEXC, noiseINH, "$experimentName/$timePart", true)
-        }
+    runSimulation(5.0,2.0,8,2,0.5,-1.0,Connectedness.RANDOM, "$experimentName/$timePart")
+}
+
+fun pop_3_2(
+    experimentName:String="POP_3.2"
+) {
+    val timePart = System.currentTimeMillis().toString()
+    runSimulation(5.0,2.0,75,25,0.5,-1.0,Connectedness.RANDOM, "$experimentName/$timePart")
+    runSimulation(5.0,2.0,80,20,0.5,-1.0,Connectedness.RANDOM, "$experimentName/$timePart")
+    runSimulation(5.0,2.0,85,25,0.5,-1.0,Connectedness.RANDOM, "$experimentName/$timePart")
+}
+
+fun pop_13_1(
+    experimentName:String="POP_13.1"
+) {
+    val timePart = System.currentTimeMillis().toString()
+    runSimulation(5.0,2.0,8,2,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
+}
+
+fun pop_13_2(
+    experimentName:String="POP_13.2"
+) {
+    val timePart = System.currentTimeMillis().toString()
+    arrayOf(0.1,0.15,0.2,0.25,0.3).forEach {
+        runSimulation(5.0,2.0,8,2,it,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
     }
 }
 
-fun run(noiseEXC:Double, noiseINH:Double, logPrefix:String, connected: Boolean) {
+fun pop_13_3(
+    experimentName:String="POP_13.3"
+) {
+    val timePart = System.currentTimeMillis().toString()
+    runSimulation(10.0,5.0,8,2,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
+}
+
+
+
+
+fun runSimulation(
+    noiseExc:Double,            // noise std of excitatory neurons
+    noiseInh:Double,            // noise std of inhibitory neurons
+    nExc:Int,                   // number of excitatory neurons
+    nInh:Int,                   // number of inhibitory neurons
+    synWeightExc:Double=0.5,    // synapse weight excitatory synapses
+    synWeightInh:Double=-1.0,   // synapse weight inhibitory synapses
+    connected:Connectedness,    // connection mode
+    logPrefix:String
+) {
     val startTime = System.currentTimeMillis()
     val modelingTime = 5000 * millisecond
     val randomSeed = 12345L
@@ -43,12 +101,9 @@ fun run(noiseEXC:Double, noiseINH:Double, logPrefix:String, connected: Boolean) 
     )
     println("Experiment start time $startTime")
 
-    val dir = Path("log/${logPrefix}/izh/${noiseEXC}/${noiseINH}")
+    val dir = Path("log/${logPrefix}/izh/${noiseExc}-${noiseInh}/${nExc}-${nInh}/${synWeightExc}-${synWeightInh}/${connected}")
     val saver = FileSaver(dir)
     logSignals.forEach { saver.addSignalsNames(it) }
-
-    val nExc = 8   // count of excitatory neurons
-    val nInh = 2    // count of inhibitory neurons
 
     val rE = Random(randomSeed)
     val rI = Random(randomSeed - 1)
@@ -75,18 +130,20 @@ fun run(noiseEXC:Double, noiseINH:Double, logPrefix:String, connected: Boolean) 
     objects.addAll(eNeurons)
     objects.addAll(iNeurons)
 
-    val eElectrodes = connectElectrodes(eNeurons) { seed: Long -> Electrode(Random(seed), CurrentSignals(I_e = 0.0), NoiseSignals(std = noiseEXC)) }
-    val iElectrodes = connectElectrodes(iNeurons) { seed: Long -> Electrode(Random(seed), CurrentSignals(I_e = 0.0), NoiseSignals(std = noiseINH)) }
+    val eElectrodes = connectElectrodes(eNeurons) { seed: Long -> Electrode(Random(seed), CurrentSignals(I_e = 0.0), NoiseSignals(std = noiseExc)) }
+    val iElectrodes = connectElectrodes(iNeurons) { seed: Long -> Electrode(Random(seed), CurrentSignals(I_e = 0.0), NoiseSignals(std = noiseInh)) }
 
     objects.addAll(eElectrodes)
     objects.addAll(iElectrodes)
 
-    if (connected) {
+    if (connected != Connectedness.NONE) {
         val synapses: ArrayList<Synapse> = arrayListOf()
-        synapses.addAll(connectPopulations(eNeurons, eNeurons, weight = { 0.5 * rE.nextDouble() }))
-        synapses.addAll(connectPopulations(eNeurons, iNeurons, weight = { 0.5 * rE.nextDouble() }))
-        synapses.addAll(connectPopulations(iNeurons, eNeurons, weight = { -rI.nextDouble() }))
-        synapses.addAll(connectPopulations(iNeurons, iNeurons, weight = { -rI.nextDouble() }))
+        val randomExcComponent = if (connected==Connectedness.RANDOM) rE.nextDouble() else 1.0
+        val randomInhComponent = if (connected==Connectedness.RANDOM) rE.nextDouble() else 1.0
+        synapses.addAll(connectPopulations(eNeurons, eNeurons, weight = { synWeightExc * randomExcComponent }))
+        synapses.addAll(connectPopulations(eNeurons, iNeurons, weight = { synWeightExc * randomInhComponent }))
+        synapses.addAll(connectPopulations(iNeurons, eNeurons, weight = { synWeightInh * rI.nextDouble() }))
+        synapses.addAll(connectPopulations(iNeurons, iNeurons, weight = { synWeightInh * rI.nextDouble() }))
         objects.addAll(synapses)
     }
 
