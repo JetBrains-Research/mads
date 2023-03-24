@@ -28,19 +28,12 @@ enum class Connectedness {
 }
 
 fun main() {
-    pop_13_1()
-    pop_13_2()
-    pop_13_3()
-    pop_13_4()
-    pop_13_5()
-//    val experimentName = "POP.13"
-//    val timePart = System.currentTimeMillis().toString()
-//    val noiseStds = arrayOf(2.0, 5.0, 7.0, 10.0)
-//    noiseStds.forEach { noiseEXC ->
-//        noiseStds.forEach { noiseINH ->
-//            run(noiseEXC, noiseINH, "$experimentName/$timePart", true)
-//        }
-//    }
+//    pop_13_1()
+//    pop_13_2()
+//    pop_13_3()
+//    pop_13_4()
+//    pop_13_5()
+    pop_13_8()
 }
 
 fun pop_3_1(
@@ -93,6 +86,32 @@ fun pop_13_5(
     experimentName:String="POP_13.5"
 ) {
     val timePart = System.currentTimeMillis().toString()
+    runSimulation(5.0,2.0,80,20,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
+}
+
+fun pop_13_6(
+    experimentName:String="POP_13.6"
+) {
+    val timePart = System.currentTimeMillis().toString()
+    runSimulation(5.0,2.0,60,40,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
+    runSimulation(5.0,2.0,70,30,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
+}
+
+fun pop_13_7(
+    experimentName:String="POP_13.7"
+) {
+    val timePart = System.currentTimeMillis().toString()
+    runSimulation(5.0,2.0,73,100-73,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
+    runSimulation(5.0,2.0,75,100-75,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
+    runSimulation(5.0,2.0,77,100-77,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
+}
+
+fun pop_13_8(
+    experimentName:String="POP_13.8"
+) {
+    val timePart = System.currentTimeMillis().toString()
+    runSimulation(5.0,2.0,78,100-78,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
+    runSimulation(5.0,2.0,79,100-79,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
     runSimulation(5.0,2.0,80,20,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
 }
 
