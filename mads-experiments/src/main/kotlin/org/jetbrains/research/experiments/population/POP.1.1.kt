@@ -14,6 +14,7 @@ import org.jetbrains.research.mads.core.types.millisecond
 import org.jetbrains.research.mads_ns.electrode.Electrode
 import org.jetbrains.research.mads_ns.electrode.ElectrodeMechanisms
 import org.jetbrains.research.mads_ns.electrode.NoiseSignals
+import org.jetbrains.research.mads_ns.pathways.synapsePathway
 import org.jetbrains.research.mads_ns.physiology.neurons.*
 import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
 import java.util.*
@@ -33,7 +34,7 @@ fun main() {
 //    pop_13_3()
 //    pop_13_4()
 //    pop_13_5()
-    pop_13_10()
+    pop_13_11()
 }
 
 fun pop_3_1(
@@ -129,6 +130,13 @@ fun pop_13_10(
     runSimulation(5.0,2.0,790,210,0.5,-1.0,Connectedness.CONSTANT, "$experimentName/$timePart")
 }
 
+fun pop_13_11(
+    experimentName:String="POP_13.10"
+) {
+    val timePart = System.currentTimeMillis().toString()
+    runSimulation(5.0,2.0,790,210,0.5,-1.0,Connectedness.RANDOM, "$experimentName/$timePart")
+}
+
 
 fun runSimulation(
     noiseExc:Double,            // noise std of excitatory neurons
@@ -141,7 +149,7 @@ fun runSimulation(
     logPrefix:String
 ) {
     val startTime = System.currentTimeMillis()
-    val modelingTime = 5000 * millisecond
+    val modelingTime = 1000 * millisecond
     val randomSeed = 12345L
     val logSignals = arrayListOf<KProperty<*>>(
         SpikesSignals::spiked,
@@ -204,6 +212,7 @@ fun runSimulation(
         timeResolution = microsecond
         addPathway(customIzhPathway())
         addPathway(electrodeNoisePathway())
+        addPathway(synapsePathway())
     }
 
     val s = Model(objects, config)

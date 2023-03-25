@@ -6,8 +6,6 @@ import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReceiver
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReleaser
 import org.jetbrains.research.mads_ns.physiology.synapses.SynapseSignals
-import kotlin.math.abs
-import kotlin.math.sign
 
 class SpikeTransferConstants(val I_transfer: Double = 5.0) : MechanismConstants
 
