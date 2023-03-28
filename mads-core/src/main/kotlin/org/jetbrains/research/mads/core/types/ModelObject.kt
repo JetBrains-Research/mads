@@ -75,13 +75,6 @@ abstract class ModelObject(vararg signals: Signals) {
         return arrayListOf(this)
     }
 
-    fun getChangedObjects() : Map<ModelObject, String> {
-        val result = operatedChildren.toMap()
-        operatedChildren.clear()
-
-        return result
-    }
-
     fun createResponse(applyFn: () -> Unit) : Response {
         return Response(this, applyFn)
     }
@@ -99,6 +92,15 @@ abstract class ModelObject(vararg signals: Signals) {
                 "${key.simpleName}.$innerKey" to innerValue
             }
         }.toMap()
+    }
+
+    internal fun getChangedObjects() : Map<String, List<String>> {
+        val result = operatedChildren.map { (key, value) ->
+            key.hashCode().toString() to listOf(key.type, value) }
+            .toMap()
+        operatedChildren.clear()
+
+        return result
     }
 
     internal fun checkConditions() {

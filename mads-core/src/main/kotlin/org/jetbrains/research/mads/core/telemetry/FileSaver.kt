@@ -36,12 +36,12 @@ class FileSaver(dir: Path) : Saver {
 
     override fun logChangedState(tick: Long, obj: ModelObject) {
         val signals = obj.getChangedSignals()
+        val objects = obj.getChangedObjects()
         val id = obj.hashCode().toString()
         val type = obj.type
         scope.launch {
             logSignals(tick, id, type, signals)
-//            logObjects(tick, obj)
-
+            logObjects(tick, id, objects)
         }
     }
 
@@ -77,18 +77,15 @@ class FileSaver(dir: Path) : Saver {
         }
     }
 
-    private suspend fun logObjects(tick: Long, obj: ModelObject) {
-
-        // TODO: rewrite without leaking actual ModelObjects. Have to
-        // make getChangedObjects() fun to return a bunch of strings
-        obj.getChangedObjects().forEach {
+    private suspend fun logObjects(tick: Long, id: String, objects: Map<String, List<String>>) {
+        objects.forEach {
             modelObjectsWriter.write(
                 (arrayOf(
                     tick.toString(),
-                    it.key.parent.hashCode().toString(),
-                    it.key.hashCode().toString(),
-                    it.key.type,
-                    it.value
+                    id,
+                    it.key,
+                    it.value[0],
+                    it.value[1]
                 )).joinToString(",") + "\n"
             )
         }
