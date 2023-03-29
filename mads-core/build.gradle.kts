@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm")
-    kotlin("plugin.serialization") version "1.8.0"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.10"
 }
 
 description = "Core types for MADS"
