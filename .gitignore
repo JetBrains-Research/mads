@@ -6,7 +6,3 @@ build/
 
 data/
 log/
-
-gradle/
-gradlew
-gradlew.bat
