@@ -1,6 +1,5 @@
 plugins {
     kotlin("jvm")
-    kotlin("plugin.serialization") version "1.8.10"
 }
 
 description = "Neuroscience domain for MADS"
