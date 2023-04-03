@@ -8,7 +8,7 @@ import java.util.stream.Collectors
 class EventsDispatcher {
 
     private var currentTick: Long = 0
-    private val eventsDic: MutableMap<Long, MutableList<ModelEvent>> = mutableMapOf()
+    private val eventsDic: HashMap<Long, HashSet<ModelEvent>> = hashMapOf()
     private val eventTime: Queue<Long> = PriorityQueue()
 
     fun addEvents(modelEvents: List<ModelEvent>) {
@@ -21,7 +21,7 @@ class EventsDispatcher {
             .toList()
 
         groupedEvents.forEach {
-            eventsDic.putIfAbsent(it.key, ArrayList())
+            eventsDic.putIfAbsent(it.key, HashSet())
             eventsDic[it.key]!!.addAll(it.value)
         }
 
@@ -32,7 +32,7 @@ class EventsDispatcher {
         if (eventTime.isEmpty()) return mapOf()
 
         currentTick = eventTime.remove()
-        val currentEvents: MutableList<ModelEvent> = eventsDic.remove(currentTick)!!
+        val currentEvents: Set<ModelEvent> = eventsDic.remove(currentTick)!!
 
         return currentEvents.parallelStream()
             .map(ModelEvent::executeEvent)
