@@ -17,13 +17,15 @@ java {
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
-    apply(plugin = "maven-publish")
-
     version = tagName
 
     repositories {
         mavenCentral()
     }
+}
+
+subprojects {
+    apply(plugin = "maven-publish")
 
     tasks.register("publishAll") {
         group = "publishing"
