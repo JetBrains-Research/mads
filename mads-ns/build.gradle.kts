@@ -6,7 +6,7 @@ publishing {
     publications {
         create<MavenPublication>("nsLibrary") {
             groupId = "org.jetbrains.research" // Replace with your group ID
-            artifactId = "mads-core" // Replace with your artifact ID
+            artifactId = "mads-ns" // Replace with your artifact ID
             version = project.rootProject.version.toString() // Use the root project version
 
             from(components["kotlin"])
