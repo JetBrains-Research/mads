@@ -6,6 +6,10 @@ plugins {
 publishing {
     publications {
         create<MavenPublication>("coreLibrary") {
+            groupId = "org.jetbrains.research" // Replace with your group ID
+            artifactId = "mads-core" // Replace with your artifact ID
+            version = project.rootProject.version.toString() // Use the root project version
+
             from(components["kotlin"])
         }
     }

@@ -15,18 +15,6 @@ java {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("rootLibrary") {
-            groupId = "org.jetbrains.research" // Replace with your group ID
-            artifactId = "mads" // Replace with your artifact ID
-            version = tagName // Replace with your version
-
-            from(components["kotlin"])
-        }
-    }
-}
-
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "maven-publish")
@@ -35,6 +23,13 @@ allprojects {
 
     repositories {
         mavenCentral()
+    }
+
+    tasks.register("publishAll") {
+        group = "publishing"
+        description = "Publish all subprojects"
+
+        dependsOn(subprojects.map { it.tasks.named("publish") })
     }
 
     tasks {
