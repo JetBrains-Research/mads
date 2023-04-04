@@ -3,6 +3,14 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.10"
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("coreLibrary") {
+            from(components["kotlin"])
+        }
+    }
+}
+
 description = "Core types for MADS"
 
 dependencies {

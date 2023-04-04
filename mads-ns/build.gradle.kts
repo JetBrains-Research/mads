@@ -2,6 +2,14 @@ plugins {
     kotlin("jvm")
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("nsLibrary") {
+            from(components["kotlin"])
+        }
+    }
+}
+
 description = "Neuroscience domain for MADS"
 
 dependencies {
