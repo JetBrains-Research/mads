@@ -1,11 +1,11 @@
-package org.jetbrains.research.mads_ns.pathways
+package org.jetbrains.research.mads.ns.pathways
 
 import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.pathway
-import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
-import org.jetbrains.research.mads_ns.physiology.neurons.NeuronMechanisms
-import org.jetbrains.research.mads_ns.physiology.neurons.PotentialSignals
-import org.jetbrains.research.mads_ns.physiology.neurons.SpikesSignals
+import org.jetbrains.research.mads.ns.physiology.neurons.Neuron
+import org.jetbrains.research.mads.ns.physiology.neurons.NeuronMechanisms
+import org.jetbrains.research.mads.ns.physiology.neurons.PotentialSignals
+import org.jetbrains.research.mads.ns.physiology.neurons.SpikesSignals
 
 fun neuronPathway() = pathway<Neuron> {
     mechanism(mechanism = NeuronMechanisms.IDynamic) {

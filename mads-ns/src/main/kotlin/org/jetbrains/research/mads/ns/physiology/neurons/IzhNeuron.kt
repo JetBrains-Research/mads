@@ -1,4 +1,4 @@
-package org.jetbrains.research.mads_ns.physiology.neurons
+package org.jetbrains.research.mads.ns.physiology.neurons
 
 import org.jetbrains.research.mads.core.types.*
 import kotlin.math.pow

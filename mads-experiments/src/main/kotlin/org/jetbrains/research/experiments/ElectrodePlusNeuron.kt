@@ -4,10 +4,10 @@ import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads_ns.electrode.Electrode
-import org.jetbrains.research.mads_ns.pathways.connectToCell
-import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
-import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
+import org.jetbrains.research.mads.ns.electrode.Electrode
+import org.jetbrains.research.mads.ns.pathways.connectToCell
+import org.jetbrains.research.mads.ns.physiology.neurons.CurrentSignals
+import org.jetbrains.research.mads.ns.physiology.neurons.Neuron
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.reflect.KProperty

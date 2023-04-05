@@ -6,12 +6,12 @@ import org.jetbrains.research.mads.core.configuration.configure
 import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
-import org.jetbrains.research.mads_ns.electrode.ElectrodeMechanisms
-import org.jetbrains.research.mads_ns.electrode.NoiseConstants
-import org.jetbrains.research.mads_ns.pathways.hhPathway
-import org.jetbrains.research.mads_ns.pathways.izhPathway
-import org.jetbrains.research.mads_ns.pathways.lifPathway
-import org.jetbrains.research.mads_ns.physiology.neurons.*
+import org.jetbrains.research.mads.ns.electrode.ElectrodeMechanisms
+import org.jetbrains.research.mads.ns.electrode.NoiseConstants
+import org.jetbrains.research.mads.ns.pathways.hhPathway
+import org.jetbrains.research.mads.ns.pathways.izhPathway
+import org.jetbrains.research.mads.ns.pathways.lifPathway
+import org.jetbrains.research.mads.ns.physiology.neurons.*
 import kotlin.reflect.KProperty
 
 fun main() {

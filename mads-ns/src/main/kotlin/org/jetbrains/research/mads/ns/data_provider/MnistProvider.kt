@@ -1,4 +1,4 @@
-package org.jetbrains.research.mads_ns.data_provider
+package org.jetbrains.research.mads.ns.data_provider
 
 import org.apache.commons.collections4.iterators.LoopingIterator
 import java.awt.RenderingHints

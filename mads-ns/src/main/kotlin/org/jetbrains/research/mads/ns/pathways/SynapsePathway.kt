@@ -1,10 +1,10 @@
-package org.jetbrains.research.mads_ns.pathways
+package org.jetbrains.research.mads.ns.pathways
 
 import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.types.millisecond
-import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
-import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
-import org.jetbrains.research.mads_ns.physiology.synapses.SynapseMechanisms
+import org.jetbrains.research.mads.ns.physiology.neurons.CurrentSignals
+import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
+import org.jetbrains.research.mads.ns.physiology.synapses.SynapseMechanisms
 
 fun synapsePathway() = pathway<Synapse> {
     timeResolution = millisecond

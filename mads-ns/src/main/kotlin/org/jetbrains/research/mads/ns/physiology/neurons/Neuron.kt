@@ -1,11 +1,11 @@
-package org.jetbrains.research.mads_ns.physiology.neurons
+package org.jetbrains.research.mads.ns.physiology.neurons
 
 import org.jetbrains.research.mads.core.types.*
-import org.jetbrains.research.mads_ns.electrode.ElectrodeConnection
-import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
-import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReceiver
-import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReleaser
-import org.jetbrains.research.mads_ns.physiology.synapses.SynapseSignals
+import org.jetbrains.research.mads.ns.electrode.ElectrodeConnection
+import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
+import org.jetbrains.research.mads.ns.physiology.synapses.SynapseReceiver
+import org.jetbrains.research.mads.ns.physiology.synapses.SynapseReleaser
+import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
 
 class SpikeTransferConstants(val I_transfer: Double = 5.0) : MechanismConstants
 

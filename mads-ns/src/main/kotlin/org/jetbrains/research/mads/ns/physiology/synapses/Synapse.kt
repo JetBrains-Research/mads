@@ -1,8 +1,8 @@
-package org.jetbrains.research.mads_ns.physiology.synapses
+package org.jetbrains.research.mads.ns.physiology.synapses
 
 import org.jetbrains.research.mads.core.types.*
-import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
-import org.jetbrains.research.mads_ns.physiology.neurons.STDPSignals
+import org.jetbrains.research.mads.ns.physiology.neurons.CurrentSignals
+import org.jetbrains.research.mads.ns.physiology.neurons.STDPSignals
 
 object SynapseReleaser: ConnectionType
 

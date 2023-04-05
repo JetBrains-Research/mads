@@ -1,8 +1,8 @@
-package org.jetbrains.research.mads_ns.electrode
+package org.jetbrains.research.mads.ns.electrode
 
 import org.jetbrains.research.mads.core.types.*
-import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
-import org.jetbrains.research.mads_ns.physiology.neurons.ProbabilisticSpikingSignals
+import org.jetbrains.research.mads.ns.physiology.neurons.CurrentSignals
+import org.jetbrains.research.mads.ns.physiology.neurons.ProbabilisticSpikingSignals
 import java.util.*
 
 object ElectrodeConnection : ConnectionType

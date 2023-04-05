@@ -1,15 +1,15 @@
-package org.jetbrains.research.experiments
+package org.jetbrains.research.mads.ns
 
 import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads_ns.electrode.Electrode
-import org.jetbrains.research.mads_ns.electrode.ElectrodeArray
-import org.jetbrains.research.mads_ns.pathways.connectToCell
-import org.jetbrains.research.mads_ns.physiology.neurons.CurrentSignals
-import org.jetbrains.research.mads_ns.physiology.neurons.Neuron
-import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
-import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReceiver
-import org.jetbrains.research.mads_ns.physiology.synapses.SynapseReleaser
-import org.jetbrains.research.mads_ns.physiology.synapses.SynapseSignals
+import org.jetbrains.research.mads.ns.electrode.Electrode
+import org.jetbrains.research.mads.ns.electrode.ElectrodeArray
+import org.jetbrains.research.mads.ns.pathways.connectToCell
+import org.jetbrains.research.mads.ns.physiology.neurons.CurrentSignals
+import org.jetbrains.research.mads.ns.physiology.neurons.Neuron
+import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
+import org.jetbrains.research.mads.ns.physiology.synapses.SynapseReceiver
+import org.jetbrains.research.mads.ns.physiology.synapses.SynapseReleaser
+import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
 
 fun createPopulation(capacity: Int, type: String, neuronFun: () -> Neuron) : List<Neuron> {
     val population: ArrayList<Neuron> = arrayListOf()

@@ -7,10 +7,10 @@ import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
-import org.jetbrains.research.mads_ns.electrode.Electrode
-import org.jetbrains.research.mads_ns.electrode.PeriodicPulsationSignals
-import org.jetbrains.research.mads_ns.pathways.*
-import org.jetbrains.research.mads_ns.physiology.neurons.*
+import org.jetbrains.research.mads.ns.electrode.Electrode
+import org.jetbrains.research.mads.ns.electrode.PeriodicPulsationSignals
+import org.jetbrains.research.mads.ns.pathways.*
+import org.jetbrains.research.mads.ns.physiology.neurons.*
 import java.util.*
 import kotlin.io.path.Path
 

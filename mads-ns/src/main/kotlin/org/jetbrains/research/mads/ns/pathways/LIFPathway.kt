@@ -1,12 +1,12 @@
-package org.jetbrains.research.mads_ns.pathways
+package org.jetbrains.research.mads.ns.pathways
 
 import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.types.microsecond
-import org.jetbrains.research.mads_ns.physiology.neurons.LIFMechanisms
-import org.jetbrains.research.mads_ns.physiology.neurons.LIFNeuron
-import org.jetbrains.research.mads_ns.physiology.neurons.NeuronMechanisms
-import org.jetbrains.research.mads_ns.physiology.neurons.SpikeTransferConstants
+import org.jetbrains.research.mads.ns.physiology.neurons.LIFMechanisms
+import org.jetbrains.research.mads.ns.physiology.neurons.LIFNeuron
+import org.jetbrains.research.mads.ns.physiology.neurons.NeuronMechanisms
+import org.jetbrains.research.mads.ns.physiology.neurons.SpikeTransferConstants
 
 fun lifPathway() = pathway<LIFNeuron> {
     timeResolution = microsecond

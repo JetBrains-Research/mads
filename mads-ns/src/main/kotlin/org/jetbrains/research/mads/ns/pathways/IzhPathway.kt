@@ -1,12 +1,12 @@
-package org.jetbrains.research.mads_ns.pathways
+package org.jetbrains.research.mads.ns.pathways
 
 import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.types.microsecond
-import org.jetbrains.research.mads_ns.physiology.neurons.IzhMechanisms
-import org.jetbrains.research.mads_ns.physiology.neurons.IzhNeuron
-import org.jetbrains.research.mads_ns.physiology.neurons.NeuronMechanisms
-import org.jetbrains.research.mads_ns.physiology.neurons.SpikeTransferConstants
+import org.jetbrains.research.mads.ns.physiology.neurons.IzhMechanisms
+import org.jetbrains.research.mads.ns.physiology.neurons.IzhNeuron
+import org.jetbrains.research.mads.ns.physiology.neurons.NeuronMechanisms
+import org.jetbrains.research.mads.ns.physiology.neurons.SpikeTransferConstants
 
 fun izhPathway() = pathway<IzhNeuron> {
     timeResolution = microsecond

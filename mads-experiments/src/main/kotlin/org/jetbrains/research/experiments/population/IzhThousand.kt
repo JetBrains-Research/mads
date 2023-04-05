@@ -1,9 +1,5 @@
 package org.jetbrains.research.experiments.population
 
-import org.jetbrains.research.experiments.connectElectrodes
-import org.jetbrains.research.experiments.connectPopulations
-import org.jetbrains.research.experiments.connectCellsWithSynapse
-import org.jetbrains.research.experiments.createPopulation
 import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.configure
 import org.jetbrains.research.mads.core.configuration.pathway
@@ -12,12 +8,15 @@ import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
-import org.jetbrains.research.mads_ns.electrode.Electrode
-import org.jetbrains.research.mads_ns.electrode.NoiseSignals
-import org.jetbrains.research.mads_ns.pathways.overThresholdAndNotSpiked
-import org.jetbrains.research.mads_ns.pathways.underThresholdAndSpiked
-import org.jetbrains.research.mads_ns.physiology.neurons.*
-import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
+import org.jetbrains.research.mads.ns.connectElectrodes
+import org.jetbrains.research.mads.ns.connectPopulations
+import org.jetbrains.research.mads.ns.createPopulation
+import org.jetbrains.research.mads.ns.electrode.Electrode
+import org.jetbrains.research.mads.ns.electrode.NoiseSignals
+import org.jetbrains.research.mads.ns.pathways.overThresholdAndNotSpiked
+import org.jetbrains.research.mads.ns.pathways.underThresholdAndSpiked
+import org.jetbrains.research.mads.ns.physiology.neurons.*
+import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.math.pow
@@ -47,18 +46,22 @@ fun main() {
 
     val objects: ArrayList<ModelObject> = arrayListOf()
     val eNeurons: List<Neuron> = createPopulation(nExc, "excitatory") { ->
-        IzhNeuron(IzhConstants(
+        IzhNeuron(
+            IzhConstants(
             a = 0.02,
             b = 0.2,
             c = -65.0 + 15 * rE.nextDouble().pow(2),
-            d = 8.0 - 6.0 * rE.nextDouble().pow(2)))
+            d = 8.0 - 6.0 * rE.nextDouble().pow(2))
+        )
     }
     val iNeurons: List<Neuron> = createPopulation(nInh, "inhibitory") { ->
-        IzhNeuron(IzhConstants(
+        IzhNeuron(
+            IzhConstants(
             a = 0.02 + 0.08 * rI.nextDouble(),
             b = 0.25 - 0.05 * rI.nextDouble(),
             c = -65.0,
-            d = 2.0))
+            d = 2.0)
+        )
     }
 
     eNeurons.forEach {

@@ -1,11 +1,11 @@
-package org.jetbrains.research.mads_ns.pathways
+package org.jetbrains.research.mads.ns.pathways
 
 import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
-import org.jetbrains.research.mads_ns.electrode.*
+import org.jetbrains.research.mads.ns.electrode.*
 
 fun electrodePulsePathway() = pathway {
     timeResolution = millisecond

@@ -1,8 +1,5 @@
 package org.jetbrains.research.experiments.population
 
-import org.jetbrains.research.experiments.connectElectrodes
-import org.jetbrains.research.experiments.connectPopulations
-import org.jetbrains.research.experiments.createPopulation
 import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.configure
 import org.jetbrains.research.mads.core.configuration.pathway
@@ -11,12 +8,15 @@ import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
-import org.jetbrains.research.mads_ns.electrode.Electrode
-import org.jetbrains.research.mads_ns.electrode.ElectrodeMechanisms
-import org.jetbrains.research.mads_ns.electrode.NoiseSignals
-import org.jetbrains.research.mads_ns.pathways.synapsePathway
-import org.jetbrains.research.mads_ns.physiology.neurons.*
-import org.jetbrains.research.mads_ns.physiology.synapses.Synapse
+import org.jetbrains.research.mads.ns.connectElectrodes
+import org.jetbrains.research.mads.ns.connectPopulations
+import org.jetbrains.research.mads.ns.createPopulation
+import org.jetbrains.research.mads.ns.electrode.Electrode
+import org.jetbrains.research.mads.ns.electrode.ElectrodeMechanisms
+import org.jetbrains.research.mads.ns.electrode.NoiseSignals
+import org.jetbrains.research.mads.ns.pathways.synapsePathway
+import org.jetbrains.research.mads.ns.physiology.neurons.*
+import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.math.pow
@@ -197,14 +197,22 @@ fun runSimulation(
 
     if (connected != Connectedness.NONE) {
         val synapses: ArrayList<Synapse> = arrayListOf()
-        synapses.addAll(connectPopulations(eNeurons, eNeurons,
-            weight = { synWeightExc * if (connected==Connectedness.RANDOM) r.nextDouble() else 1.0 }))
-        synapses.addAll(connectPopulations(eNeurons, iNeurons,
-            weight = { synWeightExc * if (connected==Connectedness.RANDOM) r.nextDouble() else 1.0 }))
-        synapses.addAll(connectPopulations(iNeurons, eNeurons,
-            weight = { synWeightInh * if (connected==Connectedness.RANDOM) r.nextDouble() else 1.0 }))
-        synapses.addAll(connectPopulations(iNeurons, iNeurons,
-            weight = { synWeightInh * if (connected==Connectedness.RANDOM) r.nextDouble() else 1.0 }))
+        synapses.addAll(
+            connectPopulations(eNeurons, eNeurons,
+            weight = { synWeightExc * if (connected==Connectedness.RANDOM) r.nextDouble() else 1.0 })
+        )
+        synapses.addAll(
+            connectPopulations(eNeurons, iNeurons,
+            weight = { synWeightExc * if (connected==Connectedness.RANDOM) r.nextDouble() else 1.0 })
+        )
+        synapses.addAll(
+            connectPopulations(iNeurons, eNeurons,
+            weight = { synWeightInh * if (connected==Connectedness.RANDOM) r.nextDouble() else 1.0 })
+        )
+        synapses.addAll(
+            connectPopulations(iNeurons, iNeurons,
+            weight = { synWeightInh * if (connected==Connectedness.RANDOM) r.nextDouble() else 1.0 })
+        )
         objects.addAll(synapses)
     }
 

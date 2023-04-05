@@ -1,6 +1,5 @@
 package org.jetbrains.research.experiments.const_current
 
-import org.jetbrains.research.experiments.connectCellsWithSynapse
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.configure
 import org.jetbrains.research.mads.core.simulation.Model
@@ -8,10 +7,11 @@ import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
-import org.jetbrains.research.mads_ns.electrode.Electrode
-import org.jetbrains.research.mads_ns.pathways.*
-import org.jetbrains.research.mads_ns.physiology.neurons.*
-import org.jetbrains.research.mads_ns.physiology.synapses.SynapseSignals
+import org.jetbrains.research.mads.ns.connectCellsWithSynapse
+import org.jetbrains.research.mads.ns.electrode.Electrode
+import org.jetbrains.research.mads.ns.pathways.*
+import org.jetbrains.research.mads.ns.physiology.neurons.*
+import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
 import java.util.*
 import kotlin.io.path.Path
 
