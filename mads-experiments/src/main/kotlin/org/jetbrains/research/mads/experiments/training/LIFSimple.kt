@@ -1,4 +1,4 @@
-package org.jetbrains.research.experiments.training
+package org.jetbrains.research.mads.experiments.training
 
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.configure

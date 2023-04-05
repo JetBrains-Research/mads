@@ -5,7 +5,10 @@ import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
-import org.jetbrains.research.mads.ns.electrode.*
+import org.jetbrains.research.mads.ns.electrode.Electrode
+import org.jetbrains.research.mads.ns.electrode.ElectrodeConnection
+import org.jetbrains.research.mads.ns.electrode.ElectrodeMechanisms
+import org.jetbrains.research.mads.ns.electrode.PulseConstants
 
 fun electrodePulsePathway() = pathway {
     timeResolution = millisecond
@@ -27,9 +30,8 @@ fun electrodePeriodicPulsePathway() = pathway {
 fun electrodeNoisePathway() = pathway {
     timeResolution = microsecond
     mechanism(mechanism = ElectrodeMechanisms.NoiseDynamic) {
-        duration = 500
+        duration = 1000
         condition = Always
-        constants = NoiseConstants()
     }
 }
 

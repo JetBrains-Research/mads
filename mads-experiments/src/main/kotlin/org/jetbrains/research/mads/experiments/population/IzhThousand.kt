@@ -1,4 +1,4 @@
-package org.jetbrains.research.experiments.population
+package org.jetbrains.research.mads.experiments.population
 
 import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.configure
@@ -13,6 +13,7 @@ import org.jetbrains.research.mads.ns.connectPopulations
 import org.jetbrains.research.mads.ns.createPopulation
 import org.jetbrains.research.mads.ns.electrode.Electrode
 import org.jetbrains.research.mads.ns.electrode.NoiseSignals
+import org.jetbrains.research.mads.ns.pathways.electrodeNoisePathway
 import org.jetbrains.research.mads.ns.pathways.overThresholdAndNotSpiked
 import org.jetbrains.research.mads.ns.pathways.underThresholdAndSpiked
 import org.jetbrains.research.mads.ns.physiology.neurons.*

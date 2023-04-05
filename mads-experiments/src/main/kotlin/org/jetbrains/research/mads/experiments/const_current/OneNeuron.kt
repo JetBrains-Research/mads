@@ -1,13 +1,15 @@
-package org.jetbrains.research.experiments.const_current
+package org.jetbrains.research.mads.experiments.const_current
 
-import org.jetbrains.research.experiments.experimentWithElectrodeAndNeuron
+import org.jetbrains.research.mads.experiments.experimentWithElectrodeAndNeuron
 import org.jetbrains.research.mads.core.configuration.configure
 import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
+import org.jetbrains.research.mads.ns.electrode.Electrode
 import org.jetbrains.research.mads.ns.pathways.hhPathway
 import org.jetbrains.research.mads.ns.pathways.izhPathway
 import org.jetbrains.research.mads.ns.pathways.lifPathway
 import org.jetbrains.research.mads.ns.physiology.neurons.*
+import java.util.*
 import kotlin.reflect.KProperty
 
 fun main() {
@@ -27,33 +29,35 @@ fun main() {
         println("Experiments with $current nA current")
         experimentWithElectrodeAndNeuron(
             experimentName,"${current}_microA/lif/${startTime}",
-            logSignals, current,
+            logSignals,
+            { -> Electrode(Random(randomSeed), CurrentSignals(I_e = current)) },
             { -> LIFNeuron(LIFConstants.V_thresh) },
             configure {
                 timeResolution = microsecond
                 addPathway(lifPathway())
             },
-            modelingTime, randomSeed
+            modelingTime
         )
         experimentWithElectrodeAndNeuron(
             experimentName,"${current}_microA/lif/${startTime}",
-            logSignals, current,
+            logSignals, { -> Electrode(Random(randomSeed), CurrentSignals(I_e = current)) },
             { -> IzhNeuron() },
             configure {
                 timeResolution = microsecond
                 addPathway(izhPathway())
             },
-            modelingTime, randomSeed
+            modelingTime
         )
         experimentWithElectrodeAndNeuron(
             experimentName,"${current}_microA/lif/${startTime}",
-            logSignals, current,
+            logSignals,
+            { -> Electrode(Random(randomSeed), CurrentSignals(I_e = current)) },
             { -> HHNeuron(HHConstants.V_thresh, HHSignals()) },
             configure {
                 timeResolution = microsecond
                 addPathway(hhPathway())
             },
-            modelingTime, randomSeed
+            modelingTime
         )
     }
 }

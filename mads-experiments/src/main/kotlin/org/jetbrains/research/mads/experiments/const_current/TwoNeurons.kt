@@ -1,4 +1,4 @@
-package org.jetbrains.research.experiments.const_current
+package org.jetbrains.research.mads.experiments.const_current
 
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.configure

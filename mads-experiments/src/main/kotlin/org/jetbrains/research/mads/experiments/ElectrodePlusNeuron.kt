@@ -1,4 +1,4 @@
-package org.jetbrains.research.experiments
+package org.jetbrains.research.mads.experiments
 
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.simulation.Model
@@ -6,30 +6,25 @@ import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.ns.electrode.Electrode
 import org.jetbrains.research.mads.ns.pathways.connectToCell
-import org.jetbrains.research.mads.ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads.ns.physiology.neurons.Neuron
-import java.util.*
 import kotlin.io.path.Path
 import kotlin.reflect.KProperty
 
 fun experimentWithElectrodeAndNeuron(experimentName: String,
                                      logFolder: String,
                                      logSignals: List<KProperty<*>>,
-                                     initialCurrent: Double,
+                                     electrodeFun: () -> Electrode,
                                      neuronFun: () -> Neuron,
                                      config: Configuration,
-                                     time: Double,
-                                     seed: Long) {
+                                     time: Double) {
 
     val dir = Path("log/$experimentName/OneNeuron/${logFolder}")
     val saver = FileSaver(dir)
     logSignals.forEach { saver.addSignalsNames(it) }
 
-    val rnd = Random(seed)
-
     val objects: ArrayList<ModelObject> = arrayListOf()
     val cell = neuronFun()
-    val electrode = Electrode(rnd, CurrentSignals(I_e = initialCurrent))
+    val electrode = electrodeFun()
     cell.type = "neuron"
     electrode.type = "electrode"
     electrode.connectToCell(cell)
