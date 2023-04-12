@@ -1,6 +1,5 @@
 package org.jetbrains.research.mads.core.telemetry
 
-import kotlinx.coroutines.*
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.types.ModelObject
 import java.io.File
@@ -9,10 +8,10 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.jvm.javaField
 
 class FileSaver(dir: Path) : Saver {
-    private val scope = CoroutineScope(Dispatchers.IO + Job() + SupervisorJob())
-    private val modelSignalsWriter : CsvModelExporter
-    private val modelObjectsWriter : CsvModelExporter
+    private val modelSignalsWriter : FileWriterThread
+    private val modelObjectsWriter : FileWriterThread
     private val modelStateWriter : JsonModelExporter
+
     private val sigSet = mutableSetOf<String>()
 
     init {
@@ -22,12 +21,12 @@ class FileSaver(dir: Path) : Saver {
         val signalsHeader = "time,object,type,signal,value\n"
         val objectsHeader = "time,parent,object,type,action\n"
         val stateFileName = "state.json"
-        modelSignalsWriter = CsvModelExporter(dir.resolve(signalsFileName), signalsHeader)
-        modelObjectsWriter = CsvModelExporter(dir.resolve(objectsFileName), objectsHeader)
+        modelSignalsWriter = FileWriterThread(dir.resolve(signalsFileName), signalsHeader)
+        modelObjectsWriter = FileWriterThread(dir.resolve(objectsFileName), objectsHeader)
         modelStateWriter = JsonModelExporter(dir.resolve(stateFileName))
 
-        modelSignalsWriter.open()
-        modelObjectsWriter.open()
+        modelSignalsWriter.start()
+        modelObjectsWriter.start()
     }
 
     override fun addSignalsNames(signal: KProperty<*>) {
@@ -39,10 +38,10 @@ class FileSaver(dir: Path) : Saver {
         val objects = obj.getChangedObjects()
         val id = obj.hashCode().toString()
         val type = obj.type
-        scope.launch {
+//        scope.launch {
             logSignals(tick, id, type, signals)
             logObjects(tick, id, objects)
-        }
+//        }
     }
 
     override fun logState(model: Model) {
@@ -55,16 +54,19 @@ class FileSaver(dir: Path) : Saver {
         modelSignalsWriter.close()
         modelObjectsWriter.close()
         modelStateWriter.close()
+
+        modelSignalsWriter.join()
+        modelObjectsWriter.join()
     }
 
     private fun mkdirs(dir: Path) {
         File(dir.toUri()).mkdirs()
     }
 
-    private suspend fun logSignals(tick: Long, id: String, type: String, signals: Map<String, String>) {
+    private fun logSignals(tick: Long, id: String, type: String, signals: Map<String, String>) {
         signals.forEach { signal ->
             if (sigSet.contains(signal.key)) {
-                modelSignalsWriter.write(
+                modelSignalsWriter.addStringToQueue(
                     (arrayOf(
                         tick.toString(),
                         id,
@@ -77,9 +79,9 @@ class FileSaver(dir: Path) : Saver {
         }
     }
 
-    private suspend fun logObjects(tick: Long, id: String, objects: Map<String, List<String>>) {
+    private fun logObjects(tick: Long, id: String, objects: Map<String, List<String>>) {
         objects.forEach {
-            modelObjectsWriter.write(
+            modelObjectsWriter.addStringToQueue(
                 (arrayOf(
                     tick.toString(),
                     id,
