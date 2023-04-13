@@ -12,6 +12,9 @@ plugins {
 }
 
 dependencies {
+    implementation(project("mads-core"))
+    implementation(project("mads-experiments"))
+    implementation(project("mads-ns"))
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutineVersion")
 }
@@ -35,18 +38,18 @@ tasks {
         from(contents)
     }
 }
-//
-//publishing {
-//    publications {
-//        create<MavenPublication>("rootLibrary") {
-//            groupId = "org.jetbrains.research" // Replace with your group ID
-//            artifactId = "mads" // Replace with your artifact ID
-//            version = tagName // Replace with your version
-//
-//            from(components["kotlin"])
-//        }
-//    }
-//}
+
+publishing {
+    publications {
+        create<MavenPublication>("rootLibrary") {
+            groupId = "org.jetbrains.research" // Replace with your group ID
+            artifactId = "mads" // Replace with your artifact ID
+            version = tagName // Replace with your version
+
+            from(components["kotlin"])
+        }
+    }
+}
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
