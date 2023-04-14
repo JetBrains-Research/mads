@@ -7,10 +7,10 @@ import java.nio.file.Path
 import kotlin.reflect.KProperty
 import kotlin.reflect.jvm.javaField
 
-class FileSaver(dir: Path) : Saver {
-    private val modelSignalsWriter : FileWriterThread
-    private val modelObjectsWriter : FileWriterThread
-    private val modelStateWriter : JsonModelExporter
+class FileSaver(dir: Path, bufferSize: Int = 64 * 1024) : Saver {
+    private val modelSignalsWriter: FileWriterThread
+    private val modelObjectsWriter: FileWriterThread
+    private val modelStateWriter: JsonModelExporter
 
     private val sigSet = mutableSetOf<String>()
 
@@ -21,8 +21,8 @@ class FileSaver(dir: Path) : Saver {
         val signalsHeader = "time,object,type,signal,value\n"
         val objectsHeader = "time,parent,object,type,action\n"
         val stateFileName = "state.json"
-        modelSignalsWriter = FileWriterThread(dir.resolve(signalsFileName), signalsHeader)
-        modelObjectsWriter = FileWriterThread(dir.resolve(objectsFileName), objectsHeader)
+        modelSignalsWriter = FileWriterThread(dir.resolve(signalsFileName), signalsHeader, bufferSize)
+        modelObjectsWriter = FileWriterThread(dir.resolve(objectsFileName), objectsHeader, bufferSize)
         modelStateWriter = JsonModelExporter(dir.resolve(stateFileName))
 
         modelSignalsWriter.start()
@@ -38,16 +38,12 @@ class FileSaver(dir: Path) : Saver {
         val objects = obj.getChangedObjects()
         val id = obj.hashCode().toString()
         val type = obj.type
-//        scope.launch {
-            logSignals(tick, id, type, signals)
-            logObjects(tick, id, objects)
-//        }
+        logSignals(tick, id, type, signals)
+        logObjects(tick, id, objects)
     }
 
     override fun logState(model: Model) {
-//        scope.launch {
-            modelStateWriter.write(model)
-//        }
+        modelStateWriter.write(model)
     }
 
     fun closeModelWriters() {
