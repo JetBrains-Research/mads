@@ -8,14 +8,16 @@ import java.nio.file.Path
 val format = Json { prettyPrint = true }
 
 class JsonModelExporter(out: Path) {
-    var isClosed = false
+    private var isClosed = false
     private val fileWriter = File(out.toUri()).writer()
-    var counter = 0
+    private var counter = 0
+
+    init {
+        fileWriter.write("[")
+    }
 
     fun write(model: Model) {
-        if (counter == 0) {
-            fileWriter.write("[")
-        } else {
+        if (counter != 0) {
             fileWriter.write(",")
         }
         fileWriter.write(Json.encodeToString(ModelStateSerializer, model))
