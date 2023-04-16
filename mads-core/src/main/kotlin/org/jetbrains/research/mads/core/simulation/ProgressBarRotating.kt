@@ -12,20 +12,20 @@ class ProgressBarRotating(
     private val modelingTimeFormatter = SimpleDateFormat("HH:mm:ss:SSS")
     private val scope = CoroutineScope(Dispatchers.IO + Job() + SupervisorJob())
     private var showProgress = false
-    private var duration = getModelingTime(0L)
     private val frames = arrayOf(
         "|",
         "/",
         "-",
         "\\"
     )
+    private var duration: String
 
     init {
         modelingTimeFormatter.timeZone = TimeZone.getTimeZone("GMT")
+        duration = modelingTimeFormatter.format(0L)
     }
 
     fun start() {
-        print("\r[$duration] $additionalInfo | $status initialization")
         var x = 0
         showProgress = true
         scope.launch {
@@ -37,17 +37,12 @@ class ProgressBarRotating(
     }
 
     fun updateInfo(time: Long, info: String) {
-        duration = getModelingTime(time)
+        duration = modelingTimeFormatter.format(time)
         additionalInfo = info
     }
 
     fun stop(extMessage: String) {
         showProgress = false
         print("\r[$duration] $additionalInfo | $status $extMessage\n")
-    }
-
-    private fun getModelingTime(time: Long): String {
-        val date = Date(time)
-        return modelingTimeFormatter.format(date)
     }
 }
