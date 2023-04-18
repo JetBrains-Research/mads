@@ -114,10 +114,16 @@ fun Neuron.spikeTransfer(params: MechanismParameters): List<Response> {
         if (it is Synapse) {
             val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
             val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
+            val receiverCurrentSignals = it.receiver.signals[CurrentSignals::class] as CurrentSignals
             val delta = synapseSignals.weight * synapseSignals.synapseSign * (params.constants as SpikeTransferConstants).I_transfer // 100.0 – mA
             result.add(
                 it.createResponse {
                     currentSignals.I_e += delta
+                }
+            )
+            result.add(
+                it.receiver.createResponse {
+                    receiverCurrentSignals.I_e += delta
                 }
             )
         }

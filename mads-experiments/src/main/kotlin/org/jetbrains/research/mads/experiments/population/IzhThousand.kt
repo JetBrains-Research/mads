@@ -122,10 +122,10 @@ fun customIzhPathway() = pathway<IzhNeuron> {
         duration = 500
         condition = Always
     }
-    mechanism(mechanism = NeuronMechanisms.IDynamic) {
-        duration = 1000
-        condition = Always
-    }
+//    mechanism(mechanism = NeuronMechanisms.IDynamic) {
+//        duration = 1000
+//        condition = Always
+//    }
     mechanism(mechanism = NeuronMechanisms.SpikeOn) {
         duration = 1
         condition = { overThresholdAndNotSpiked(it) }

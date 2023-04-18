@@ -55,11 +55,15 @@ fun Synapse.weightDecayMechanism(params: MechanismParameters): List<Response> {
 @TimeResolutionAnnotation(resolution = millisecond)
 fun Synapse.currentDecay(params: MechanismParameters): List<Response> {
     val currentSignals = this.signals[CurrentSignals::class] as CurrentSignals
+    val receiverCurrentSignals = this.receiver.signals[CurrentSignals::class] as CurrentSignals
     val delta = -((currentSignals.I_e / 2) * params.dt)
 
     return arrayListOf(
         this.createResponse {
             currentSignals.I_e += delta
+        },
+        this.receiver.createResponse {
+            receiverCurrentSignals.I_e += delta
         }
     )
 }

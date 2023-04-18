@@ -22,7 +22,7 @@ class Electrode(val rnd: Random, vararg signals: Signals) : ModelObject(Probabil
 
 class PulseConstants(val pulseValue: Double = 5.0) : MechanismConstants
 
-class NoiseConstants(val std: Double = 2.5, val meanValue: Double = 5.0) : MechanismConstants
+//class NoiseConstants(val std: Double = 2.5, val meanValue: Double = 5.0) : MechanismConstants
 
 object ElectrodeMechanisms {
     val PeriodicPulseDynamic = Electrode::PeriodicPulseDynamic
@@ -60,34 +60,58 @@ fun Electrode.PeriodicPulseDynamic(params: MechanismParameters): List<Response> 
 }
 
 fun Electrode.PulseDynamic(params: MechanismParameters): List<Response> {
-    val s = this.signals[CurrentSignals::class] as CurrentSignals
+    val result = arrayListOf<Response>()
+
+    val currentSignals = this.signals[CurrentSignals::class] as CurrentSignals
     val spikeProbability = (this.signals[ProbabilisticSpikingSignals::class] as ProbabilisticSpikingSignals).spikeProbability
 
     var I = 0.0
-    if (s.I_e == 0.0 && rnd.nextDouble() < spikeProbability) {
+    if (currentSignals.I_e == 0.0 && rnd.nextDouble() < spikeProbability) {
         I = (params.constants as PulseConstants).pulseValue
     }
+    val delta = I - currentSignals.I_e
 
-    val delta = I - s.I_e
-
-    return arrayListOf(
+    result.add(
         this.createResponse {
-            s.I_e += delta
+            currentSignals.I_e += delta
         }
     )
+
+    this.connections[ElectrodeConnection]?.forEach {
+        val receiverCurrentSignals = it.signals[CurrentSignals::class] as CurrentSignals
+        result.add(
+            it.createResponse {
+                receiverCurrentSignals.I_e += delta
+            }
+        )
+    }
+
+    return result
 }
 
 fun Electrode.NoiseDynamic(params: MechanismParameters): List<Response> {
-    val s = this.signals[CurrentSignals::class] as CurrentSignals
-    val n = this.signals[NoiseSignals::class] as NoiseSignals
+    val result = arrayListOf<Response>()
 
-    val newI = rnd.nextGaussian() * n.std + n.meanValue
+    val currentSignals = this.signals[CurrentSignals::class] as CurrentSignals
+    val noiseSignals = this.signals[NoiseSignals::class] as NoiseSignals
 
-    val delta = newI - s.I_e
+    val newI = rnd.nextGaussian() * noiseSignals.std + noiseSignals.meanValue
+    val delta = newI - currentSignals.I_e
 
-    return arrayListOf(
+    result.add(
         this.createResponse {
-            s.I_e += delta
+            currentSignals.I_e += delta
         }
     )
+
+    this.connections[ElectrodeConnection]?.forEach {
+        val receiverCurrentSignals = it.signals[CurrentSignals::class] as CurrentSignals
+        result.add(
+            it.createResponse {
+                receiverCurrentSignals.I_e += delta
+            }
+        )
+    }
+
+    return result
 }
