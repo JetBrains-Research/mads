@@ -19,8 +19,8 @@ fun synapsePathway() = pathway<Synapse> {
             currentSignals.I_e > 0.01 || currentSignals.I_e < -0.01
         }
     }
-//    mechanism(mechanism = SynapseMechanisms.STDUpdate) {
-//        duration = 10
-//    }
+    mechanism(mechanism = SynapseMechanisms.STDUpdate) {
+        duration = 1
+    }
 }
 

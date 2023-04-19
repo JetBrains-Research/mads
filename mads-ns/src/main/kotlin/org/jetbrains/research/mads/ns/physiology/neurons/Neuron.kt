@@ -38,6 +38,7 @@ object NeuronMechanisms {
     val SpikeOn = Neuron::spikeOn
     val SpikeOff = Neuron::spikeOff
     val SpikeTransfer = Neuron::spikeTransfer
+    val STDPSpike = Neuron::STDPSpike
     val STDPDecay = Neuron::STDPDecay
 }
 

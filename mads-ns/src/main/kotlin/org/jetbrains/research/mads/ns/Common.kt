@@ -77,3 +77,43 @@ fun connectPopulations(source: List<Neuron>, destination: List<Neuron>, weight: 
 
     return synapses
 }
+
+fun connectPopulationsInhibition(source: List<Neuron>, destination: List<Neuron>, weight: () -> Double = { 1.0 }) : List<Synapse> {
+    val synapses: ArrayList<Synapse> = arrayListOf()
+
+    for(i in source.indices) {
+        for (j in destination.indices) {
+            if(i == j)
+            {
+                continue
+            }
+            val syn = connectCellsWithSynapse(
+                source[i],
+                destination[j],
+                true,
+                CurrentSignals(0.0),
+                SynapseSignals(weight = weight())
+            )
+            synapses.add(syn)
+        }
+    }
+
+    return synapses
+}
+
+fun connectPopulationsOneToOne(source: List<Neuron>, destination: List<Neuron>, weight: () -> Double = { 1.0 }) : List<Synapse> {
+    val synapses: ArrayList<Synapse> = arrayListOf()
+
+    for(i in source.indices) {
+        val syn = connectCellsWithSynapse(
+            source[i],
+            destination[i],
+            false,
+            CurrentSignals(0.0),
+            SynapseSignals(weight = weight())
+        )
+        synapses.add(syn)
+    }
+
+    return synapses
+}

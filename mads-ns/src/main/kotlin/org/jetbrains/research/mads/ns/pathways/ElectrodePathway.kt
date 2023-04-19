@@ -18,6 +18,7 @@ fun electrodePulsePathway() = pathway {
         constants = PulseConstants()
     }
 }
+
 fun electrodePeriodicPulsePathway() = pathway {
     timeResolution = millisecond
     mechanism(mechanism = ElectrodeMechanisms.PeriodicPulseDynamic) {
