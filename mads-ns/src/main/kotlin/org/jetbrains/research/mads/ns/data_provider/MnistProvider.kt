@@ -10,7 +10,7 @@ import javax.imageio.ImageIO
 
 
 class MnistProvider(rootPath: String, val targetClasses: List<String>, isRandom: Boolean=false) :
-        ImageProvider(rootPath, height=16, width=16, isRandom=isRandom) {
+        ImageProvider(rootPath, height=28, width=28, isRandom=isRandom) {
     private var classFileMaps: HashMap<String, Iterator<File>> = HashMap()
     private val classIterator = LoopingIterator(classFileMaps.keys)
     init {
