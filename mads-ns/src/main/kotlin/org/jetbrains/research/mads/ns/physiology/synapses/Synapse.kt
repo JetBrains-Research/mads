@@ -78,6 +78,10 @@ fun Synapse.STDPWeightUpdateMechanism(params: MechanismParameters): List<Respons
 
     weightDelta *= if (weightDelta < 0) { 0.1 } else { 0.3 }
 
+    if(synapseSignals.synapseSign < 0) {
+        weightDelta *= -1
+    }
+
     val newWeight = java.lang.Double.max(0.0, synapseSignals.weight + weightDelta)
     val delta = newWeight - synapseSignals.weight
 
