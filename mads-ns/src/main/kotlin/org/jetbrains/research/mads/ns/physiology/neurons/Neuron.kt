@@ -1,9 +1,7 @@
 package org.jetbrains.research.mads.ns.physiology.neurons
 
 import org.jetbrains.research.mads.core.types.*
-import org.jetbrains.research.mads.ns.electrode.ElectrodeConnection
 import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
-import org.jetbrains.research.mads.ns.physiology.synapses.SynapseReceiver
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseReleaser
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
 
@@ -37,34 +35,10 @@ class PotentialSignals : Signals() {
 }
 
 object NeuronMechanisms {
-    val IDynamic = Neuron::IDynamic
     val SpikeOn = Neuron::spikeOn
     val SpikeOff = Neuron::spikeOff
     val SpikeTransfer = Neuron::spikeTransfer
     val STDPDecay = Neuron::STDPDecay
-    val SpikeDecay = Neuron::spikeDecay
-}
-
-fun Neuron.IDynamic(params: MechanismParameters): List<Response> {
-    val currentSignals = this.signals[CurrentSignals::class] as CurrentSignals
-    var I_e = 0.0
-
-    this.connections[ElectrodeConnection]?.forEach {
-        val signals = it.signals[CurrentSignals::class] as CurrentSignals
-        I_e += signals.I_e
-    }
-    this.connections[SynapseReceiver]?.forEach {
-        val signals = it.signals[CurrentSignals::class] as CurrentSignals
-        I_e += signals.I_e
-    }
-
-    val delta = I_e - currentSignals.I_e
-
-    return arrayListOf(
-        this.createResponse {
-            currentSignals.I_e += delta
-        }
-    )
 }
 
 fun Neuron.STDPDecay(params: MechanismParameters): List<Response> {
@@ -125,25 +99,6 @@ fun Neuron.spikeTransfer(params: MechanismParameters): List<Response> {
                 it.receiver.createResponse {
                     receiverCurrentSignals.I_e += delta
                 }
-            )
-        }
-    }
-
-    return result
-}
-
-fun Neuron.spikeDecay(params: MechanismParameters): List<Response> {
-    val result = arrayListOf<Response>()
-
-    this.connections[SynapseReleaser]?.forEach {
-        if (it is Synapse) {
-            val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
-            val delta = -currentSignals.I_e*0.1
-
-            result.add(
-                    it.createResponse {
-                        currentSignals.I_e += delta
-                    }
             )
         }
     }

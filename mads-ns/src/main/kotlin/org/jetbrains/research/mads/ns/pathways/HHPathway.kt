@@ -26,10 +26,6 @@ fun hhPathway() = pathway<HHNeuron> {
         duration = 25
         condition = Always
     }
-    mechanism(mechanism = NeuronMechanisms.IDynamic) {
-        duration = 25
-        condition = Always
-    }
     mechanism(mechanism = NeuronMechanisms.SpikeOn) {
         duration = 25
         condition = { overThresholdAndNotSpiked(it) }

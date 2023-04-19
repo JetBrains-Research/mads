@@ -8,10 +8,6 @@ import org.jetbrains.research.mads.ns.physiology.neurons.PotentialSignals
 import org.jetbrains.research.mads.ns.physiology.neurons.SpikesSignals
 
 fun neuronPathway() = pathway<Neuron> {
-    mechanism(mechanism = NeuronMechanisms.IDynamic) {
-        duration = 2
-        condition = Always
-    }
     mechanism(mechanism = NeuronMechanisms.SpikeOn) {
         duration = 1
         condition = { overThresholdAndNotSpiked(it) }

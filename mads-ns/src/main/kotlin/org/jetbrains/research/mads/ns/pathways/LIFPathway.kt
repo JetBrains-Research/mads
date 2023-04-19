@@ -14,10 +14,6 @@ fun lifPathway() = pathway<LIFNeuron> {
         duration = 100
         condition = Always
     }
-    mechanism(mechanism = NeuronMechanisms.IDynamic) {
-        duration = 100
-        condition = Always
-    }
     mechanism(mechanism = NeuronMechanisms.SpikeOn) {
         duration = 100
         condition = { overThresholdAndNotSpiked(it) }
