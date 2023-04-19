@@ -9,7 +9,7 @@ import org.jetbrains.research.mads.ns.electrode.ElectrodeArrayMechanisms
 fun electrodeArrayPathway() = pathway<ElectrodeArray> {
     timeResolution = millisecond
     mechanism(mechanism = ElectrodeArrayMechanisms.StimuliDynamic) {
-        duration = 100
+        duration = 250
         condition = Always
     }
 }
