@@ -14,9 +14,20 @@ publishing {
     }
 }
 
+sourceSets {
+    main {
+        kotlin.srcDirs("src/main/kotlin")
+    }
+}
+
 description = "Computational neuroscience experiments"
 
 dependencies {
     implementation(project(":mads-core"))
     implementation(project(":mads-ns"))
+}
+
+tasks.register("const_current_OneNeuron", JavaExec::class) {
+    classpath = sourceSets.getAt("main").runtimeClasspath
+    mainClass.set("org.jetbrains.research.mads.experiments.const_current.OneNeuronKt")
 }
