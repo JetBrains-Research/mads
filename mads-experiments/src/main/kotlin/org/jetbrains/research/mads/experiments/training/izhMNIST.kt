@@ -30,7 +30,7 @@ import kotlin.reflect.KProperty
 
 fun main() {
     val startTime = System.currentTimeMillis()
-    val modelingTime = 150 * second  // approx 200 samples
+    val modelingTime = 1 * second  // approx 200 samples
     println("Experiment start time $startTime")
 
     learningExperimentIzh(
@@ -129,10 +129,10 @@ fun izhPathway() = pathway<IzhNeuron> {
     }
     mechanism(mechanism = NeuronMechanisms.STDPSpike) {
         duration = 1
-        condition = Always
+        condition = { overThresholdAndNotSpiked(it) }
     }
+
     mechanism(mechanism = NeuronMechanisms.STDPDecay) {
-        duration = 1
-        condition = Always
+        duration = 1000
     }
 }
