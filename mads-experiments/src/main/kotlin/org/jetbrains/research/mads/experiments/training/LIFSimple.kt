@@ -10,7 +10,7 @@ import org.jetbrains.research.mads.core.types.second
 import org.jetbrains.research.mads.ns.connectElectrodeArray
 import org.jetbrains.research.mads.ns.connectPopulations
 import org.jetbrains.research.mads.ns.createPopulation
-import org.jetbrains.research.mads.ns.data_provider.MnistProvider
+import org.jetbrains.research.mads.providers.MnistProvider
 import org.jetbrains.research.mads.ns.electrode.ElectrodeArray
 import org.jetbrains.research.mads.ns.pathways.electrodeArrayPathway
 import org.jetbrains.research.mads.ns.pathways.electrodePulsePathway

@@ -1,6 +1,7 @@
-package org.jetbrains.research.mads.ns.data_provider
+package org.jetbrains.research.mads.providers
 
 import org.apache.commons.collections4.iterators.LoopingIterator
+import org.jetbrains.research.mads.ns.ImageProvider
 import java.awt.RenderingHints
 import java.awt.Transparency
 import java.awt.image.BufferedImage
@@ -8,11 +9,11 @@ import java.io.File
 import java.nio.file.Paths
 import javax.imageio.ImageIO
 
-
-class MnistProvider(rootPath: String, val targetClasses: List<String>, isRandom: Boolean=false) :
-        ImageProvider(rootPath, height=28, width=28, isRandom=isRandom) {
+class MnistProvider(rootPath: String, targetClasses: List<String>, isRandom: Boolean = false) :
+    ImageProvider(rootPath, height = 28, width = 28, isRandom = isRandom) {
     private var classFileMaps: HashMap<String, Iterator<File>> = HashMap()
     private val classIterator = LoopingIterator(classFileMaps.keys)
+
     init {
         targetClasses.forEach {
             val classWalker = getClassIterator(it)
@@ -20,12 +21,10 @@ class MnistProvider(rootPath: String, val targetClasses: List<String>, isRandom:
         }
     }
 
-    override fun getNextImage() : BufferedImage
-    {
+    override fun getNextImage(): BufferedImage {
         val currentClass = if (isRandom) "0" else classIterator.next()
 
-        if(!classFileMaps[currentClass]!!.hasNext())
-        {
+        if (!classFileMaps[currentClass]!!.hasNext()) {
             classFileMaps[currentClass] = getClassIterator(currentClass)
         }
 
@@ -51,21 +50,26 @@ class MnistProvider(rootPath: String, val targetClasses: List<String>, isRandom:
         } else { //portrait image
             targetWidth = Math.round(targetHeight.toFloat() / ratio)
         }
-        val bi = BufferedImage(targetWidth, targetHeight, if (src.transparency == Transparency.OPAQUE) BufferedImage.TYPE_INT_RGB else BufferedImage.TYPE_INT_ARGB)
+        val bi = BufferedImage(
+            targetWidth,
+            targetHeight,
+            if (src.transparency == Transparency.OPAQUE) BufferedImage.TYPE_INT_RGB else BufferedImage.TYPE_INT_ARGB
+        )
         val g2d = bi.createGraphics()
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR) //produces a balanced resizing (fast and decent quality)
+        g2d.setRenderingHint(
+            RenderingHints.KEY_INTERPOLATION,
+            RenderingHints.VALUE_INTERPOLATION_BILINEAR
+        ) //produces a balanced resizing (fast and decent quality)
         g2d.drawImage(src, 0, 0, targetWidth, targetHeight, null)
         g2d.dispose()
         return bi
     }
 
-    private fun getClassIterator(classLabel: String): Iterator<File>
-    {
+    private fun getClassIterator(classLabel: String): Iterator<File> {
         val classPath = Paths.get(rootPath, classLabel)
         val classIterator = File(classPath.toUri()).listFiles()?.iterator()
 
-        if(classIterator == null)
-        {
+        if (classIterator == null) {
             val exceptionString = String.format("Cannot get files for class: %s", classLabel)
             throw RuntimeException(exceptionString)
         }

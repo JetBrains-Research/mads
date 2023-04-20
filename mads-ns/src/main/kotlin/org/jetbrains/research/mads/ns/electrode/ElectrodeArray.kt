@@ -3,7 +3,7 @@ package org.jetbrains.research.mads.ns.electrode
 import org.jetbrains.research.mads.core.types.MechanismParameters
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.Response
-import org.jetbrains.research.mads.ns.data_provider.ImageProvider
+import org.jetbrains.research.mads.ns.ImageProvider
 import org.jetbrains.research.mads.ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads.ns.physiology.neurons.ProbabilisticSpikingSignals
 import java.util.*

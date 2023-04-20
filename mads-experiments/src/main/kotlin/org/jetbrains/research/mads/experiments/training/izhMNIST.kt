@@ -11,7 +11,6 @@ import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
 import org.jetbrains.research.mads.core.types.second
 import org.jetbrains.research.mads.ns.*
-import org.jetbrains.research.mads.ns.data_provider.MnistProvider
 import org.jetbrains.research.mads.ns.electrode.ElectrodeArray
 import org.jetbrains.research.mads.ns.electrode.ElectrodeMechanisms
 import org.jetbrains.research.mads.ns.electrode.PulseConstants
@@ -21,6 +20,7 @@ import org.jetbrains.research.mads.ns.pathways.synapsePathway
 import org.jetbrains.research.mads.ns.pathways.underThresholdAndSpiked
 import org.jetbrains.research.mads.ns.physiology.neurons.*
 import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
+import org.jetbrains.research.mads.providers.MnistProvider
 import java.nio.file.Paths
 import java.util.*
 import kotlin.io.path.Path

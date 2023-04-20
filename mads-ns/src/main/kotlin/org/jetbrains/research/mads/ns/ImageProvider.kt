@@ -1,4 +1,4 @@
-package org.jetbrains.research.mads.ns.data_provider
+package org.jetbrains.research.mads.ns
 
 import java.awt.image.BufferedImage
 
