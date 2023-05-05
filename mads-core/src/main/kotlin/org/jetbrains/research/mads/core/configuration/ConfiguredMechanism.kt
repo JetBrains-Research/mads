@@ -2,6 +2,7 @@ package org.jetbrains.research.mads.core.configuration
 
 import org.jetbrains.research.mads.core.types.*
 import kotlin.jvm.internal.CallableReference
+import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.findAnnotation
 
 data class ConfiguredMechanism<MO : ModelObject>(
@@ -19,11 +20,15 @@ class ConfiguredMechanismBuilder<MO : ModelObject>(private val mechanism: ((MO, 
     fun build() = ConfiguredMechanism(applyParametersToMechanism(mechanism, createParams()), duration, condition)
 
     private fun createParams() : MechanismParameters {
-        val annotation = (mechanism as CallableReference).findAnnotation<TimeResolutionAnnotation>()
-        val dt: Double = if (annotation != null)
-            pathwayResolution.toBigDecimal().multiply(duration.toBigDecimal()).divide(annotation.resolution.toBigDecimal()).toDouble()
+        val timeResolution = (mechanism as CallableReference).findAnnotation<TimeResolution>()
+        val constantType = (mechanism as CallableReference).findAnnotation<ConstantType>()
+        val dt: Double = if (timeResolution != null)
+            pathwayResolution.toBigDecimal().multiply(duration.toBigDecimal()).divide(timeResolution.resolution.toBigDecimal()).toDouble()
         else
             1.0
+
+        if (constantType != null && constants::class != constantType.type)
+            constants = constantType.type.createInstance() as MechanismConstants
 
         return MechanismParameters(constants, dt)
     }

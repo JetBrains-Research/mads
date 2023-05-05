@@ -16,11 +16,12 @@ fun synapsePathway() = pathway<Synapse> {
         duration = 1
         condition = {
             val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
-            currentSignals.I_e > 0.01 || currentSignals.I_e < -0.01
+            currentSignals.I_e != 0.0
+//            currentSignals.I_e > 0.01 || currentSignals.I_e < -0.01
         }
     }
-    mechanism(mechanism = SynapseMechanisms.STDUpdate) {
-        duration = 1
-    }
+//    mechanism(mechanism = SynapseMechanisms.STDUpdate) {
+//        duration = 1
+//    }
 }
 

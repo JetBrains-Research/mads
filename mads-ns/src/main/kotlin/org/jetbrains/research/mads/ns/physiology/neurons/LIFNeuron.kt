@@ -16,7 +16,7 @@ object LIFMechanisms {
 
 class LIFNeuron(spikeThreshold: Double, vararg signals: Signals) : Neuron(spikeThreshold, *signals)
 
-@TimeResolutionAnnotation(resolution = millisecond)
+@TimeResolution(resolution = millisecond)
 fun LIFNeuron.VDynamic(params: MechanismParameters): List<Response> {
     val s = this.signals[PotentialSignals::class] as PotentialSignals
     val i = this.signals[CurrentSignals::class] as CurrentSignals

@@ -151,8 +151,9 @@ fun runSimulation(
     val randomSeed = 12345L
     val logSignals = arrayListOf<KProperty<*>>(
         SpikesSignals::spiked,
-//        PotentialSignals::V,
-//        CurrentSignals::I_e
+    )
+    val logTypes = arrayListOf<String>(
+        "inhibitory"
     )
     println("Experiment start time $startTime")
 
@@ -160,6 +161,7 @@ fun runSimulation(
             "/${synWeightExc}-${synWeightInh}/${connected}")
     val saver = FileSaver(dir)
     logSignals.forEach { saver.addSignalsNames(it) }
+    logTypes.forEach { saver.addObjectTypes(it) }
 
     val r = Random(randomSeed)
 

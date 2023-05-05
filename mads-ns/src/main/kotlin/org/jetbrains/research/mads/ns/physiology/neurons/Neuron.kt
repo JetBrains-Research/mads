@@ -82,15 +82,17 @@ fun Neuron.spikeOff(params: MechanismParameters): List<Response> {
     )
 }
 
+@ConstantType(type = SpikeTransferConstants::class)
 fun Neuron.spikeTransfer(params: MechanismParameters): List<Response> {
     val result = arrayListOf<Response>()
+    val iTransfer = (params.constants as SpikeTransferConstants).I_transfer
 
     this.connections[SynapseReleaser]?.forEach {
         if (it is Synapse) {
             val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
             val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
             val receiverCurrentSignals = it.receiver.signals[CurrentSignals::class] as CurrentSignals
-            val delta = synapseSignals.weight * synapseSignals.synapseSign * (params.constants as SpikeTransferConstants).I_transfer // 100.0 – mA
+            val delta = synapseSignals.weight * synapseSignals.synapseSign * iTransfer // 100.0 – mA
             result.add(
                 it.createResponse {
                     currentSignals.I_e += delta

@@ -45,7 +45,7 @@ object IzhMechanisms {
 
 class IzhNeuron(val izhType: IzhConstants = IzhRS, vararg signals: Signals) : Neuron(izhType.V_thresh, IzhSignals(), *signals)
 
-@TimeResolutionAnnotation(resolution = millisecond)
+@TimeResolution(resolution = millisecond)
 fun IzhNeuron.VDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val izh = this.signals[IzhSignals::class] as IzhSignals
@@ -53,37 +53,27 @@ fun IzhNeuron.VDynamic(params: MechanismParameters): List<Response> {
     val consts = izhType
 
     val spiked = (u.V > consts.V_thresh)
-    val delta =
-        if (spiked) {
-            consts.c - u.V
-        } else {
-            params.dt * (0.04 * u.V.pow(2.0) + 5 * u.V + 140 - izh.U + i.I_e * izhType.k)
-//            (0.04 * u.V.pow(2.0) + 5 * u.V + 140 - izh.U + i.I_e * izhType.k)
-        }
+    val delta = if (spiked) consts.c - u.V
+                else params.dt * (0.04 * u.V.pow(2.0) + 5 * u.V + 140 - izh.U + i.I_e * izhType.k)
 
-    return arrayListOf(
+    return listOf(
         this.createResponse {
             u.V += delta
         }
     )
 }
 
-@TimeResolutionAnnotation(resolution = millisecond)
+@TimeResolution(resolution = millisecond)
 fun IzhNeuron.UDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val izh = this.signals[IzhSignals::class] as IzhSignals
     val consts = izhType
 
     val spiked = (u.V > consts.V_thresh)
-    val delta =
-        if (spiked) {
-            consts.d
-        } else {
-            params.dt * (consts.a * (consts.b * u.V - izh.U))
-//            params.dt * (consts.a * (consts.b * u.V - izh.U))
-        }
+    val delta = if (spiked) consts.d
+                else params.dt * (consts.a * (consts.b * u.V - izh.U))
 
-    return arrayListOf(
+    return listOf(
         this.createResponse {
             izh.U += delta
         }

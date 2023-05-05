@@ -3,12 +3,15 @@ package org.jetbrains.research.mads.ns.physiology.synapses
 import org.jetbrains.research.mads.core.types.*
 import org.jetbrains.research.mads.ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads.ns.physiology.neurons.STDPSignals
+import kotlin.math.abs
 
 object SynapseReleaser: ConnectionType
 
 object SynapseReceiver: ConnectionType
 
 class WeightDecayConstants(val weightDecayCoefficient: Double = 0.99) : MechanismConstants
+
+class SynapseCurrentDecayConstants(val zeroingLimit: Double = 0.001, val decayMultiplier: Double = 0.5) : MechanismConstants
 
 class Synapse(
     var releaser: ModelObject,
@@ -52,11 +55,20 @@ fun Synapse.weightDecayMechanism(params: MechanismParameters): List<Response> {
     )
 }
 
-@TimeResolutionAnnotation(resolution = millisecond)
+@TimeResolution(resolution = millisecond)
+@ConstantType(type = SynapseCurrentDecayConstants::class)
 fun Synapse.currentDecay(params: MechanismParameters): List<Response> {
     val currentSignals = this.signals[CurrentSignals::class] as CurrentSignals
     val receiverCurrentSignals = this.receiver.signals[CurrentSignals::class] as CurrentSignals
-    val delta = -((currentSignals.I_e / 2) * params.dt)
+    val zeroingLimit = (params.constants as SynapseCurrentDecayConstants).zeroingLimit
+    val decayMultiplier = (params.constants as SynapseCurrentDecayConstants).decayMultiplier
+
+    val delta =
+        if (abs(currentSignals.I_e) <= zeroingLimit) {
+            -currentSignals.I_e
+        } else {
+            -decayMultiplier * currentSignals.I_e * params.dt
+        }
 
     return arrayListOf(
         this.createResponse {

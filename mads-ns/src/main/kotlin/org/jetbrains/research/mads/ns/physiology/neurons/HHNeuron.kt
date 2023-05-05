@@ -38,7 +38,7 @@ object HHMechanisms {
 
 class HHNeuron(spikeThreshold: Double, vararg signals: Signals) : Neuron(spikeThreshold, *signals)
 
-@TimeResolutionAnnotation(resolution = millisecond)
+@TimeResolution(resolution = millisecond)
 fun HHNeuron.VDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val s = this.signals[HHSignals::class] as HHSignals
@@ -57,7 +57,7 @@ fun HHNeuron.VDynamic(params: MechanismParameters): List<Response> {
     )
 }
 
-@TimeResolutionAnnotation(resolution = millisecond)
+@TimeResolution(resolution = millisecond)
 fun HHNeuron.NDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val s = this.signals[HHSignals::class] as HHSignals
@@ -74,7 +74,7 @@ fun HHNeuron.NDynamic(params: MechanismParameters): List<Response> {
     )
 }
 
-@TimeResolutionAnnotation(resolution = millisecond)
+@TimeResolution(resolution = millisecond)
 fun HHNeuron.MDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val s = this.signals[HHSignals::class] as HHSignals
@@ -91,7 +91,7 @@ fun HHNeuron.MDynamic(params: MechanismParameters): List<Response> {
     )
 }
 
-@TimeResolutionAnnotation(resolution = millisecond)
+@TimeResolution(resolution = millisecond)
 fun HHNeuron.HDynamic(params: MechanismParameters): List<Response> {
     val u = this.signals[PotentialSignals::class] as PotentialSignals
     val s = this.signals[HHSignals::class] as HHSignals

@@ -122,10 +122,6 @@ fun customIzhPathway() = pathway<IzhNeuron> {
         duration = 500
         condition = Always
     }
-//    mechanism(mechanism = NeuronMechanisms.IDynamic) {
-//        duration = 1000
-//        condition = Always
-//    }
     mechanism(mechanism = NeuronMechanisms.SpikeOn) {
         duration = 1
         condition = { overThresholdAndNotSpiked(it) }
@@ -139,8 +135,4 @@ fun customIzhPathway() = pathway<IzhNeuron> {
         condition = { overThresholdAndNotSpiked(it) }
         constants = SpikeTransferConstants(I_transfer = 1.0)
     }
-//    mechanism(mechanism = NeuronMechanisms.SpikeDecay) {
-//        duration = 500
-//        constants = SpikeTransferConstants(I_transfer = 1.0)
-//    }
 }
