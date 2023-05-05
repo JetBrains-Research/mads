@@ -6,6 +6,7 @@ import kotlin.reflect.KProperty
 
 object EmptySaver : Saver {
     override fun addSignalsNames(signal: KProperty<*>) { }
+    override fun addObjectTypes(type: String) { }
     override fun logChangedState(tick: Long, obj: ModelObject) { }
     override fun logState(model: Model) { }
 }

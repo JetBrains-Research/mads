@@ -13,6 +13,9 @@ class FileSaver(dir: Path, bufferSize: Int = 64 * 1024) : Saver {
     private val modelStateWriter: JsonModelExporter
 
     private val sigSet = mutableSetOf<String>()
+    private val typeSet = mutableSetOf<String>()
+
+    private var typeSpecified = false
 
     init {
         mkdirs(dir)
@@ -33,7 +36,14 @@ class FileSaver(dir: Path, bufferSize: Int = 64 * 1024) : Saver {
         sigSet.add("${signal.javaField?.declaringClass?.simpleName}.${signal.name}")
     }
 
+    override fun addObjectTypes(type: String) {
+        typeSpecified = true
+        typeSet.add(type)
+    }
+
     override fun logChangedState(tick: Long, obj: ModelObject) {
+        if (typeSpecified && !typeSet.contains(obj.type)) return
+
         val signals = obj.getChangedSignals()
         val objects = obj.getChangedObjects()
         val id = obj.hashCode().toString()
