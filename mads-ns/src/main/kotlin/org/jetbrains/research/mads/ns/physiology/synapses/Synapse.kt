@@ -70,7 +70,7 @@ fun Synapse.currentDecay(params: MechanismParameters): List<Response> {
             -decayMultiplier * currentSignals.I_e * params.dt
         }
 
-    return arrayListOf(
+    return listOf(
         this.createResponse {
             currentSignals.I_e += delta
         },

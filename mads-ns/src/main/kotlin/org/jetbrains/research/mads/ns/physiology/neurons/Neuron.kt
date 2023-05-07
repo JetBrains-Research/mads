@@ -15,6 +15,9 @@ abstract class Neuron(
 class SpikesSignals(spikeThreshold: Double) : Signals() {
     var spiked: Boolean by observable(false)
     var spikeThreshold: Double by observable(spikeThreshold)
+
+    var spikeCounterTemp = 0
+    var spikeCounter: Int by observable(0)
 }
 
 class STDPSignals : Signals() {
@@ -40,6 +43,7 @@ object NeuronMechanisms {
     val SpikeTransfer = Neuron::spikeTransfer
     val STDPSpike = Neuron::STDPSpike
     val STDPDecay = Neuron::STDPDecay
+    val UpdateSpikeCounter = Neuron::updateSpikeCounter
 }
 
 fun Neuron.STDPDecay(params: MechanismParameters): List<Response> {
@@ -68,6 +72,7 @@ fun Neuron.spikeOn(params: MechanismParameters): List<Response> {
     return arrayListOf(
         this.createResponse {
             spikesSignals.spiked = true
+            spikesSignals.spikeCounterTemp += 1
         }
     )
 }
@@ -92,7 +97,7 @@ fun Neuron.spikeTransfer(params: MechanismParameters): List<Response> {
             val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
             val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
             val receiverCurrentSignals = it.receiver.signals[CurrentSignals::class] as CurrentSignals
-            val delta = synapseSignals.weight * synapseSignals.synapseSign * iTransfer // 100.0 – mA
+            val delta = synapseSignals.weight * synapseSignals.synapseSign * iTransfer
             result.add(
                 it.createResponse {
                     currentSignals.I_e += delta
@@ -107,4 +112,19 @@ fun Neuron.spikeTransfer(params: MechanismParameters): List<Response> {
     }
 
     return result
+}
+
+fun Neuron.updateSpikeCounter(params: MechanismParameters): List<Response> {
+    val spikesSignals = this.signals[SpikesSignals::class] as SpikesSignals
+    return if (spikesSignals.spikeCounterTemp > 0) {
+        val newSpikesCount = spikesSignals.spikeCounterTemp
+
+        listOf(
+            this.createResponse {
+                spikesSignals.spikeCounter = newSpikesCount
+                spikesSignals.spikeCounterTemp = 0
+            }
+        )
+    } else
+        EmptyResponseList
 }

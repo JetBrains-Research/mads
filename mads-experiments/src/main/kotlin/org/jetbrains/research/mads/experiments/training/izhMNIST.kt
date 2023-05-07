@@ -52,13 +52,18 @@ fun learningExperimentIzh(logFolder: String, excNeuronFun: () -> Neuron, inhNeur
     val saver = FileSaver(dir)
 
     val logSignals = arrayListOf<KProperty<*>>(
-            SpikesSignals::spiked,
+//            SpikesSignals::spiked,
+            SpikesSignals::spikeCounter
 //            SynapseSignals::weight,
 //            STDPSignals::stdpTrace,
 //            PotentialSignals::V,
 //            CurrentSignals::I_e
     )
+    val logTypes = arrayListOf<String>(
+        "secondLayer"
+    )
     logSignals.forEach { saver.addSignalsNames(it) }
+    logTypes.forEach { saver.addObjectTypes(it) }
 
     val nExc = 64
 
@@ -134,5 +139,9 @@ fun izhPathway() = pathway<IzhNeuron> {
 
     mechanism(mechanism = NeuronMechanisms.STDPDecay) {
         duration = 1000
+    }
+
+    mechanism(mechanism = NeuronMechanisms.UpdateSpikeCounter) {
+        duration = 250_000
     }
 }
