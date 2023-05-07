@@ -2,6 +2,7 @@ package org.jetbrains.research.mads.core.desd
 
 import org.jetbrains.research.mads.core.types.Response
 import java.util.*
+import kotlin.system.exitProcess
 
 typealias ProcessState = () -> List<Response>
 
@@ -23,6 +24,11 @@ class ModelEvent(
     private var postponeTime: Long
     private var eventState: EventState
 
+    private val exceptionHandler = Thread.UncaughtExceptionHandler { _, throwable ->
+        println("\nException: ${throwable.message}")
+        exitProcess(1)
+    }
+
     private val stateProcessorMap: EnumMap<EventState, ProcessState> =
         EnumMap<EventState, ProcessState>(
             mapOf<EventState, ProcessState>(
@@ -43,7 +49,16 @@ class ModelEvent(
     fun getEventTime(): Long = eventTime
 
     fun executeEvent(): List<Response> {
-        return stateProcessorMap[eventState]!!.invoke()
+        val result: List<Response>
+
+        try {
+            Thread.setDefaultUncaughtExceptionHandler(exceptionHandler)
+            result = stateProcessorMap[eventState]!!.invoke()
+        } finally {
+            Thread.setDefaultUncaughtExceptionHandler(Thread.getDefaultUncaughtExceptionHandler())
+        }
+
+        return result
     }
 
     fun updateTime(tick: Long): Boolean {
