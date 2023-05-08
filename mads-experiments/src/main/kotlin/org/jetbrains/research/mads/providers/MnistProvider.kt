@@ -14,6 +14,9 @@ class MnistProvider(rootPath: String, targetClasses: List<String>, isRandom: Boo
     private var classFileMaps: HashMap<String, Iterator<File>> = HashMap()
     private val classIterator = LoopingIterator(classFileMaps.keys)
 
+    var imageIndex: Int = 0
+        private set
+
     init {
         targetClasses.forEach {
             val classWalker = getClassIterator(it)
@@ -32,6 +35,7 @@ class MnistProvider(rootPath: String, targetClasses: List<String>, isRandom: Boo
         val imagePath = imagePathIterator?.next()
 
         val img = ImageIO.read(File(imagePath!!.toURI()))
+        imageIndex++
 
 
 //        return resize(img, 10)

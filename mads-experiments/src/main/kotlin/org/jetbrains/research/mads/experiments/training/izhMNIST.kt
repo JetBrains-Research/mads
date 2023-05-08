@@ -9,7 +9,6 @@ import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
-import org.jetbrains.research.mads.core.types.second
 import org.jetbrains.research.mads.ns.*
 import org.jetbrains.research.mads.ns.electrode.ElectrodeArray
 import org.jetbrains.research.mads.ns.electrode.ElectrodeMechanisms
@@ -30,7 +29,7 @@ import kotlin.reflect.KProperty
 
 fun main() {
     val startTime = System.currentTimeMillis()
-    val modelingTime = 1 * second  // approx 200 samples
+    val trainSize = 20 // per class
     println("Experiment start time $startTime")
 
     learningExperimentIzh(
@@ -43,23 +42,24 @@ fun main() {
             addPathway(synapsePathway())
             addPathway(electrodeArrayPathway())
             addPathway(izhPathway())
-        }, modelingTime
+        }, trainSize
     )
 }
 
-fun learningExperimentIzh(logFolder: String, excNeuronFun: () -> Neuron, inhNeuronFun: () -> Neuron, config: Configuration, time: Double) {
+fun learningExperimentIzh(
+    logFolder: String,
+    excNeuronFun: () -> Neuron,
+    inhNeuronFun: () -> Neuron,
+    config: Configuration,
+    trainSize: Int
+) {
     val dir = Path("log/learningExcMnist/${logFolder}")
     val saver = FileSaver(dir)
 
-    val logSignals = arrayListOf<KProperty<*>>(
-//            SpikesSignals::spiked,
+    val logSignals = listOf<KProperty<*>>(
             SpikesSignals::spikeCounter
-//            SynapseSignals::weight,
-//            STDPSignals::stdpTrace,
-//            PotentialSignals::V,
-//            CurrentSignals::I_e
     )
-    val logTypes = arrayListOf<String>(
+    val logTypes = listOf(
         "secondLayer"
     )
     logSignals.forEach { saver.addSignalsNames(it) }
@@ -95,8 +95,8 @@ fun learningExperimentIzh(logFolder: String, excNeuronFun: () -> Neuron, inhNeur
     objects.addAll(synapses3to2)
 
     val s = Model(objects, config)
-    val stopTime = (time.toBigDecimal() / config.timeResolution.toBigDecimal()).toLong()
-    s?.simulate(saver) { it.currentTime() > stopTime }
+    val totalTrainingSize = trainSize * targetClasses.size
+    s?.simulate(saver) { provider.imageIndex >= totalTrainingSize }
     saver.closeModelWriters()
 }
 
@@ -136,11 +136,9 @@ fun izhPathway() = pathway<IzhNeuron> {
         duration = 1
         condition = { overThresholdAndNotSpiked(it) }
     }
-
     mechanism(mechanism = NeuronMechanisms.STDPDecay) {
         duration = 1000
     }
-
     mechanism(mechanism = NeuronMechanisms.UpdateSpikeCounter) {
         duration = 250_000
     }
