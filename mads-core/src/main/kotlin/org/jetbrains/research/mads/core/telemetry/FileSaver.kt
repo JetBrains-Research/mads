@@ -53,7 +53,9 @@ class FileSaver(dir: Path, bufferSize: Int = 64 * 1024) : Saver {
     }
 
     override fun logState(model: Model) {
+        print("Saving state... ")
         modelStateWriter.write(model)
+        println("done")
     }
 
     fun closeModelWriters() {
