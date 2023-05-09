@@ -79,11 +79,19 @@ class Model private constructor(
         val totalModelingTime = configuration.timeResolution.toBigDecimal().multiply(lastStep.toBigDecimal()).toDouble()
         println("Total of $totalModelingTime seconds were simulated")
         configuration = Configuration()
-        println("Configuration was unload for every ModelObject\n")
+        println("Configuration was unload from model")
+        clearEvents()
+        println("Events were cleared in each object\n")
     }
 
     fun currentTime(): Long {
         return dispatcher.peekHead()
+    }
+
+    private fun clearEvents() {
+        getChildObjects().forEach {
+            it.events.clear()
+        }
     }
 
     companion object {

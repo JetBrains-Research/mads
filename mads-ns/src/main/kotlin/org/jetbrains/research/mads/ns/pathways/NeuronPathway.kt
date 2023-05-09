@@ -42,3 +42,9 @@ fun underThresholdAndSpiked(neuron: Neuron) : Boolean {
 
     return potentialSignals.V < spikesSignals.spikeThreshold && spikesSignals.spiked
 }
+
+fun spiked(neuron: Neuron) : Boolean {
+    val spikesSignals = neuron.signals[SpikesSignals::class] as SpikesSignals
+
+    return spikesSignals.spiked
+}
