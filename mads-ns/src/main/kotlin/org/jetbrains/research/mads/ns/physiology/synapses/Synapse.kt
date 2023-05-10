@@ -103,3 +103,15 @@ fun Synapse.STDPWeightUpdateMechanism(params: MechanismParameters): List<Respons
         }
     )
 }
+
+//fun Neuron.tripletStdpWeightUpdateRule(params: MechanismParameters): List<Response> {
+//    val synapseSignals = this.signals[SynapseSignals::class] as SynapseSignals
+//    val stdpSignals = this.signals[STDPTripletSignals::class] as STDPTripletSignals
+//
+//    val newWeight = (synapseSignals.weight + 0.0001 * stdpSignals.stdpTracePost1).coerceIn(0.0, 1.0)
+//
+//    result.add(it.createResponse {
+//        synapseSignals.weight = newWeight
+//        stdpSignals.stdpTracePre = 1.0
+//    })
+//}

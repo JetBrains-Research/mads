@@ -48,15 +48,15 @@ fun mnist3Phase() {
     ) { provider.imageIndex >= trainSize }
     learningPhase(
         logFolder = "assign/${startTime}",
-        listOf<KProperty<*>>(SpikesSignals::spikeCounter),
-        listOf("secondLayer"),
+        listOf(SpikesSignals::spikeCounter, CurrentStimuli::stimuli),
+        listOf("inputLayer", "secondLayer"),
         topology,
         testPhaseConfig()
     ) { provider.imageIndex >= trainSize + assignSize }
     learningPhase(
         logFolder = "test/${startTime}",
-        listOf<KProperty<*>>(SpikesSignals::spikeCounter),
-        listOf("secondLayer"),
+        listOf(SpikesSignals::spikeCounter, CurrentStimuli::stimuli),
+        listOf("inputLayer", "secondLayer"),
         topology,
         testPhaseConfig()
     ) { provider.imageIndex >= trainSize + assignSize + testSize }

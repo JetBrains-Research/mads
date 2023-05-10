@@ -1,10 +1,12 @@
 package org.jetbrains.research.mads.experiments.training
 
 import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.ns.*
-import org.jetbrains.research.mads.ns.electrode.ElectrodeArray
+import org.jetbrains.research.mads.ns.connectPopulations
+import org.jetbrains.research.mads.ns.connectPopulationsInhibition
+import org.jetbrains.research.mads.ns.connectPopulationsOneToOne
+import org.jetbrains.research.mads.ns.createPopulation
+import org.jetbrains.research.mads.ns.physiology.neurons.InputNeuron2DGrid
 import org.jetbrains.research.mads.ns.physiology.neurons.Neuron
-import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
 import org.jetbrains.research.mads.providers.MnistProvider
 import java.util.*
 import kotlin.math.sqrt
@@ -15,27 +17,23 @@ fun mnistTopology(
     inhNeuronFun: () -> Neuron,
     nExc: Int
 ): List<ModelObject> {
-    val electrodesArray = ElectrodeArray(provider, 10.0)
-    val firstLayer: List<Neuron> = createPopulation(electrodesArray.capacity(), "firstLayer", excNeuronFun)
+    val inputNeuron2DGrid = InputNeuron2DGrid(provider, 10.0)
+    inputNeuron2DGrid.type = "inputLayer"
     val secondLayer: List<Neuron> = createPopulation(nExc, "secondLayer", excNeuronFun)
     val thirdLayer: List<Neuron> = createPopulation(nExc, "thirdLayer", inhNeuronFun)
 
-    connectElectrodeArray(electrodesArray, firstLayer)
-
     val rnd = Random(42L)
 
-    val synapses: List<Synapse> = connectPopulations(firstLayer, secondLayer) { sqrt(rnd.nextDouble() * 9) }
-    val synapses2to3: List<Synapse> = connectPopulationsOneToOne(secondLayer, thirdLayer) { sqrt(rnd.nextDouble() * 9) }
-    val synapses3to2: List<Synapse> =
-        connectPopulationsInhibition(thirdLayer, secondLayer) { sqrt(rnd.nextDouble() * 9) }
+    val synapses1to2 = connectPopulations(inputNeuron2DGrid.getNeurons(), secondLayer) { sqrt(rnd.nextDouble() * 9) }
+    val synapses2to3 = connectPopulationsOneToOne(secondLayer, thirdLayer) { sqrt(rnd.nextDouble() * 9) }
+    val synapses3to2 = connectPopulationsInhibition(thirdLayer, secondLayer) { sqrt(rnd.nextDouble() * 9) }
 
     val objects: ArrayList<ModelObject> = arrayListOf()
-    objects.add(electrodesArray)
-    objects.addAll(electrodesArray.getChildElectrodes())
-    objects.addAll(firstLayer)
+    objects.add(inputNeuron2DGrid)
+    objects.addAll(inputNeuron2DGrid.getNeurons())
     objects.addAll(secondLayer)
     objects.addAll(thirdLayer)
-    objects.addAll(synapses)
+    objects.addAll(synapses1to2)
     objects.addAll(synapses2to3)
     objects.addAll(synapses3to2)
 

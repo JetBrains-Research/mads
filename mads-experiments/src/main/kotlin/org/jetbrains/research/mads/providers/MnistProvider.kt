@@ -17,6 +17,8 @@ class MnistProvider(rootPath: String, targetClasses: List<String>, isRandom: Boo
     var imageIndex: Int = 0
         private set
 
+    private var imageName: String = ""
+
     init {
         targetClasses.forEach {
             val classWalker = getClassIterator(it)
@@ -36,10 +38,14 @@ class MnistProvider(rootPath: String, targetClasses: List<String>, isRandom: Boo
 
         val img = ImageIO.read(File(imagePath!!.toURI()))
         imageIndex++
-
+        imageName = currentClass
 
 //        return resize(img, 10)
         return img
+    }
+
+    override fun getImageName(): String {
+        return imageName
     }
 
     private fun resize(src: BufferedImage, targetSize: Int): BufferedImage {

@@ -5,7 +5,6 @@ import org.jetbrains.research.mads.core.configuration.configure
 import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
-import org.jetbrains.research.mads.ns.electrode.*
 import org.jetbrains.research.mads.ns.pathways.spiked
 import org.jetbrains.research.mads.ns.physiology.neurons.*
 import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
@@ -15,12 +14,36 @@ import org.jetbrains.research.mads.ns.physiology.synapses.WeightDecayConstants
 
 fun trainPhaseConfig() = configure {
     timeResolution = microsecond
-    addPathway(pathway<Electrode> {
+    addPathway(pathway<InputNeuron2DGrid> {
         timeResolution = millisecond
-        mechanism(mechanism = ElectrodeMechanisms.PulseDynamic) {
+        mechanism(mechanism = InputNeuron2DGridMechanisms.GenerateStimuliSpikes) {
+            duration = 500
+            constants = InputNeuronSpikeRateConstants(35.0)
+        }
+    })
+    addPathway(pathway<InputNeuron> {
+        timeResolution = millisecond
+        mechanism(mechanism = InputNeuronMechanisms.ProbabilisticSpike) {
             duration = 10
-            condition = Always
-            constants = PulseConstants()
+        }
+        mechanism(mechanism = InputNeuronMechanisms.Silent) {
+            duration = 350
+        }
+        mechanism(mechanism = NeuronMechanisms.SpikeOff) {
+            duration = 1
+            condition = { spiked(it) }
+        }
+        mechanism(mechanism = NeuronMechanisms.SpikeTransfer) {
+            duration = 1
+            condition = { spiked(it) }
+            constants = SpikeTransferConstants(I_transfer = 1.0)
+        }
+        mechanism(mechanism = NeuronMechanisms.STDPSpike) {
+            duration = 1
+            condition = { spiked(it) }
+        }
+        mechanism(mechanism = NeuronMechanisms.STDPDecay) {
+            duration = 1000
         }
     })
     addPathway(pathway<Synapse> {
@@ -41,13 +64,6 @@ fun trainPhaseConfig() = configure {
             duration = 10
         }
     })
-    addPathway(pathway<ElectrodeArray> {
-        timeResolution = millisecond
-        mechanism(mechanism = ElectrodeArrayMechanisms.StimuliDynamic) {
-            duration = 250
-            condition = Always
-        }
-    })
     addPathway(pathway<IzhNeuron> {
         timeResolution = microsecond
         mechanism(mechanism = IzhMechanisms.Dynamic) {
@@ -71,19 +87,43 @@ fun trainPhaseConfig() = configure {
             duration = 1000
         }
         mechanism(mechanism = NeuronMechanisms.UpdateSpikeCounter) {
-            duration = 250_000
+            duration = 500_000
         }
     })
 }
 
 fun testPhaseConfig() = configure {
     timeResolution = microsecond
-    addPathway(pathway<Electrode> {
+    addPathway(pathway<InputNeuron2DGrid> {
         timeResolution = millisecond
-        mechanism(mechanism = ElectrodeMechanisms.PulseDynamic) {
+        mechanism(mechanism = InputNeuron2DGridMechanisms.GenerateStimuliSpikes) {
+            duration = 500
+            constants = InputNeuronSpikeRateConstants(35.0)
+        }
+    })
+    addPathway(pathway<InputNeuron> {
+        timeResolution = millisecond
+        mechanism(mechanism = InputNeuronMechanisms.ProbabilisticSpike) {
             duration = 10
-            condition = Always
-            constants = PulseConstants()
+        }
+        mechanism(mechanism = InputNeuronMechanisms.Silent) {
+            duration = 350
+        }
+        mechanism(mechanism = NeuronMechanisms.SpikeOff) {
+            duration = 1
+            condition = { spiked(it) }
+        }
+        mechanism(mechanism = NeuronMechanisms.SpikeTransfer) {
+            duration = 1
+            condition = { spiked(it) }
+            constants = SpikeTransferConstants(I_transfer = 1.0)
+        }
+        mechanism(mechanism = NeuronMechanisms.STDPSpike) {
+            duration = 1
+            condition = { spiked(it) }
+        }
+        mechanism(mechanism = NeuronMechanisms.STDPDecay) {
+            duration = 1000
         }
     })
     addPathway(pathway<Synapse> {
@@ -97,13 +137,6 @@ fun testPhaseConfig() = configure {
             constants = SynapseCurrentDecayConstants()
         }
     })
-    addPathway(pathway<ElectrodeArray> {
-        timeResolution = millisecond
-        mechanism(mechanism = ElectrodeArrayMechanisms.StimuliDynamic) {
-            duration = 250
-            condition = Always
-        }
-    })
     addPathway(pathway<IzhNeuron> {
         timeResolution = microsecond
         mechanism(mechanism = IzhMechanisms.Dynamic) {
@@ -127,7 +160,7 @@ fun testPhaseConfig() = configure {
             duration = 1000
         }
         mechanism(mechanism = NeuronMechanisms.UpdateSpikeCounter) {
-            duration = 250_000
+            duration = 500_000
         }
     })
 }
