@@ -81,11 +81,11 @@ fun InputNeuron2DGrid.GenerateStimuliSpikes(params: MechanismParameters): List<R
         for (j in 0 until provider.height) {
             val grayScaled = (img.getRGB(i, j) and 0xFF) / 255.0
             val numberOfSpikes = this.transformPixelToSpikes(grayScaled)
-            val electrode = getNeuron(i, j)
-            val spikes = electrode.signals[ProbabilisticSpikingSignals::class] as ProbabilisticSpikingSignals
+            val inputNeuron = getNeuron(i, j)
+            val spikes = inputNeuron.signals[ProbabilisticSpikingSignals::class] as ProbabilisticSpikingSignals
 
             responses.add(
-                this.createResponse {
+                inputNeuron.createResponse {
                     spikes.spikeProbability = numberOfSpikes / rate
                     spikes.silent = false
                 }
