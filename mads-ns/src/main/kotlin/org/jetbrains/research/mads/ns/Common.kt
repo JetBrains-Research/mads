@@ -1,17 +1,20 @@
 package org.jetbrains.research.mads.ns
 
 import org.jetbrains.research.mads.core.types.ModelObject
+import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads.ns.electrode.Electrode
 import org.jetbrains.research.mads.ns.electrode.ElectrodeArray
 import org.jetbrains.research.mads.ns.pathways.connectToCell
 import org.jetbrains.research.mads.ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads.ns.physiology.neurons.Neuron
+import org.jetbrains.research.mads.ns.physiology.neurons.STDPTripletSignals
 import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseReceiver
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseReleaser
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
+import java.util.*
 
-fun createPopulation(capacity: Int, type: String, neuronFun: () -> Neuron) : List<Neuron> {
+fun createPopulation(capacity: Int, type: String, neuronFun: () -> Neuron): List<Neuron> {
     val population: ArrayList<Neuron> = arrayListOf()
     for (i in 0 until capacity) {
         val neuron = neuronFun()
@@ -22,10 +25,10 @@ fun createPopulation(capacity: Int, type: String, neuronFun: () -> Neuron) : Lis
     return population
 }
 
-fun connectElectrodes(population: List<Neuron>, electrodeFn: (Long) -> Electrode) : List<Electrode> {
+fun connectElectrodes(population: List<Neuron>, electrodeFn: (Long) -> Electrode): List<Electrode> {
     val electrodes: ArrayList<Electrode> = arrayListOf()
     for (i in population.indices) {
-        val electrode : Electrode = electrodeFn(12345L + i)
+        val electrode: Electrode = electrodeFn(12345L + i)
         electrode.connectToCell(population[i])
         electrodes.add(electrode)
     }
@@ -50,26 +53,40 @@ fun connectCellsWithSynapse(
     receiver: ModelObject,
     inhibitory: Boolean,
     currentSignals: CurrentSignals,
-    synapseSignals: SynapseSignals
+    synapseSignals: SynapseSignals,
+    vararg signals: Signals
 ): Synapse {
-    val synapse = Synapse(releaser, receiver, inhibitory, currentSignals, synapseSignals)
+    val synapse = Synapse(releaser, receiver, inhibitory, currentSignals, synapseSignals, *signals)
     receiver.addConnection(synapse, SynapseReceiver)
     releaser.addConnection(synapse, SynapseReleaser)
 
     return synapse
 }
 
-fun connectPopulations(source: List<Neuron>, destination: List<Neuron>, weight: () -> Double = { 1.0 }) : List<Synapse> {
+fun connectPopulations(
+    source: List<Neuron>,
+    destination: List<Neuron>,
+    weight: () -> Double = { 1.0 },
+    delay: () -> Int = { 1 },
+    probability: Double = 1.0,
+    rnd: Random = Random(42L)
+): List<Synapse> {
     val synapses: ArrayList<Synapse> = arrayListOf()
 
-    for(i in source.indices) {
+    for (i in source.indices) {
         for (j in destination.indices) {
+
+            if (rnd.nextDouble() > probability) {
+                continue
+            }
+
             val syn = connectCellsWithSynapse(
                 source[i],
                 destination[j],
                 false,
                 CurrentSignals(0.0),
-                SynapseSignals(weight = weight())
+                SynapseSignals(weight = weight(), delay = delay(), maxWeight = 1.0),
+                STDPTripletSignals()
             )
             synapses.add(syn)
         }
@@ -78,13 +95,17 @@ fun connectPopulations(source: List<Neuron>, destination: List<Neuron>, weight: 
     return synapses
 }
 
-fun connectPopulationsInhibition(source: List<Neuron>, destination: List<Neuron>, weight: () -> Double = { 1.0 }) : List<Synapse> {
+fun connectPopulationsInhibition(
+    source: List<Neuron>,
+    destination: List<Neuron>,
+    weight: () -> Double = { 1.0 },
+    delay: () -> Int = { 0 }
+): List<Synapse> {
     val synapses: ArrayList<Synapse> = arrayListOf()
 
-    for(i in source.indices) {
+    for (i in source.indices) {
         for (j in destination.indices) {
-            if(i == j)
-            {
+            if (i == j) {
                 continue
             }
             val syn = connectCellsWithSynapse(
@@ -92,7 +113,8 @@ fun connectPopulationsInhibition(source: List<Neuron>, destination: List<Neuron>
                 destination[j],
                 true,
                 CurrentSignals(0.0),
-                SynapseSignals(weight = weight())
+                SynapseSignals(weight = weight(), delay = delay(), maxWeight = 1.0, learningEnabled = false),
+                STDPTripletSignals()
             )
             synapses.add(syn)
         }
@@ -101,16 +123,22 @@ fun connectPopulationsInhibition(source: List<Neuron>, destination: List<Neuron>
     return synapses
 }
 
-fun connectPopulationsOneToOne(source: List<Neuron>, destination: List<Neuron>, weight: () -> Double = { 1.0 }) : List<Synapse> {
+fun connectPopulationsOneToOne(
+    source: List<Neuron>,
+    destination: List<Neuron>,
+    weight: () -> Double = { 1.0 },
+    delay: () -> Int = { 0 }
+): List<Synapse> {
     val synapses: ArrayList<Synapse> = arrayListOf()
 
-    for(i in source.indices) {
+    for (i in source.indices) {
         val syn = connectCellsWithSynapse(
             source[i],
             destination[i],
             false,
             CurrentSignals(0.0),
-            SynapseSignals(weight = weight())
+            SynapseSignals(weight = weight(), delay = delay(), maxWeight = 4.0, learningEnabled = false),
+            STDPTripletSignals()
         )
         synapses.add(syn)
     }

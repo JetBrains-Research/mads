@@ -9,7 +9,6 @@ import org.jetbrains.research.mads.ns.physiology.neurons.InputNeuron2DGrid
 import org.jetbrains.research.mads.ns.physiology.neurons.Neuron
 import org.jetbrains.research.mads.providers.MnistProvider
 import java.util.*
-import kotlin.math.sqrt
 
 fun mnistTopology(
     provider: MnistProvider,
@@ -24,9 +23,11 @@ fun mnistTopology(
 
     val rnd = Random(42L)
 
-    val synapses1to2 = connectPopulations(inputNeuron2DGrid.getNeurons(), secondLayer) { sqrt(rnd.nextDouble() * 9) }
-    val synapses2to3 = connectPopulationsOneToOne(secondLayer, thirdLayer) { sqrt(rnd.nextDouble() * 9) }
-    val synapses3to2 = connectPopulationsInhibition(thirdLayer, secondLayer) { sqrt(rnd.nextDouble() * 9) }
+    val synapses1to2 =
+        connectPopulations(inputNeuron2DGrid.getNeurons(), secondLayer, probability = 1.0, rnd = rnd,
+            weight = { rnd.nextDouble() / 2 }, delay = { rnd.nextInt(100) })
+    val synapses2to3 = connectPopulationsOneToOne(secondLayer, thirdLayer, weight = { 5.0 }, delay = { 0 })
+    val synapses3to2 = connectPopulationsInhibition(thirdLayer, secondLayer, weight = { 5.0 }, delay = { 0 })
 
     val objects: ArrayList<ModelObject> = arrayListOf()
     objects.add(inputNeuron2DGrid)

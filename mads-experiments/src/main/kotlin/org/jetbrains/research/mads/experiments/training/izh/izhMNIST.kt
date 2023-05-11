@@ -29,8 +29,8 @@ fun mnist3Phase() {
     val provider = MnistProvider(dataDir.absolutePathString(), targetClasses)
     val topology = mnistTopology(
         provider,
-        { -> IzhNeuron(IzhRS, STDPSignals()) },
-        { -> IzhNeuron(IzhFS, STDPSignals()) },
+        { -> IzhNeuron(IzhRS, adaptiveThreshold = true, weightNormalizationEnabled = true) },
+        { -> IzhNeuron(IzhFS, adaptiveThreshold = false, weightNormalizationEnabled = false) },
         nExc
     )
 
@@ -41,14 +41,14 @@ fun mnist3Phase() {
 
     learningPhase(
         logFolder = "train/${startTime}",
-        listOf(),
+        listOf(SpikesSignals::spikeCounter),
         listOf(),
         topology,
         trainPhaseConfig()
     ) { provider.imageIndex >= trainSize }
     learningPhase(
         logFolder = "assign/${startTime}",
-        listOf(SpikesSignals::spikeCounter, CurrentStimuli::stimuli),
+        listOf(SpikesSignals::spiked, CurrentStimuli::stimuli),
         listOf("inputLayer", "secondLayer"),
         topology,
         testPhaseConfig()

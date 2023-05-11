@@ -10,7 +10,6 @@ import org.jetbrains.research.mads.ns.physiology.neurons.*
 import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseCurrentDecayConstants
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseMechanisms
-import org.jetbrains.research.mads.ns.physiology.synapses.WeightDecayConstants
 
 fun trainPhaseConfig() = configure {
     timeResolution = microsecond
@@ -22,46 +21,58 @@ fun trainPhaseConfig() = configure {
         }
     })
     addPathway(pathway<InputNeuron> {
-        timeResolution = millisecond
+        timeResolution = microsecond
         mechanism(mechanism = InputNeuronMechanisms.ProbabilisticSpike) {
-            duration = 10
+            duration = 10_000
         }
         mechanism(mechanism = InputNeuronMechanisms.Silent) {
-            duration = 350
+            duration = 350_000
+            condition = {
+                val probabilisticSignals = it.signals[ProbabilisticSpikingSignals::class] as ProbabilisticSpikingSignals
+                probabilisticSignals.silent == false
+            }
+        }
+        mechanism(mechanism = NeuronMechanisms.DelayedSpikeTransfer) {
+            duration = 100
+            condition = { it.delayedSpikes.size > 0 }
+            constants = SpikeTransferConstants(I_transfer = 1.0)
+        }
+        mechanism(mechanism = NeuronMechanisms.DelayedSpikeCreation) {
+            duration = 1
+            condition = { spiked(it) }
         }
         mechanism(mechanism = NeuronMechanisms.SpikeOff) {
             duration = 1
             condition = { spiked(it) }
         }
-        mechanism(mechanism = NeuronMechanisms.SpikeTransfer) {
+        // TODO: why only weightUpdate and not normalization?
+        mechanism(mechanism = NeuronMechanisms.TripletSTDPWeightUpdate) {
             duration = 1
             condition = { spiked(it) }
-            constants = SpikeTransferConstants(I_transfer = 1.0)
-        }
-        mechanism(mechanism = NeuronMechanisms.STDPSpike) {
-            duration = 1
-            condition = { spiked(it) }
-        }
-        mechanism(mechanism = NeuronMechanisms.STDPDecay) {
-            duration = 1000
         }
     })
     addPathway(pathway<Synapse> {
         timeResolution = millisecond
-        mechanism(mechanism = SynapseMechanisms.WeightDecay) {
-            duration = 100
-            constants = WeightDecayConstants()
-        }
         mechanism(mechanism = SynapseMechanisms.CurrentDecay) {
-            duration = 1
+            duration = 10
             condition = {
                 val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
                 currentSignals.I_e != 0.0
             }
-            constants = SynapseCurrentDecayConstants()
+            constants = SynapseCurrentDecayConstants(
+                zeroingLimit = 0.001,
+                excitatoryDecayMultiplier = 0.2,
+                inhibitoryDecayMultiplier = 0.02
+            )
         }
-        mechanism(mechanism = SynapseMechanisms.STDUpdate) {
-            duration = 10
+        mechanism(mechanism = SynapseMechanisms.PreDecay) {
+            duration = 20
+        }
+        mechanism(mechanism = SynapseMechanisms.Post1Decay) {
+            duration = 20
+        }
+        mechanism(mechanism = SynapseMechanisms.Post2Decay) {
+            duration = 40
         }
     })
     addPathway(pathway<IzhNeuron> {
@@ -74,17 +85,29 @@ fun trainPhaseConfig() = configure {
             duration = 1
             condition = { spiked(it) }
         }
-        mechanism(mechanism = NeuronMechanisms.SpikeTransfer) {
-            duration = 1
-            condition = { spiked(it) }
+        mechanism(mechanism = NeuronMechanisms.DelayedSpikeTransfer) {
+            duration = 100
+            condition = { it.delayedSpikes.size > 0 }
             constants = SpikeTransferConstants(I_transfer = 1.0)
         }
-        mechanism(mechanism = NeuronMechanisms.STDPSpike) {
+        mechanism(mechanism = NeuronMechanisms.DelayedSpikeCreation) {
             duration = 1
             condition = { spiked(it) }
         }
-        mechanism(mechanism = NeuronMechanisms.STDPDecay) {
-            duration = 1000
+        mechanism(mechanism = IzhMechanisms.ThetaSpike) {
+            duration = 1
+            condition = { spiked(it) }
+        }
+        mechanism(mechanism = IzhMechanisms.ThetaDecay) {
+            duration = 10_000_000
+        }
+        mechanism(mechanism = NeuronMechanisms.TripletSTDPWeightUpdate) {
+            duration = 1
+            condition = { spiked(it) }
+        }
+        mechanism(mechanism = NeuronMechanisms.WeightNormalization) {
+            duration = 500_000
+            condition = { it.weightNormalizationEnabled }
         }
         mechanism(mechanism = NeuronMechanisms.UpdateSpikeCounter) {
             duration = 500_000
@@ -102,39 +125,44 @@ fun testPhaseConfig() = configure {
         }
     })
     addPathway(pathway<InputNeuron> {
-        timeResolution = millisecond
+        timeResolution = microsecond
         mechanism(mechanism = InputNeuronMechanisms.ProbabilisticSpike) {
-            duration = 10
+            duration = 10_000
         }
         mechanism(mechanism = InputNeuronMechanisms.Silent) {
-            duration = 350
+            duration = 350_000
+            condition = {
+                val probabilisticSignals = it.signals[ProbabilisticSpikingSignals::class] as ProbabilisticSpikingSignals
+                probabilisticSignals.silent == false
+            }
+        }
+        mechanism(mechanism = NeuronMechanisms.DelayedSpikeTransfer) {
+            duration = 100
+            condition = { it.delayedSpikes.size > 0 }
+            constants = SpikeTransferConstants(I_transfer = 1.0)
+        }
+        mechanism(mechanism = NeuronMechanisms.DelayedSpikeCreation) {
+            duration = 1
+            condition = { spiked(it) }
         }
         mechanism(mechanism = NeuronMechanisms.SpikeOff) {
             duration = 1
             condition = { spiked(it) }
         }
-        mechanism(mechanism = NeuronMechanisms.SpikeTransfer) {
-            duration = 1
-            condition = { spiked(it) }
-            constants = SpikeTransferConstants(I_transfer = 1.0)
-        }
-        mechanism(mechanism = NeuronMechanisms.STDPSpike) {
-            duration = 1
-            condition = { spiked(it) }
-        }
-        mechanism(mechanism = NeuronMechanisms.STDPDecay) {
-            duration = 1000
-        }
     })
     addPathway(pathway<Synapse> {
         timeResolution = millisecond
         mechanism(mechanism = SynapseMechanisms.CurrentDecay) {
-            duration = 1
+            duration = 10
             condition = {
                 val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
                 currentSignals.I_e != 0.0
             }
-            constants = SynapseCurrentDecayConstants()
+            constants = SynapseCurrentDecayConstants(
+                zeroingLimit = 0.001,
+                excitatoryDecayMultiplier = 0.2,
+                inhibitoryDecayMultiplier = 0.02
+            )
         }
     })
     addPathway(pathway<IzhNeuron> {
@@ -147,17 +175,14 @@ fun testPhaseConfig() = configure {
             duration = 1
             condition = { spiked(it) }
         }
-        mechanism(mechanism = NeuronMechanisms.SpikeTransfer) {
-            duration = 1
-            condition = { spiked(it) }
+        mechanism(mechanism = NeuronMechanisms.DelayedSpikeTransfer) {
+            duration = 100
+            condition = { it.delayedSpikes.size > 0 }
             constants = SpikeTransferConstants(I_transfer = 1.0)
         }
-        mechanism(mechanism = NeuronMechanisms.STDPSpike) {
+        mechanism(mechanism = NeuronMechanisms.DelayedSpikeCreation) {
             duration = 1
             condition = { spiked(it) }
-        }
-        mechanism(mechanism = NeuronMechanisms.STDPDecay) {
-            duration = 1000
         }
         mechanism(mechanism = NeuronMechanisms.UpdateSpikeCounter) {
             duration = 500_000

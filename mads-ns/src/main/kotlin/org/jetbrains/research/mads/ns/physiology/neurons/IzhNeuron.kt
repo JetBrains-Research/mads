@@ -34,17 +34,26 @@ object IzhTC : IzhConstants(b = 0.25, d = 0.05)
 // resonator (RZ)
 object IzhRZ : IzhConstants(a = 0.01, b = 0.26, d = 0.0)
 
-class IzhSignals : Signals() {
+class IzhSignals(val adaptiveThreshold: Boolean = false) : Signals() {
     var U: Double by observable(0.0)
+    var theta: Double by observable(0.0)
+    var aMult: Double by observable(1.0)
 }
 
 object IzhMechanisms {
     val Dynamic = IzhNeuron::Dynamic
     val VDynamic = IzhNeuron::VDynamic
     val UDynamic = IzhNeuron::UDynamic
+    val ThetaDecay = IzhNeuron::thetaDecay
+    val ThetaSpike = IzhNeuron::thetaSpike
 }
 
-class IzhNeuron(val izhType: IzhConstants = IzhRS, vararg signals: Signals) : Neuron(izhType.V_thresh, IzhSignals(), *signals)
+
+class IzhNeuron(
+    val izhType: IzhConstants = IzhRS, adaptiveThreshold: Boolean = false,
+    val weightNormalizationEnabled: Boolean = false,
+    vararg signals: Signals
+) : Neuron(izhType.V_thresh, IzhSignals(adaptiveThreshold = adaptiveThreshold), *signals)
 
 @TimeResolution(resolution = millisecond)
 fun IzhNeuron.Dynamic(params: MechanismParameters): List<Response> {
@@ -65,8 +74,12 @@ fun IzhNeuron.Dynamic(params: MechanismParameters): List<Response> {
             }
         )
     } else {
-        val deltaV = params.dt * (0.04 * potentialSignals.V.pow(2.0) + 5 * potentialSignals.V + 140 - izhSignals.U + currentSignals.I_e * izhType.k)
-        val deltaU = params.dt * (izhType.a * (izhType.b * potentialSignals.V - izhSignals.U))
+        val aAdapted =  if (izhSignals.adaptiveThreshold) izhType.a * izhSignals.aMult
+                        else izhType.a
+
+        val deltaV =
+            params.dt * (0.04 * potentialSignals.V.pow(2.0) + 5 * potentialSignals.V + 140 - izhSignals.U + currentSignals.I_e * izhType.k)
+        val deltaU = params.dt * (aAdapted * (izhType.b * potentialSignals.V - izhSignals.U))
         return listOf(
             this.createResponse {
                 potentialSignals.V += deltaV
@@ -105,6 +118,30 @@ fun IzhNeuron.UDynamic(params: MechanismParameters): List<Response> {
     return listOf(
         this.createResponse {
             izhSignals.U += delta
+        }
+    )
+}
+
+@ExperimentalMechanism
+fun IzhNeuron.thetaDecay(params: MechanismParameters): List<Response> {
+    val izh = this.signals[IzhSignals::class] as IzhSignals
+
+    val delta = (1 - izh.aMult) * 0.01
+    return arrayListOf(
+        this.createResponse {
+            izh.aMult += delta
+        }
+    )
+}
+
+@ExperimentalMechanism
+fun IzhNeuron.thetaSpike(params: MechanismParameters): List<Response> {
+    val signals = this.signals[IzhSignals::class] as IzhSignals
+    val delta = -signals.aMult * 0.002
+
+    return arrayListOf(
+        this.createResponse { // TODO: constant?
+            signals.aMult += delta
         }
     )
 }
