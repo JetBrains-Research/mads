@@ -41,11 +41,12 @@ fun mnist3Phase() {
 
     learningPhase(
         logFolder = "train/${startTime}",
-        listOf(SpikesSignals::spikeCounter),
+        listOf(),
         listOf(),
         topology,
         trainPhaseConfig()
     ) { provider.imageIndex >= trainSize }
+    // Approach with object types and signals as a union
     learningPhase(
         logFolder = "assign/${startTime}",
         listOf(SpikesSignals::spiked, CurrentStimuli::stimuli),
@@ -53,6 +54,16 @@ fun mnist3Phase() {
         topology,
         testPhaseConfig()
     ) { provider.imageIndex >= trainSize + assignSize }
+//    // Approach with object types and signals as a single filter
+//    learningPhase(
+//        logFolder = "assign/${startTime}",
+//        mapOf(
+//            Topology.INPUT_LAYER to hashSetOf(CurrentStimuli::stimuli),
+//            Topology.SECOND_LAYER to hashSetOf(SpikesSignals::spikeCounter)
+//        ),
+//        topology,
+//        testPhaseConfig()
+//    ) { provider.imageIndex >= trainSize + assignSize }
     learningPhase(
         logFolder = "test/${startTime}",
         listOf(SpikesSignals::spikeCounter, CurrentStimuli::stimuli),
@@ -74,6 +85,34 @@ fun learningPhase(
     val saver = FileSaver(dir)
     logSignals.forEach { saver.addSignalsNames(it) }
     logTypes.forEach { saver.addObjectTypes(it) }
+
+    val allTypes = logTypes.ifEmpty { topology.distinctBy { it.type }.map { it.type } }
+
+    allTypes.forEach { type ->
+        logSignals.forEach { signal ->
+            saver.addObjTypeSignalFilter(type, signal)
+        }
+    }
+
+    val s = Model(topology, config)
+    s?.simulate(saver) { stopCondition.invoke() }
+    saver.closeModelWriters()
+}
+
+fun learningPhase(
+    logFolder: String,
+    logFilter: Map<String, Set<KProperty<*>>>,
+    topology: List<ModelObject>,
+    config: Configuration,
+    stopCondition: () -> Boolean
+) {
+    val dir = Path("log/mnist/${logFolder}")
+    val saver = FileSaver(dir)
+    logFilter.forEach { type ->
+        type.value.forEach { signal ->
+            saver.addObjTypeSignalFilter(type.key, signal)
+        }
+    }
 
     val s = Model(topology, config)
     s?.simulate(saver) { stopCondition.invoke() }

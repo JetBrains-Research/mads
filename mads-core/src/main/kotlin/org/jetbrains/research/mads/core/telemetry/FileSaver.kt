@@ -15,6 +15,8 @@ class FileSaver(dir: Path, bufferSize: Int = 64 * 1024) : Saver {
     private val sigSet = mutableSetOf<String>()
     private val typeSet = mutableSetOf<String>()
 
+    private val filters = hashMapOf<String, HashSet<String>>()
+
     private var typeSpecified = false
 
     init {
@@ -39,6 +41,11 @@ class FileSaver(dir: Path, bufferSize: Int = 64 * 1024) : Saver {
     override fun addObjectTypes(type: String) {
         typeSpecified = true
         typeSet.add(type)
+    }
+
+    fun addObjTypeSignalFilter(objType: String, signal: KProperty<*>) {
+        filters.putIfAbsent(objType, hashSetOf())
+        filters[objType]!!.add("${signal.javaField?.declaringClass?.simpleName}.${signal.name}")
     }
 
     override fun logChangedState(tick: Long, obj: ModelObject) {
@@ -73,7 +80,7 @@ class FileSaver(dir: Path, bufferSize: Int = 64 * 1024) : Saver {
 
     private fun logSignals(tick: Long, id: String, type: String, signals: Map<String, String>) {
         signals.forEach { signal ->
-            if (sigSet.contains(signal.key)) {
+            if (filters[type]?.contains(signal.key) == true) {
                 modelSignalsWriter.addStringToQueue(
                     (arrayOf(
                         tick.toString(),
