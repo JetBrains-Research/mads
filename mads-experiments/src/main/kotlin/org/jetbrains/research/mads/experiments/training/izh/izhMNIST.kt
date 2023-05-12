@@ -4,7 +4,7 @@ import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.experiments.training.mnistTopology
+import org.jetbrains.research.mads.experiments.training.Topology
 import org.jetbrains.research.mads.ns.physiology.neurons.*
 import org.jetbrains.research.mads.providers.MnistProvider
 import java.nio.file.Paths
@@ -18,16 +18,16 @@ fun main() {
 
 fun mnist3Phase() {
     val startTime = System.currentTimeMillis()
-    val trainClassSize = 20 // per class
-    val assignClassSize = 20 // per class
-    val testClassSize = 20 // per class
+    val trainClassSize = 1 // per class
+    val assignClassSize = 1 // per class
+    val testClassSize = 1 // per class
     val nExc = 64
 
     val targetClasses = listOf("1", "0")
     // TODO use relative path
     val dataDir = Paths.get("data/MNIST_training/")
     val provider = MnistProvider(dataDir.absolutePathString(), targetClasses)
-    val topology = mnistTopology(
+    val topology = Topology.mnistTopology(
         provider,
         { -> IzhNeuron(IzhRS, adaptiveThreshold = true, weightNormalizationEnabled = true) },
         { -> IzhNeuron(IzhFS, adaptiveThreshold = false, weightNormalizationEnabled = false) },
@@ -49,14 +49,14 @@ fun mnist3Phase() {
     learningPhase(
         logFolder = "assign/${startTime}",
         listOf(SpikesSignals::spiked, CurrentStimuli::stimuli),
-        listOf("inputLayer", "secondLayer"),
+        listOf(Topology.INPUT_LAYER, Topology.SECOND_LAYER),
         topology,
         testPhaseConfig()
     ) { provider.imageIndex >= trainSize + assignSize }
     learningPhase(
         logFolder = "test/${startTime}",
         listOf(SpikesSignals::spikeCounter, CurrentStimuli::stimuli),
-        listOf("inputLayer", "secondLayer"),
+        listOf(Topology.INPUT_LAYER, Topology.SECOND_LAYER),
         topology,
         testPhaseConfig()
     ) { provider.imageIndex >= trainSize + assignSize + testSize }
