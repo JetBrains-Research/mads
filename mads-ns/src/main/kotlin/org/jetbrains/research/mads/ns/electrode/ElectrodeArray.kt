@@ -17,10 +17,9 @@ class ElectrodeArray(private val provider: ImageProvider,
     private val height = provider.height
 
     init {
-        val rnd = Random(42L)
-
         for (i in 0..width) {
             for (j in 0..height) {
+                val rnd = Random(42L + i * j + j)
                 electrodesGrid.add(Electrode(rnd, CurrentSignals(I_e = 0.0)))
             }
         }

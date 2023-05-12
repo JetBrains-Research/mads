@@ -17,10 +17,9 @@ class InputNeuron2DGrid(
     private val height = provider.height
 
     init {
-        val rnd = Random(42L)
-
         for (i in 0 until width) {
             for (j in 0 until height) {
+                val rnd = Random(42L + i * j + j)
                 val neuron = InputNeuron(rnd, STDPSignals())
                 neuron.type = "input_${i}_${j}"
                 neuronsGrid.add(neuron)
