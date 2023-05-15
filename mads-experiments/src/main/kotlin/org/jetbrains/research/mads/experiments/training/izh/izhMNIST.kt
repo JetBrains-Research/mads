@@ -18,9 +18,9 @@ fun main() {
 
 fun mnist3Phase() {
     val startTime = System.currentTimeMillis()
-    val trainClassSize = 1 // per class
-    val assignClassSize = 1 // per class
-    val testClassSize = 1 // per class
+    val trainClassSize = 20 // per class
+    val assignClassSize = 20 // per class
+    val testClassSize = 20 // per class
     val nExc = 64
 
     val targetClasses = listOf("1", "0")
@@ -41,29 +41,32 @@ fun mnist3Phase() {
 
     learningPhase(
         logFolder = "train/${startTime}",
-        listOf(),
-        listOf(),
+        mapOf(
+            Topology.INPUT_LAYER to hashSetOf(CurrentStimuli::stimuli),
+            Topology.SECOND_LAYER to hashSetOf(SpikesSignals::spikeCounter),
+            Topology.OUTPUT_LAYER to hashSetOf(SpikesSignals::spikeCounter)
+        ),
         topology,
         trainPhaseConfig()
     ) { provider.imageIndex >= trainSize }
-    // Approach with object types and signals as a union
-    learningPhase(
-        logFolder = "assign/${startTime}",
-        listOf(SpikesSignals::spiked, CurrentStimuli::stimuli),
-        listOf(Topology.INPUT_LAYER, Topology.SECOND_LAYER),
-        topology,
-        testPhaseConfig()
-    ) { provider.imageIndex >= trainSize + assignSize }
-//    // Approach with object types and signals as a single filter
+//    // Approach with object types and signals as a union
 //    learningPhase(
 //        logFolder = "assign/${startTime}",
-//        mapOf(
-//            Topology.INPUT_LAYER to hashSetOf(CurrentStimuli::stimuli),
-//            Topology.SECOND_LAYER to hashSetOf(SpikesSignals::spikeCounter)
-//        ),
+//        listOf(SpikesSignals::spiked, CurrentStimuli::stimuli),
+//        listOf(Topology.INPUT_LAYER, Topology.SECOND_LAYER),
 //        topology,
 //        testPhaseConfig()
 //    ) { provider.imageIndex >= trainSize + assignSize }
+    // Approach with object types and signals as a single filter
+    learningPhase(
+        logFolder = "assign/${startTime}",
+        mapOf(
+            Topology.INPUT_LAYER to hashSetOf(CurrentStimuli::stimuli),
+            Topology.SECOND_LAYER to hashSetOf(SpikesSignals::spikeCounter)
+        ),
+        topology,
+        testPhaseConfig()
+    ) { provider.imageIndex >= trainSize + assignSize }
     learningPhase(
         logFolder = "test/${startTime}",
         listOf(SpikesSignals::spikeCounter, CurrentStimuli::stimuli),

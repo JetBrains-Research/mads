@@ -121,7 +121,9 @@ abstract class ModelObject(vararg signals: Signals) {
         pathway.configuredMechanisms.forEach {
             val mch = applyObjectToMechanism(it.mechanism, this)
             val cnd = applyObjectToCondition(it.condition, this)
-            val event = ModelEvent(mch, cnd, it.duration * pathway.timeResolutionCoefficient)
+            val duration = pathway.normalizeDuration(it.duration)
+            val delay = pathway.normalizeDelay(it.delay, this)
+            val event = ModelEvent(mch, cnd, duration, delay)
             events.add(event)
         }
     }

@@ -31,7 +31,7 @@ class Topology {
 
             val synapses1to2 =
                 connectPopulations(inputNeuron2DGrid.getNeurons(), secondLayer, probability = 1.0, rnd = rnd,
-                    weight = { rnd.nextDouble() / 2 }, delay = { rnd.nextInt(100) })
+                    weight = { rnd.nextDouble() / 2 }, delay = { rnd.nextInt(100) * 100 })
             val synapses2to3 = connectPopulationsOneToOne(secondLayer, thirdLayer, weight = { 5.0 }, delay = { 0 })
             val synapses3to2 = connectPopulationsInhibition(thirdLayer, secondLayer, weight = { 5.0 }, delay = { 0 })
 

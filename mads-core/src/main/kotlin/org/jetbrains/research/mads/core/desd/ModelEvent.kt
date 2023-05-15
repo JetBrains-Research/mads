@@ -14,6 +14,7 @@ class ModelEvent(
     private val mechanism: () -> List<Response>,
     private val condition: () -> Boolean,
     private val duration: Int,
+    private val delay: () -> Int,
     seed: Long = 12345L,
     rangePercent: Double = 0.0
 ) {
@@ -63,11 +64,12 @@ class ModelEvent(
 
     fun updateTime(tick: Long): Boolean {
         var result = true
+        val delay = 0.coerceAtLeast(delay())
         if (eventState === EventState.Ready) {
-            eventTime = withDelta(tick) + duration
+            eventTime = withDelta(tick) + duration + delay
             eventState = EventState.Active
         } else if (eventState === EventState.WaitingInQueue) {
-            postponeTime = withDelta(tick) + duration
+            postponeTime = withDelta(tick) + duration + delay
             eventState = EventState.Postponed
         } else {
             result = false

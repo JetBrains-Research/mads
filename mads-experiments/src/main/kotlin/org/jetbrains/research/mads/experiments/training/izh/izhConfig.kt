@@ -10,6 +10,7 @@ import org.jetbrains.research.mads.ns.physiology.neurons.*
 import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseCurrentDecayConstants
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseMechanisms
+import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
 
 fun trainPhaseConfig() = configure {
     timeResolution = microsecond
@@ -32,15 +33,15 @@ fun trainPhaseConfig() = configure {
                 probabilisticSignals.silent == false
             }
         }
-        mechanism(mechanism = NeuronMechanisms.DelayedSpikeTransfer) {
-            duration = 100
-            condition = { it.delayedSpikes.size > 0 }
-            constants = SpikeTransferConstants(I_transfer = 1.0)
-        }
-        mechanism(mechanism = NeuronMechanisms.DelayedSpikeCreation) {
-            duration = 1
-            condition = { spiked(it) }
-        }
+//        mechanism(mechanism = NeuronMechanisms.DelayedSpikeTransfer) {
+//            duration = 100
+//            condition = { it.delayedSpikes.size > 0 }
+//            constants = SpikeTransferConstants(I_transfer = 1.0)
+//        }
+//        mechanism(mechanism = NeuronMechanisms.DelayedSpikeCreation) {
+//            duration = 1
+//            condition = { spiked(it) }
+//        }
         mechanism(mechanism = NeuronMechanisms.SpikeOff) {
             duration = 1
             condition = { spiked(it) }
@@ -52,9 +53,15 @@ fun trainPhaseConfig() = configure {
         }
     })
     addPathway(pathway<Synapse> {
-        timeResolution = millisecond
+        timeResolution = microsecond
+        mechanism(mechanism = SynapseMechanisms.SpikeTransfer) {
+            duration = 1
+            condition = { (it.signals[SynapseSignals::class] as SynapseSignals).releaserSpiked }
+            delay = { (it.signals[SynapseSignals::class] as SynapseSignals).delay }
+            constants = SpikeTransferConstants(I_transfer = 1.0)
+        }
         mechanism(mechanism = SynapseMechanisms.CurrentDecay) {
-            duration = 10
+            duration = 10_000
             condition = {
                 val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
                 currentSignals.I_e != 0.0
@@ -66,13 +73,13 @@ fun trainPhaseConfig() = configure {
             )
         }
         mechanism(mechanism = SynapseMechanisms.PreDecay) {
-            duration = 20
+            duration = 20_000
         }
         mechanism(mechanism = SynapseMechanisms.Post1Decay) {
-            duration = 20
+            duration = 20_000
         }
         mechanism(mechanism = SynapseMechanisms.Post2Decay) {
-            duration = 40
+            duration = 40_000
         }
     })
     addPathway(pathway<IzhNeuron> {
@@ -85,15 +92,15 @@ fun trainPhaseConfig() = configure {
             duration = 1
             condition = { spiked(it) }
         }
-        mechanism(mechanism = NeuronMechanisms.DelayedSpikeTransfer) {
-            duration = 100
-            condition = { it.delayedSpikes.size > 0 }
-            constants = SpikeTransferConstants(I_transfer = 1.0)
-        }
-        mechanism(mechanism = NeuronMechanisms.DelayedSpikeCreation) {
-            duration = 1
-            condition = { spiked(it) }
-        }
+//        mechanism(mechanism = NeuronMechanisms.DelayedSpikeTransfer) {
+//            duration = 100
+//            condition = { it.delayedSpikes.size > 0 }
+//            constants = SpikeTransferConstants(I_transfer = 1.0)
+//        }
+//        mechanism(mechanism = NeuronMechanisms.DelayedSpikeCreation) {
+//            duration = 1
+//            condition = { spiked(it) }
+//        }
         mechanism(mechanism = IzhMechanisms.ThetaSpike) {
             duration = 1
             condition = { spiked(it) }
@@ -136,24 +143,30 @@ fun testPhaseConfig() = configure {
                 probabilisticSignals.silent == false
             }
         }
-        mechanism(mechanism = NeuronMechanisms.DelayedSpikeTransfer) {
-            duration = 100
-            condition = { it.delayedSpikes.size > 0 }
-            constants = SpikeTransferConstants(I_transfer = 1.0)
-        }
-        mechanism(mechanism = NeuronMechanisms.DelayedSpikeCreation) {
-            duration = 1
-            condition = { spiked(it) }
-        }
+//        mechanism(mechanism = NeuronMechanisms.DelayedSpikeTransfer) {
+//            duration = 100
+//            condition = { it.delayedSpikes.size > 0 }
+//            constants = SpikeTransferConstants(I_transfer = 1.0)
+//        }
+//        mechanism(mechanism = NeuronMechanisms.DelayedSpikeCreation) {
+//            duration = 1
+//            condition = { spiked(it) }
+//        }
         mechanism(mechanism = NeuronMechanisms.SpikeOff) {
             duration = 1
             condition = { spiked(it) }
         }
     })
     addPathway(pathway<Synapse> {
-        timeResolution = millisecond
+        timeResolution = microsecond
+        mechanism(mechanism = SynapseMechanisms.SpikeTransfer) {
+            duration = 1
+            condition = { (it.signals[SynapseSignals::class] as SynapseSignals).releaserSpiked }
+            delay = { (it.signals[SynapseSignals::class] as SynapseSignals).delay }
+            constants = SpikeTransferConstants(I_transfer = 1.0)
+        }
         mechanism(mechanism = SynapseMechanisms.CurrentDecay) {
-            duration = 10
+            duration = 10_000
             condition = {
                 val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
                 currentSignals.I_e != 0.0
@@ -175,15 +188,15 @@ fun testPhaseConfig() = configure {
             duration = 1
             condition = { spiked(it) }
         }
-        mechanism(mechanism = NeuronMechanisms.DelayedSpikeTransfer) {
-            duration = 100
-            condition = { it.delayedSpikes.size > 0 }
-            constants = SpikeTransferConstants(I_transfer = 1.0)
-        }
-        mechanism(mechanism = NeuronMechanisms.DelayedSpikeCreation) {
-            duration = 1
-            condition = { spiked(it) }
-        }
+//        mechanism(mechanism = NeuronMechanisms.DelayedSpikeTransfer) {
+//            duration = 100
+//            condition = { it.delayedSpikes.size > 0 }
+//            constants = SpikeTransferConstants(I_transfer = 1.0)
+//        }
+//        mechanism(mechanism = NeuronMechanisms.DelayedSpikeCreation) {
+//            duration = 1
+//            condition = { spiked(it) }
+//        }
         mechanism(mechanism = NeuronMechanisms.UpdateSpikeCounter) {
             duration = 500_000
         }

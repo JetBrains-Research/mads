@@ -65,13 +65,15 @@ fun IzhNeuron.Dynamic(params: MechanismParameters): List<Response> {
     if (potentialSignals.V > izhType.V_thresh) {
         val deltaV = izhType.c - potentialSignals.V
         val deltaU = izhType.d
+        val spikeResponses = this.spikesInSynapses()
         return listOf(
             this.createResponse {
                 potentialSignals.V += deltaV
                 izhSignals.U += deltaU
                 spikesSignals.spiked = true
                 spikesSignals.spikeCounterTemp += 1
-            }
+            },
+            *spikeResponses.toTypedArray()
         )
     } else {
         val aAdapted =  if (izhSignals.adaptiveThreshold) izhType.a * izhSignals.aMult

@@ -4,6 +4,7 @@ import org.jetbrains.research.mads.core.types.*
 import org.jetbrains.research.mads.ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads.ns.physiology.neurons.STDPSignals
 import org.jetbrains.research.mads.ns.physiology.neurons.STDPTripletSignals
+import org.jetbrains.research.mads.ns.physiology.neurons.SpikeTransferConstants
 import kotlin.math.abs
 
 object SynapseReleaser : ConnectionType
@@ -53,10 +54,12 @@ class SynapseSignals(
     var weight: Double by observable(weight)
     var synapseSign: Double by observable(1.0)
     var delay: Int by observable(delay)
+    var releaserSpiked: Boolean by observable(false)
 }
 
 object SynapseMechanisms {
     val WeightDecay = Synapse::weightDecayMechanism
+    val SpikeTransfer = Synapse::spikeTransfer
     val CurrentDecay = Synapse::currentDecay
     val Post1Decay = Synapse::Post1Decay
     val Post2Decay = Synapse::Post2Decay
@@ -73,6 +76,25 @@ fun Synapse.weightDecayMechanism(params: MechanismParameters): List<Response> {
     return arrayListOf(
         this.createResponse {
             synapseSignals.weight += delta
+        }
+    )
+}
+
+@ConstantType(type = SpikeTransferConstants::class)
+fun Synapse.spikeTransfer(params: MechanismParameters): List<Response> {
+    val iTransfer = (params.constants as SpikeTransferConstants).I_transfer
+    val synapseSignals = this.signals[SynapseSignals::class] as SynapseSignals
+    val currentSignals = this.signals[CurrentSignals::class] as CurrentSignals
+    val receiverCurrentSignals = this.receiver.signals[CurrentSignals::class] as CurrentSignals
+    val delta = synapseSignals.weight * synapseSignals.synapseSign * iTransfer
+
+    return listOf(
+        this.createResponse {
+            currentSignals.I_e += delta
+            synapseSignals.releaserSpiked = false
+        },
+        this.receiver.createResponse {
+            receiverCurrentSignals.I_e += delta
         }
     )
 }

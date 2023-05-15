@@ -20,11 +20,13 @@ fun InputNeuron.ProbabilisticSpike(params: MechanismParameters): List<Response> 
     val spiked = (rnd.nextDouble() < spikeProbability) && (!probabilisticSpikingSignals.silent)
 
     if (spiked) {
+        val spikeResponses = this.spikesInSynapses()
         val spikesSignals = this.signals[SpikesSignals::class] as SpikesSignals
         return listOf(
             this.createResponse {
                 spikesSignals.spiked = true
-            }
+            },
+            *spikeResponses.toTypedArray()
         )
     }
 

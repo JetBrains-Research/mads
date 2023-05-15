@@ -131,6 +131,15 @@ fun Neuron.spikeTransfer(params: MechanismParameters): List<Response> {
     return result
 }
 
+fun Neuron.spikesInSynapses(): List<Response> {
+    return this.connections[SynapseReleaser]?.map {
+        val synapseSignals = (it as Synapse).signals[SynapseSignals::class] as SynapseSignals
+        it.createResponse {
+            synapseSignals.releaserSpiked = true
+        }
+    }?.toList() ?: EmptyResponseList
+}
+
 fun Neuron.updateSpikeCounter(params: MechanismParameters): List<Response> {
     val spikesSignals = this.signals[SpikesSignals::class] as SpikesSignals
     return if (spikesSignals.spikeCounterTemp > 0) {

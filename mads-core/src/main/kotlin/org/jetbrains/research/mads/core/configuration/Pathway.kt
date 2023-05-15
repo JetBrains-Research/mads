@@ -23,6 +23,14 @@ class Pathway<MO : ModelObject>(val type: KClass<MO>) {
         return globalResolution <= timeResolution
     }
 
+    fun normalizeDuration(duration: Int): Int {
+        return duration * timeResolutionCoefficient
+    }
+
+    fun normalizeDelay(delay: (MO) -> Int, obj: MO): () -> Int {
+        return { delay(obj) * timeResolutionCoefficient }
+    }
+
     companion object {
         inline operator fun <reified MO : ModelObject> invoke(): Pathway<MO> = Pathway(MO::class)
     }
