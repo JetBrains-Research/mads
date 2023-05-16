@@ -8,6 +8,8 @@ import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
 
 class SpikeTransferConstants(val I_transfer: Double = 5.0) : MechanismConstants
 
+class WeightNormalizationConstants(val coefficient: Double = 35.0) : MechanismConstants
+
 abstract class Neuron(
     spikeThreshold: Double = 0.0,
     vararg signals: Signals
@@ -21,12 +23,7 @@ class SpikesSignals(spikeThreshold: Double) : Signals() {
     var spikeCounter: Int by observable(0)
 }
 
-class STDPSignals : Signals() {
-    var stdpTrace: Double by observable(0.0)
-    val stdpDecayCoefficient: Double by observable(0.995)
-}
-
-class STDPTripletSignals(val stdpDecayCoefficient: Double = 0.99) : Signals() {
+class STDPTripletSignals : Signals() {
     var stdpTracePre: Double by observable(0.0)
     var stdpTracePost1: Double by observable(0.0)
     var stdpTracePost2: Double by observable(0.0)
@@ -49,35 +46,11 @@ object NeuronMechanisms {
     val SpikeOn = Neuron::spikeOn
     val SpikeOff = Neuron::spikeOff
     val SpikeTransfer = Neuron::spikeTransfer
-    val STDPSpike = Neuron::STDPSpike
-    val STDPDecay = Neuron::STDPDecay
-    val WeightNormalization = Neuron::WeightNormalizationDivisive
-    val STDPWeightUpdate = Neuron::stdpWeightUpdateRule
-    val TripletSTDPWeightUpdate = Neuron::tripletStdpWeightUpdateRule
+    val WeightNormalization = Neuron::weightNormalizationDivisive
     val UpdateSpikeCounter = Neuron::updateSpikeCounter
 }
 
-fun Neuron.STDPDecay(params: MechanismParameters): List<Response> {
-    val signals = this.signals[STDPSignals::class] as STDPSignals
-    val trace = -signals.stdpTrace * (1 - signals.stdpDecayCoefficient)
-
-    return arrayListOf(
-        this.createResponse {
-            signals.stdpTrace += trace
-        }
-    )
-}
-
-fun Neuron.STDPSpike(params: MechanismParameters): List<Response> {
-    val signals = this.signals[STDPSignals::class] as STDPSignals
-
-    return arrayListOf(
-        this.createResponse { // TODO: constant?
-            signals.stdpTrace += 1.0
-        }
-    )
-}
-
+@Suppress("UNUSED_PARAMETER")
 fun Neuron.spikeOn(params: MechanismParameters): List<Response> {
     val spikesSignals = this.signals[SpikesSignals::class] as SpikesSignals
     return arrayListOf(
@@ -88,6 +61,7 @@ fun Neuron.spikeOn(params: MechanismParameters): List<Response> {
     )
 }
 
+@Suppress("UNUSED_PARAMETER")
 fun Neuron.spikeOff(params: MechanismParameters): List<Response> {
     val spikesSignals = this.signals[SpikesSignals::class] as SpikesSignals
 
@@ -134,6 +108,7 @@ fun Neuron.spikesInSynapses(): List<Response> {
     }?.toList() ?: EmptyResponseList
 }
 
+@Suppress("UNUSED_PARAMETER")
 fun Neuron.updateSpikeCounter(params: MechanismParameters): List<Response> {
     val spikesSignals = this.signals[SpikesSignals::class] as SpikesSignals
     return if (spikesSignals.spikeCounterTemp > 0) {
@@ -150,130 +125,24 @@ fun Neuron.updateSpikeCounter(params: MechanismParameters): List<Response> {
 }
 
 @ExperimentalMechanism
-fun Neuron.WeightNormalizationDivisive(params: MechanismParameters): List<Response> {
-    val result = arrayListOf<Response>()
+@ConstantType(type = WeightNormalizationConstants::class)
+fun Neuron.weightNormalizationDivisive(params: MechanismParameters): List<Response> {
+    val weightSum = this.connections[SynapseReceiver]?.filter {
+        ((it as Synapse).signals[SynapseSignals::class] as SynapseSignals).learningEnabled
+    }?.sumOf {
+        ((it as Synapse).signals[SynapseSignals::class] as SynapseSignals).weight
+    } ?: 0.0
 
-    var weightSum = 0.0
-
-    this.connections[SynapseReceiver]?.forEach {
-        if (it is Synapse) {
-            val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
-            weightSum += synapseSignals.weight
-        }
-    }
-
-    if (weightSum > 0) {
-        this.connections[SynapseReceiver]?.forEach {
-            if (it is Synapse) {
-                val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
-                result.add(
-                    it.createResponse { synapseSignals.weight *= 35.0 / weightSum }
-                )
-            }
-        }
-    }
-
-    return result
-}
-
-@ExperimentalMechanism
-fun Neuron.stdpWeightUpdateRule(params: MechanismParameters): List<Response> {
-    val result = arrayListOf<Response>()
-
-    // presynaptic
-    // ge_post += w; pre = 1.; w = clip(w + nu_ee_pre * post1, 0, wmax_ee)
-    this.connections[SynapseReleaser]?.forEach {
-        if (it is Synapse) {
-            val stdpSig = it.signals[SynapseSignals::class] as SynapseSignals
-            if (stdpSig.learningEnabled) {
-                val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
-
-                val preStdp = (it.releaser.signals[STDPSignals::class] as STDPSignals).stdpTrace
-                val postStdp = (it.receiver.signals[STDPSignals::class] as STDPSignals).stdpTrace
-                var weightdelta = -0.001 * (preStdp - postStdp)
-
-                if (synapseSignals.weight + weightdelta < 0) {
-                    weightdelta = 0.0
-                }
-
-                result.add(it.createResponse { synapseSignals.weight += weightdelta })
-            }
-        }
-    }
-
-    // postsynaptic
-    // post2before = post2; w = clip(w + nu_ee_post * pre * post2before, 0, wmax_ee); post1 = 1.; post2 = 1.
-    this.connections[SynapseReceiver]?.forEach {
-        if (it is Synapse) {
-            val stdpSig = it.signals[SynapseSignals::class] as SynapseSignals
-            if (stdpSig.learningEnabled) {
-                val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
-
-                val postStdp = (it.receiver.signals[STDPSignals::class] as STDPSignals).stdpTrace
-                val preStdp = (it.releaser.signals[STDPSignals::class] as STDPSignals).stdpTrace
-
-                var weightdelta = 0.01 * (preStdp - postStdp)
-
-                if (synapseSignals.weight + weightdelta < 0) {
-                    weightdelta = 0.0
-                }
-
-                result.add(it.createResponse { synapseSignals.weight += weightdelta })
-            }
-        }
-    }
-
-    return result
-}
-
-@ExperimentalMechanism
-fun Neuron.tripletStdpWeightUpdateRule(params: MechanismParameters): List<Response> {
-    val result = arrayListOf<Response>()
-
-    // presynaptic
-    // ge_post += w; pre = 1.; w = clip(w + nu_ee_pre * post1, 0, wmax_ee)
-    this.connections[SynapseReleaser]?.forEach {
-        if (it is Synapse) {
-            val stdpSig = it.signals[SynapseSignals::class] as SynapseSignals
-            if (stdpSig.learningEnabled) {
-                val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
-                val stdpSignals = it.signals[STDPTripletSignals::class] as STDPTripletSignals
-
-                val newWeight = (synapseSignals.weight + 0.0001 * stdpSignals.stdpTracePost1).coerceIn(0.0, 1.0)
-                val delta = newWeight - synapseSignals.weight
-
-                result.add(it.createResponse {
-                    synapseSignals.weight += delta
-                    stdpSignals.stdpTracePre = 1.0
-                })
-            }
-        }
-    }
-
-    // postsynaptic
-    // post2before = post2; w = clip(w + nu_ee_post * pre * post2before, 0, wmax_ee); post1 = 1.; post2 = 1.
-    this.connections[SynapseReceiver]?.forEach {
-        if (it is Synapse) {
-            val stdpSig = it.signals[SynapseSignals::class] as SynapseSignals
-            if (stdpSig.learningEnabled) {
-                val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
-                val stdpSignals = it.signals[STDPTripletSignals::class] as STDPTripletSignals
-
-                val newWeight =
-                    (synapseSignals.weight + 0.01 * stdpSignals.stdpTracePre * stdpSignals.stdpTracePost2).coerceIn(
-                        0.0,
-                        1.0
-                    )
-                val delta = newWeight - synapseSignals.weight
-
-                result.add(it.createResponse {
-                    synapseSignals.weight += delta
-                    stdpSignals.stdpTracePost1 = 1.0
-                    stdpSignals.stdpTracePost2 = 1.0
-                })
-            }
-        }
-    }
-
-    return result
+    return if (weightSum > 0) {
+        val wnConst = (params.constants as WeightNormalizationConstants).coefficient
+        val coefficient = wnConst / weightSum
+        this.connections[SynapseReceiver]?.filter {
+            ((it as Synapse).signals[SynapseSignals::class] as SynapseSignals).learningEnabled
+        }?.map {
+            val synapseSignals = (it as Synapse).signals[SynapseSignals::class] as SynapseSignals
+            val newWeight = synapseSignals.weight * coefficient
+            this.createResponse { synapseSignals.weight = newWeight }
+        }?.toList() ?: EmptyResponseList
+    } else
+        EmptyResponseList
 }

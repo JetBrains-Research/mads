@@ -9,7 +9,7 @@ import kotlin.reflect.KClass
 class Pathway<MO : ModelObject>(val type: KClass<MO>) {
     val configuredMechanisms = ArrayList<ConfiguredMechanism<MO>>()
     var timeResolution: Double = second
-    var timeResolutionCoefficient: Int = 1
+    private var timeResolutionCoefficient: Int = 1
 
     fun mechanism(
         mechanism: (MO, MechanismParameters) -> List<Response>,

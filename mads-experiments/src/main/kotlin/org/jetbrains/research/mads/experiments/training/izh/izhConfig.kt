@@ -37,10 +37,6 @@ fun trainPhaseConfig() = configure {
             duration = 1
             condition = { spiked(it) }
         }
-        mechanism(mechanism = NeuronMechanisms.TripletSTDPWeightUpdate) {
-            duration = 1
-            condition = { spiked(it) }
-        }
     })
     addPathway(pathway<Synapse> {
         timeResolution = microsecond
@@ -71,6 +67,14 @@ fun trainPhaseConfig() = configure {
         mechanism(mechanism = SynapseMechanisms.Post2Decay) {
             duration = 40_000
         }
+        mechanism(mechanism = SynapseMechanisms.PreWeightUpdate) {
+            duration = 1
+            condition = { (it.releaser.signals[SpikesSignals::class] as SpikesSignals).spiked }
+        }
+        mechanism(mechanism = SynapseMechanisms.PostWeightUpdate) {
+            duration = 1
+            condition = { (it.receiver.signals[SpikesSignals::class] as SpikesSignals).spiked }
+        }
     })
     addPathway(pathway<IzhNeuron> {
         timeResolution = microsecond
@@ -89,13 +93,10 @@ fun trainPhaseConfig() = configure {
         mechanism(mechanism = IzhMechanisms.ThetaDecay) {
             duration = 10_000_000
         }
-        mechanism(mechanism = NeuronMechanisms.TripletSTDPWeightUpdate) {
-            duration = 1
-            condition = { spiked(it) }
-        }
         mechanism(mechanism = NeuronMechanisms.WeightNormalization) {
             duration = 500_000
             condition = { it.weightNormalizationEnabled }
+            constants = WeightNormalizationConstants(coefficient = 35.0)
         }
         mechanism(mechanism = NeuronMechanisms.UpdateSpikeCounter) {
             duration = 500_000

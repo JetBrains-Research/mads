@@ -49,15 +49,6 @@ fun mnist3Phase() {
         topology,
         trainPhaseConfig()
     ) { provider.imageIndex >= trainSize }
-//    // Approach with object types and signals as a union
-//    learningPhase(
-//        logFolder = "assign/${startTime}",
-//        listOf(SpikesSignals::spiked, CurrentStimuli::stimuli),
-//        listOf(Topology.INPUT_LAYER, Topology.SECOND_LAYER),
-//        topology,
-//        testPhaseConfig()
-//    ) { provider.imageIndex >= trainSize + assignSize }
-    // Approach with object types and signals as a single filter
     learningPhase(
         logFolder = "assign/${startTime}",
         mapOf(
