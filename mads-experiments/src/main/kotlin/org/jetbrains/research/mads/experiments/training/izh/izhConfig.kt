@@ -33,20 +33,10 @@ fun trainPhaseConfig() = configure {
                 probabilisticSignals.silent == false
             }
         }
-//        mechanism(mechanism = NeuronMechanisms.DelayedSpikeTransfer) {
-//            duration = 100
-//            condition = { it.delayedSpikes.size > 0 }
-//            constants = SpikeTransferConstants(I_transfer = 1.0)
-//        }
-//        mechanism(mechanism = NeuronMechanisms.DelayedSpikeCreation) {
-//            duration = 1
-//            condition = { spiked(it) }
-//        }
         mechanism(mechanism = NeuronMechanisms.SpikeOff) {
             duration = 1
             condition = { spiked(it) }
         }
-        // TODO: why only weightUpdate and not normalization?
         mechanism(mechanism = NeuronMechanisms.TripletSTDPWeightUpdate) {
             duration = 1
             condition = { spiked(it) }
@@ -92,15 +82,6 @@ fun trainPhaseConfig() = configure {
             duration = 1
             condition = { spiked(it) }
         }
-//        mechanism(mechanism = NeuronMechanisms.DelayedSpikeTransfer) {
-//            duration = 100
-//            condition = { it.delayedSpikes.size > 0 }
-//            constants = SpikeTransferConstants(I_transfer = 1.0)
-//        }
-//        mechanism(mechanism = NeuronMechanisms.DelayedSpikeCreation) {
-//            duration = 1
-//            condition = { spiked(it) }
-//        }
         mechanism(mechanism = IzhMechanisms.ThetaSpike) {
             duration = 1
             condition = { spiked(it) }
@@ -143,15 +124,6 @@ fun testPhaseConfig() = configure {
                 probabilisticSignals.silent == false
             }
         }
-//        mechanism(mechanism = NeuronMechanisms.DelayedSpikeTransfer) {
-//            duration = 100
-//            condition = { it.delayedSpikes.size > 0 }
-//            constants = SpikeTransferConstants(I_transfer = 1.0)
-//        }
-//        mechanism(mechanism = NeuronMechanisms.DelayedSpikeCreation) {
-//            duration = 1
-//            condition = { spiked(it) }
-//        }
         mechanism(mechanism = NeuronMechanisms.SpikeOff) {
             duration = 1
             condition = { spiked(it) }
@@ -188,15 +160,6 @@ fun testPhaseConfig() = configure {
             duration = 1
             condition = { spiked(it) }
         }
-//        mechanism(mechanism = NeuronMechanisms.DelayedSpikeTransfer) {
-//            duration = 100
-//            condition = { it.delayedSpikes.size > 0 }
-//            constants = SpikeTransferConstants(I_transfer = 1.0)
-//        }
-//        mechanism(mechanism = NeuronMechanisms.DelayedSpikeCreation) {
-//            duration = 1
-//            condition = { spiked(it) }
-//        }
         mechanism(mechanism = NeuronMechanisms.UpdateSpikeCounter) {
             duration = 500_000
         }

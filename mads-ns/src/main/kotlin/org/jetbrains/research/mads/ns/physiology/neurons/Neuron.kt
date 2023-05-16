@@ -11,11 +11,7 @@ class SpikeTransferConstants(val I_transfer: Double = 5.0) : MechanismConstants
 abstract class Neuron(
     spikeThreshold: Double = 0.0,
     vararg signals: Signals
-) : ModelObject(SpikesSignals(spikeThreshold = spikeThreshold), PotentialSignals(), CurrentSignals(), *signals) {
-    val delayedSpikes: ArrayList<DelayedSpike> = ArrayList()
-}
-
-class DelayedSpike(var timer: Int, val syn: Synapse, val weight: Double)
+) : ModelObject(SpikesSignals(spikeThreshold = spikeThreshold), PotentialSignals(), CurrentSignals(), *signals)
 
 class SpikesSignals(spikeThreshold: Double) : Signals() {
     var spiked: Boolean by observable(false)
@@ -53,8 +49,6 @@ object NeuronMechanisms {
     val SpikeOn = Neuron::spikeOn
     val SpikeOff = Neuron::spikeOff
     val SpikeTransfer = Neuron::spikeTransfer
-    val DelayedSpikeCreation = Neuron::createDelayedSpikes
-    val DelayedSpikeTransfer = Neuron::spikeTransferDelayed
     val STDPSpike = Neuron::STDPSpike
     val STDPDecay = Neuron::STDPDecay
     val WeightNormalization = Neuron::WeightNormalizationDivisive
@@ -178,59 +172,6 @@ fun Neuron.WeightNormalizationDivisive(params: MechanismParameters): List<Respon
             }
         }
     }
-
-    return result
-}
-
-@ExperimentalMechanism
-fun Neuron.createDelayedSpikes(params: MechanismParameters): List<Response> {
-    val result = arrayListOf<Response>()
-
-    this.connections[SynapseReleaser]?.forEach {
-        if (it is Synapse) {
-            val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
-            val coeff = 1.0
-
-            val weightDelta = synapseSignals.weight * synapseSignals.synapseSign * coeff // 100.0 – mA
-            val spike = DelayedSpike(synapseSignals.delay, it, weightDelta)
-
-
-
-            result.add(
-                this.createResponse {
-                    this.delayedSpikes.add(spike)
-                }
-            )
-        }
-    }
-
-    return result
-}
-
-@ExperimentalMechanism
-fun Neuron.spikeTransferDelayed(params: MechanismParameters): List<Response> {
-    val result = arrayListOf<Response>()
-
-    this.delayedSpikes.forEach {
-        if (it.timer <= 0) {
-            val currentSignals = it.syn.signals[CurrentSignals::class] as CurrentSignals
-            val receiverCurrentSignals = it.syn.receiver.signals[CurrentSignals::class] as CurrentSignals
-
-            result.add(
-                it.syn.createResponse {
-                    currentSignals.I_e += it.weight
-                }
-            )
-            result.add(
-                it.syn.receiver.createResponse {
-                    receiverCurrentSignals.I_e += it.weight
-                }
-            )
-        }
-
-        it.timer -= 1
-    }
-    result.add(this.createResponse { this.delayedSpikes.removeIf { it.timer < 0 } })
 
     return result
 }
