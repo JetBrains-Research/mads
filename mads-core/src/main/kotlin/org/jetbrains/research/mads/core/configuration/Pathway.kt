@@ -9,7 +9,7 @@ import kotlin.reflect.KClass
 class Pathway<MO : ModelObject>(val type: KClass<MO>) {
     val configuredMechanisms = ArrayList<ConfiguredMechanism<MO>>()
     var timeResolution: Double = second
-    var timeResolutionCoefficient: Int = 1
+    private var timeResolutionCoefficient: Int = 1
 
     fun mechanism(
         mechanism: (MO, MechanismParameters) -> List<Response>,
@@ -21,6 +21,14 @@ class Pathway<MO : ModelObject>(val type: KClass<MO>) {
     fun checkResolution(globalResolution: Double) : Boolean {
         timeResolutionCoefficient = (timeResolution / globalResolution).toInt()
         return globalResolution <= timeResolution
+    }
+
+    fun normalizeDuration(duration: Int): Int {
+        return duration * timeResolutionCoefficient
+    }
+
+    fun normalizeDelay(delay: (MO) -> Int, obj: MO): () -> Int {
+        return { delay(obj) * timeResolutionCoefficient }
     }
 
     companion object {

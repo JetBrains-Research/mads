@@ -8,6 +8,7 @@ import kotlin.system.exitProcess
 data class ConfiguredMechanism<MO : ModelObject>(
     val mechanism: ((MO) -> List<Response>),
     val duration: Int,
+    val delay: (MO) -> Int,
     val condition: ((MO) -> Boolean),
 )
 
@@ -15,17 +16,20 @@ class ConfiguredMechanismBuilder<MO : ModelObject>(private val mechanism: ((MO, 
                                                                              private val pathwayResolution: Double) {
     var constants: MechanismConstants = EmptyConstants
     var duration: Int = 1
+    var delay: (MO) -> Int = { 0 }
     var condition: ((MO) -> Boolean) = Always
 
     private val callRef = mechanism as CallableReference
 
-    fun build() = ConfiguredMechanism(applyParametersToMechanism(mechanism, createParams()), checkDuration(), condition)
+    fun build() =
+        ConfiguredMechanism(applyParametersToMechanism(mechanism, createParams()), checkDuration(), delay, condition)
 
-    private fun createParams() : MechanismParameters {
+    private fun createParams(): MechanismParameters {
         val timeResolution = callRef.findAnnotation<TimeResolution>()
         val constantType = callRef.findAnnotation<ConstantType>()
         val dt: Double = if (timeResolution != null)
-            pathwayResolution.toBigDecimal().multiply(duration.toBigDecimal()).divide(timeResolution.resolution.toBigDecimal()).toDouble()
+            pathwayResolution.toBigDecimal().multiply(duration.toBigDecimal())
+                .divide(timeResolution.resolution.toBigDecimal()).toDouble()
         else
             1.0
 
