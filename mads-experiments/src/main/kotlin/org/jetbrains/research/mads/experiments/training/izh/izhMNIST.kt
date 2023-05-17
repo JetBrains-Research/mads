@@ -90,6 +90,10 @@ fun learningPhase(
 
     val s = Model(topology, config)
     s?.simulate(saver) { stopCondition.invoke() }
+
+    // logging last state
+    //s?.let { saver.logState(it) }
+
     saver.closeModelWriters()
 }
 
@@ -110,5 +114,9 @@ fun learningPhase(
 
     val s = Model(topology, config)
     s?.simulate(saver) { stopCondition.invoke() }
+
+    // logging last state
+    //s?.let { saver.logState(it) }
+
     saver.closeModelWriters()
 }
