@@ -7,10 +7,7 @@ import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
 import org.jetbrains.research.mads.ns.pathways.spiked
 import org.jetbrains.research.mads.ns.physiology.neurons.*
-import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
-import org.jetbrains.research.mads.ns.physiology.synapses.SynapseCurrentDecayConstants
-import org.jetbrains.research.mads.ns.physiology.synapses.SynapseMechanisms
-import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
+import org.jetbrains.research.mads.ns.physiology.synapses.*
 
 fun trainPhaseConfig() = configure {
     timeResolution = microsecond
@@ -70,10 +67,12 @@ fun trainPhaseConfig() = configure {
         mechanism(mechanism = SynapseMechanisms.PreWeightUpdate) {
             duration = 1
             condition = { (it.releaser.signals[SpikesSignals::class] as SpikesSignals).spiked }
+            constants = LearningConstants(learningRate = 0.0001)
         }
         mechanism(mechanism = SynapseMechanisms.PostWeightUpdate) {
             duration = 1
             condition = { (it.receiver.signals[SpikesSignals::class] as SpikesSignals).spiked }
+            constants = LearningConstants(learningRate = 0.01)
         }
     })
     addPathway(pathway<IzhNeuron> {
