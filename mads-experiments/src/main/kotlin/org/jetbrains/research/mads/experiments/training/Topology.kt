@@ -1,14 +1,19 @@
 package org.jetbrains.research.mads.experiments.training
 
 import org.jetbrains.research.mads.core.types.ModelObject
-import org.jetbrains.research.mads.ns.connectPopulations
-import org.jetbrains.research.mads.ns.connectPopulationsInhibition
-import org.jetbrains.research.mads.ns.connectPopulationsOneToOne
-import org.jetbrains.research.mads.ns.createPopulation
+import org.jetbrains.research.mads.ns.*
+import org.jetbrains.research.mads.ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads.ns.physiology.neurons.InputNeuron2DGrid
 import org.jetbrains.research.mads.ns.physiology.neurons.Neuron
+import org.jetbrains.research.mads.ns.physiology.neurons.STDPTripletSignals
+import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
 import org.jetbrains.research.mads.providers.MnistProvider
 import java.util.*
+
+data class SynapsesParameters(
+    val weight: () -> Double,
+    val delay: () -> Int,
+)
 
 class Topology {
     companion object {
@@ -20,20 +25,35 @@ class Topology {
             provider: MnistProvider,
             excNeuronFun: () -> Neuron,
             inhNeuronFun: () -> Neuron,
-            nExc: Int
+            nExc: Int,
+            rnd: Random,
+            synapsesParameters: List<SynapsesParameters>
         ): List<ModelObject> {
             val inputNeuron2DGrid = InputNeuron2DGrid(provider, 10.0)
             inputNeuron2DGrid.type = INPUT_LAYER
             val secondLayer: List<Neuron> = createPopulation(nExc, SECOND_LAYER, excNeuronFun)
             val thirdLayer: List<Neuron> = createPopulation(nExc, OUTPUT_LAYER, inhNeuronFun)
 
-            val rnd = Random(42L)
-
-            val synapses1to2 =
-                connectPopulations(inputNeuron2DGrid.getNeurons(), secondLayer, probability = 1.0, rnd = rnd,
-                    weight = { rnd.nextDouble() / 2 }, delay = { rnd.nextInt(100) * 100 })
-            val synapses2to3 = connectPopulationsOneToOne(secondLayer, thirdLayer, weight = { 5.0 }, delay = { 0 })
-            val synapses3to2 = connectPopulationsInhibition(thirdLayer, secondLayer, weight = { 5.0 }, delay = { 0 })
+            val synapses1to2 = connectPopulations(
+                inputNeuron2DGrid.getNeurons(),
+                secondLayer,
+                probability = 1.0,
+                rnd = rnd,
+                weight = synapsesParameters[0].weight,
+                delay = synapsesParameters[0].delay
+            )
+            val synapses2to3 = connectPopulationsOneToOne(
+                secondLayer,
+                thirdLayer,
+                weight = synapsesParameters[1].weight,
+                delay = synapsesParameters[1].delay
+            )
+            val synapses3to2 = connectPopulationsInhibition(
+                thirdLayer,
+                secondLayer,
+                weight = synapsesParameters[2].weight,
+                delay = synapsesParameters[2].delay
+            )
 
             val objects: ArrayList<ModelObject> = arrayListOf()
             objects.add(inputNeuron2DGrid)
@@ -46,6 +66,85 @@ class Topology {
 
             return objects
         }
+
+        fun excitatorySimple(
+            inputNeuronFn: () -> Neuron,
+            excNeuronFun: () -> Neuron
+        ): List<ModelObject> {
+            val inputn = inputNeuronFn()
+            val ne = excNeuronFun()
+
+            val syn = connectCellsWithSynapse(
+                inputn,
+                ne,
+                false,
+                CurrentSignals(0.0),
+                SynapseSignals(weight = 25.0, delay = 0, maxWeight = 1.0),
+                STDPTripletSignals(),
+            )
+
+            inputn.type = "input"
+            ne.type = "inter"
+            syn.type = "syn"
+
+            return listOf(
+                inputn,
+                ne,
+                syn
+            )
+        }
+
+        fun inhibitorySimple(
+            inputNeuronFn: () -> Neuron,
+            excNeuronFun: () -> Neuron,
+            inhNeuronFun: () -> Neuron,
+        ): List<ModelObject> {
+            val inputn = inputNeuronFn()
+            val ne = excNeuronFun()
+            val ni = inhNeuronFun()
+
+            val syn = connectCellsWithSynapse(
+                inputn,
+                ne,
+                false,
+                CurrentSignals(0.0),
+                SynapseSignals(weight = 20.0, delay = 0, maxWeight = 30.0),
+                STDPTripletSignals(),
+            )
+
+            val synei = connectCellsWithSynapse(
+                ne,
+                ni,
+                false,
+                CurrentSignals(0.0),
+                SynapseSignals(weight = 15.0, delay = 0, maxWeight = 1.0, learningEnabled = false),
+                STDPTripletSignals(),
+            )
+
+            val synie = connectCellsWithSynapse(
+                ni,
+                ne,
+                true,
+                CurrentSignals(0.0),
+                SynapseSignals(weight = 20.0, delay = 0, maxWeight = 1.0, learningEnabled = false),
+                STDPTripletSignals(),
+            )
+
+            inputn.type = "input"
+            ne.type = "inter"
+            ni.type = "inhib"
+            syn.type = "syn"
+            synei.type = "syn_ei"
+            synie.type = "syn_ie"
+
+            return listOf(
+                inputn,
+                ne,
+                ni,
+                syn,
+                synei,
+                synie
+            )
+        }
     }
 }
-
