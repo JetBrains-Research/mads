@@ -15,10 +15,8 @@ class Synapse(
     var releaser: ModelObject,
     var receiver: ModelObject,
     isInhibitory: Boolean = false,
-    current: CurrentSignals,
-    synapse: SynapseSignals,
     vararg signals: Signals
-) : ModelObject(current, synapse, *signals) {
+) : ModelObject(CurrentSignals(I_e = 0.0), SynapseSignals(), *signals) {
 
     init {
         val sig = this.signals[SynapseSignals::class] as SynapseSignals
