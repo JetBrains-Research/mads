@@ -9,20 +9,6 @@ object SynapseReleaser : ConnectionType
 
 object SynapseReceiver : ConnectionType
 
-class WeightDecayConstants(val weightDecayCoefficient: Double = 0.99) : MechanismConstants
-
-class SynapseCurrentDecayConstants(
-    val zeroingLimit: Double = 0.001,
-    val excitatoryDecayMultiplier: Double = 0.5,
-    val inhibitoryDecayMultiplier: Double = 0.5
-) : MechanismConstants {
-    constructor(zeroingLimit: Double = 0.001, decayMultiplier: Double = 0.5) : this(
-        zeroingLimit,
-        decayMultiplier,
-        decayMultiplier
-    )
-}
-
 class LearningConstants(val learningRate: Double) : MechanismConstants
 
 class Synapse(
@@ -69,10 +55,12 @@ object SynapseMechanisms {
     val PostWeightUpdate = Synapse::postWeightUpdate
 }
 
+@TimeResolution(resolution = millisecond)
+@ConstantType(type = DecayConstants::class)
 fun Synapse.weightDecayMechanism(params: MechanismParameters): List<Response> {
     val synapseSignals = this.signals[SynapseSignals::class] as SynapseSignals
-    val newWeight = synapseSignals.weight * (params.constants as WeightDecayConstants).weightDecayCoefficient
-    val delta = newWeight - synapseSignals.weight
+    val decayConstants = params.constants as DecayConstants
+    val delta = signalDecay(synapseSignals.weight, decayConstants, params.dt)
 
     return arrayListOf(
         this.createResponse {
@@ -196,8 +184,8 @@ fun Synapse.postWeightUpdate(params: MechanismParameters): List<Response> {
         val newWeight = (synapseSignals.weight + learningRate * stdpSignals.stdpTracePre * stdpSignals.stdpTracePost2)
             .coerceIn(0.0, synapseSignals.maxWeight)
         val weightDelta = newWeight - synapseSignals.weight
-        val post1Delta = 1.0 -  stdpSignals.stdpTracePost1
-        val post2Delta = 1.0 -  stdpSignals.stdpTracePost2
+        val post1Delta = 1.0 - stdpSignals.stdpTracePost1
+        val post2Delta = 1.0 - stdpSignals.stdpTracePost2
 
         return listOf(
             this.createResponse {

@@ -88,6 +88,7 @@ fun connectPopulations(
                 SynapseSignals(weight = weight(), delay = delay(), maxWeight = 1.0),
                 STDPTripletSignals()
             )
+            syn.type = "syn_e"
             synapses.add(syn)
         }
     }
@@ -116,6 +117,7 @@ fun connectPopulationsInhibition(
                 SynapseSignals(weight = weight(), delay = delay(), maxWeight = 1.0, learningEnabled = false),
                 STDPTripletSignals()
             )
+            syn.type = "syn_i"
             synapses.add(syn)
         }
     }
@@ -140,6 +142,7 @@ fun connectPopulationsOneToOne(
             SynapseSignals(weight = weight(), delay = delay(), maxWeight = 4.0, learningEnabled = false),
             STDPTripletSignals()
         )
+        syn.type = "syn_e"
         synapses.add(syn)
     }
 

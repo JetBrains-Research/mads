@@ -8,7 +8,10 @@ import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
 import org.jetbrains.research.mads.ns.pathways.spiked
 import org.jetbrains.research.mads.ns.physiology.neurons.*
-import org.jetbrains.research.mads.ns.physiology.synapses.*
+import org.jetbrains.research.mads.ns.physiology.synapses.LearningConstants
+import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
+import org.jetbrains.research.mads.ns.physiology.synapses.SynapseMechanisms
+import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
 
 fun lifBasicInput() = configure {
     timeResolution = microsecond
@@ -187,13 +190,31 @@ fun trainPhaseLifConfig() = configure {
         mechanism(mechanism = SynapseMechanisms.CurrentDecay) {
             duration = 10_000
             condition = {
-                val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
-                currentSignals.I_e != 0.0
+                if (it.type != "syn_e") {
+                    false
+                } else {
+                    val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
+                    currentSignals.I_e != 0.0
+                }
             }
-            constants = SynapseCurrentDecayConstants(
+            constants = DecayConstants(
                 zeroingLimit = 0.001,
-                excitatoryDecayMultiplier = 0.2,
-                inhibitoryDecayMultiplier = 0.02
+                decayMultiplier = 0.2
+            )
+        }
+        mechanism(mechanism = SynapseMechanisms.CurrentDecay) {
+            duration = 10_000
+            condition = {
+                if (it.type != "syn_i") {
+                    false
+                } else {
+                    val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
+                    currentSignals.I_e != 0.0
+                }
+            }
+            constants = DecayConstants(
+                zeroingLimit = 0.001,
+                decayMultiplier = 0.02
             )
         }
         mechanism(mechanism = SynapseMechanisms.PreDecay) {
@@ -281,13 +302,31 @@ fun testPhaseLifConfig() = configure {
         mechanism(mechanism = SynapseMechanisms.CurrentDecay) {
             duration = 10_000
             condition = {
-                val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
-                currentSignals.I_e != 0.0
+                if (it.type != "syn_e") {
+                    false
+                } else {
+                    val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
+                    currentSignals.I_e != 0.0
+                }
             }
-            constants = SynapseCurrentDecayConstants(
+            constants = DecayConstants(
                 zeroingLimit = 0.001,
-                excitatoryDecayMultiplier = 0.2,
-                inhibitoryDecayMultiplier = 0.02
+                decayMultiplier = 0.2
+            )
+        }
+        mechanism(mechanism = SynapseMechanisms.CurrentDecay) {
+            duration = 10_000
+            condition = {
+                if (it.type != "syn_i") {
+                    false
+                } else {
+                    val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
+                    currentSignals.I_e != 0.0
+                }
+            }
+            constants = DecayConstants(
+                zeroingLimit = 0.001,
+                decayMultiplier = 0.02
             )
         }
     })
