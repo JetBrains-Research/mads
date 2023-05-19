@@ -4,7 +4,6 @@ import org.jetbrains.research.mads.core.types.*
 import org.jetbrains.research.mads.ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads.ns.physiology.neurons.STDPTripletSignals
 import org.jetbrains.research.mads.ns.physiology.neurons.SpikeTransferConstants
-import kotlin.math.abs
 
 object SynapseReleaser : ConnectionType
 
@@ -56,6 +55,7 @@ class SynapseSignals(
     var synapseSign: Double by observable(1.0)
     var delay: Int by observable(delay)
     var releaserSpiked: Boolean by observable(false)
+    var receiverSpiked: Boolean by observable(false)
 }
 
 object SynapseMechanisms {
@@ -101,22 +101,12 @@ fun Synapse.spikeTransfer(params: MechanismParameters): List<Response> {
 }
 
 @TimeResolution(resolution = millisecond)
-@ConstantType(type = SynapseCurrentDecayConstants::class)
+@ConstantType(type = DecayConstants::class)
 fun Synapse.currentDecay(params: MechanismParameters): List<Response> {
-    val synapseSignals = this.signals[SynapseSignals::class] as SynapseSignals
     val currentSignals = this.signals[CurrentSignals::class] as CurrentSignals
     val receiverCurrentSignals = this.receiver.signals[CurrentSignals::class] as CurrentSignals
-    val zeroingLimit = (params.constants as SynapseCurrentDecayConstants).zeroingLimit
-    val decayMultiplier =
-        if (synapseSignals.synapseSign > 0) (params.constants as SynapseCurrentDecayConstants).excitatoryDecayMultiplier
-        else (params.constants as SynapseCurrentDecayConstants).inhibitoryDecayMultiplier
-
-    val delta =
-        if (abs(currentSignals.I_e) <= zeroingLimit) {
-            -currentSignals.I_e
-        } else {
-            -decayMultiplier * currentSignals.I_e * params.dt
-        }
+    val decayConstants = params.constants as DecayConstants
+    val delta = signalDecay(currentSignals.I_e, decayConstants, params.dt)
 
     return listOf(
         this.createResponse {
@@ -128,10 +118,12 @@ fun Synapse.currentDecay(params: MechanismParameters): List<Response> {
     )
 }
 
-@Suppress("UNUSED_PARAMETER")
+@TimeResolution(resolution = millisecond)
+@ConstantType(type = DecayConstants::class)
 fun Synapse.preDecay(params: MechanismParameters): List<Response> {
     val stdpSignals = this.signals[STDPTripletSignals::class] as STDPTripletSignals
-    val delta = -0.2 * stdpSignals.stdpTracePre
+    val decayConstants = params.constants as DecayConstants
+    val delta = signalDecay(stdpSignals.stdpTracePre, decayConstants, params.dt)
 
     return arrayListOf(
         this.createResponse {
@@ -140,11 +132,12 @@ fun Synapse.preDecay(params: MechanismParameters): List<Response> {
     )
 }
 
-@Suppress("UNUSED_PARAMETER")
+@TimeResolution(resolution = millisecond)
+@ConstantType(type = DecayConstants::class)
 fun Synapse.post1Decay(params: MechanismParameters): List<Response> {
     val stdpSignals = this.signals[STDPTripletSignals::class] as STDPTripletSignals
-    val delta = -0.2 * stdpSignals.stdpTracePost1
-
+    val decayConstants = params.constants as DecayConstants
+    val delta = signalDecay(stdpSignals.stdpTracePost1, decayConstants, params.dt)
 
     return arrayListOf(
         this.createResponse {
@@ -153,11 +146,12 @@ fun Synapse.post1Decay(params: MechanismParameters): List<Response> {
     )
 }
 
-@Suppress("UNUSED_PARAMETER")
+@TimeResolution(resolution = millisecond)
+@ConstantType(type = DecayConstants::class)
 fun Synapse.post2Decay(params: MechanismParameters): List<Response> {
     val stdpSignals = this.signals[STDPTripletSignals::class] as STDPTripletSignals
-    val delta = -0.1 * stdpSignals.stdpTracePost2
-
+    val decayConstants = params.constants as DecayConstants
+    val delta = signalDecay(stdpSignals.stdpTracePost1, decayConstants, params.dt)
 
     return arrayListOf(
         this.createResponse {
@@ -176,13 +170,14 @@ fun Synapse.preWeightUpdate(params: MechanismParameters): List<Response> {
         val stdpSignals = this.signals[STDPTripletSignals::class] as STDPTripletSignals
         val learningRate = (params.constants as LearningConstants).learningRate
         val newWeight = (synapseSignals.weight + learningRate * stdpSignals.stdpTracePost1)
-            .coerceIn(0.0, 1.0)
-        val delta = newWeight - synapseSignals.weight
+            .coerceIn(0.0, synapseSignals.maxWeight)
+        val weightDelta = newWeight - synapseSignals.weight
+        val preDelta = 1.0 - stdpSignals.stdpTracePre
 
         listOf(
             this.createResponse {
-                synapseSignals.weight += delta
-                stdpSignals.stdpTracePre = 1.0
+                synapseSignals.weight += weightDelta
+                stdpSignals.stdpTracePre += preDelta
             }
         )
     } else
@@ -199,14 +194,17 @@ fun Synapse.postWeightUpdate(params: MechanismParameters): List<Response> {
         val stdpSignals = this.signals[STDPTripletSignals::class] as STDPTripletSignals
         val learningRate = (params.constants as LearningConstants).learningRate
         val newWeight = (synapseSignals.weight + learningRate * stdpSignals.stdpTracePre * stdpSignals.stdpTracePost2)
-            .coerceIn(0.0, 1.0)
-        val delta = newWeight - synapseSignals.weight
+            .coerceIn(0.0, synapseSignals.maxWeight)
+        val weightDelta = newWeight - synapseSignals.weight
+        val post1Delta = 1.0 -  stdpSignals.stdpTracePost1
+        val post2Delta = 1.0 -  stdpSignals.stdpTracePost2
 
         return listOf(
             this.createResponse {
-                synapseSignals.weight += delta
-                stdpSignals.stdpTracePost1 = 1.0
-                stdpSignals.stdpTracePost2 = 1.0
+                synapseSignals.receiverSpiked = false
+                synapseSignals.weight += weightDelta
+                stdpSignals.stdpTracePost1 += post1Delta
+                stdpSignals.stdpTracePost2 += post2Delta
             }
         )
     } else

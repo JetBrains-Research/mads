@@ -100,12 +100,27 @@ fun Neuron.spikeTransfer(params: MechanismParameters): List<Response> {
 }
 
 fun Neuron.spikesInSynapses(): List<Response> {
-    return this.connections[SynapseReleaser]?.map {
+    val relSynapses = this.connections[SynapseReleaser]?.map {
         val synapseSignals = (it as Synapse).signals[SynapseSignals::class] as SynapseSignals
         it.createResponse {
             synapseSignals.releaserSpiked = true
         }
     }?.toList() ?: EmptyResponseList
+    val recSynapses = this.connections[SynapseReceiver]?.map {
+        val synapseSignals = (it as Synapse).signals[SynapseSignals::class] as SynapseSignals
+        it.createResponse {
+            synapseSignals.receiverSpiked = true
+        }
+    }?.toList() ?: EmptyResponseList
+
+    return relSynapses + recSynapses
+
+//    return this.connections[SynapseReleaser]?.map {
+//        val synapseSignals = (it as Synapse).signals[SynapseSignals::class] as SynapseSignals
+//        it.createResponse {
+//            synapseSignals.releaserSpiked = true
+//        }
+//    }?.toList() ?: EmptyResponseList
 }
 
 @Suppress("UNUSED_PARAMETER")

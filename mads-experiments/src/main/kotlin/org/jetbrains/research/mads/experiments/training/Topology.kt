@@ -79,7 +79,7 @@ class Topology {
                 ne,
                 false,
                 CurrentSignals(0.0),
-                SynapseSignals(weight = 25.0, delay = 0, maxWeight = 1.0),
+                SynapseSignals(weight = 25.0, delay = 0, maxWeight = 30.0),
                 STDPTripletSignals(),
             )
 
@@ -133,7 +133,7 @@ class Topology {
             inputn.type = "input"
             ne.type = "inter"
             ni.type = "inhib"
-            syn.type = "syn"
+            syn.type = "syn_in"
             synei.type = "syn_ei"
             synie.type = "syn_ie"
 

@@ -3,12 +3,12 @@ package org.jetbrains.research.mads.experiments.training.lif
 import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.configure
 import org.jetbrains.research.mads.core.configuration.pathway
+import org.jetbrains.research.mads.core.types.DecayConstants
 import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
 import org.jetbrains.research.mads.ns.pathways.spiked
 import org.jetbrains.research.mads.ns.physiology.neurons.*
 import org.jetbrains.research.mads.ns.physiology.synapses.*
-import kotlin.math.abs
 
 fun lifBasicInput() = configure {
     timeResolution = microsecond
@@ -62,35 +62,80 @@ fun lifBasicInput() = configure {
         mechanism(mechanism = SynapseMechanisms.CurrentDecay) {
             duration = 100
             condition = {
-                val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
-                currentSignals.I_e != 0.0
+                if (it.type != "syn") {
+                    false
+                } else {
+                    val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
+                    currentSignals.I_e != 0.0
+                }
             }
-            constants = SynapseCurrentDecayConstants(
-                zeroingLimit = 0.001,
-                excitatoryDecayMultiplier = 0.2,
-                inhibitoryDecayMultiplier = 0.02
+            constants = DecayConstants(
+                zeroingLimit = 0.01,
+                decayMultiplier = 0.1
+            )
+        }
+        mechanism(mechanism = SynapseMechanisms.CurrentDecay) {
+            duration = 100
+            condition = {
+                if (it.type != "syn_in" && it.type != "syn_ei") {
+                    false
+                } else {
+                    val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
+                    currentSignals.I_e != 0.0
+                }
+            }
+            constants = DecayConstants(
+                zeroingLimit = 0.01,
+                decayMultiplier = 0.1
+            )
+        }
+        mechanism(mechanism = SynapseMechanisms.CurrentDecay) {
+            duration = 100
+            condition = {
+                if (it.type != "syn_ie") {
+                    false
+                } else {
+                    val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
+                    currentSignals.I_e != 0.0
+                }
+            }
+            constants = DecayConstants(
+                zeroingLimit = 0.01,
+                decayMultiplier = 0.06
             )
         }
         mechanism(mechanism = SynapseMechanisms.PreDecay) {
             duration = 3_000
             condition = {
                 val stdpSignals = it.signals[STDPTripletSignals::class] as STDPTripletSignals
-                abs(stdpSignals.stdpTracePre) >= 0.005
+                stdpSignals.stdpTracePre != 0.0
             }
+            constants = DecayConstants(
+                zeroingLimit = 0.01,
+                decayMultiplier = 0.15
+            )
         }
         mechanism(mechanism = SynapseMechanisms.Post1Decay) {
             duration = 3_000
             condition = {
                 val stdpSignals = it.signals[STDPTripletSignals::class] as STDPTripletSignals
-                abs(stdpSignals.stdpTracePost1) >= 0.005
+                stdpSignals.stdpTracePost1 != 0.0
             }
+            constants = DecayConstants(
+                zeroingLimit = 0.01,
+                decayMultiplier = 0.15
+            )
         }
         mechanism(mechanism = SynapseMechanisms.Post2Decay) {
             duration = 3_000
             condition = {
                 val stdpSignals = it.signals[STDPTripletSignals::class] as STDPTripletSignals
-                abs(stdpSignals.stdpTracePost2) >= 0.005
+                stdpSignals.stdpTracePost2 != 0.0
             }
+            constants = DecayConstants(
+                zeroingLimit = 0.01,
+                decayMultiplier = 0.075
+            )
         }
         mechanism(mechanism = SynapseMechanisms.PreWeightUpdate) {
             duration = 1
