@@ -7,7 +7,7 @@ object LIFConstants : ObjectConstants {
     const val E_leak        = -60.0
     const val V_reset       = -70.0
     const val V_thresh      = -50.0
-    const val Rm            = 10.0
+    const val Rm            = 1.0
 }
 
 object LIFMechanisms {
@@ -23,7 +23,13 @@ fun LIFNeuron.VDynamic(params: MechanismParameters): List<Response> {
 
     val spiked = (s.V > LIFConstants.V_thresh)
     val delta =
-        if (spiked) LIFConstants.V_reset - s.V else (LIFConstants.E_leak - s.V + (LIFConstants.Rm * i.I_e)) / LIFConstants.tau_mem * params.dt
+        if (spiked) {
+            LIFConstants.V_reset - s.V
+        }
+        else {
+            //((v_rest_e - v) + (I_synE+I_synI) / nS) / (100*ms)
+            (LIFConstants.V_reset - s.V + (LIFConstants.Rm * i.I_e)) / LIFConstants.tau_mem * params.dt
+        }
 
     return arrayListOf(
         this.createResponse {

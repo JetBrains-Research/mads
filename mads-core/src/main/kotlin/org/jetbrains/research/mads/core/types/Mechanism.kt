@@ -1,5 +1,7 @@
 package org.jetbrains.research.mads.core.types
 
+import kotlin.math.abs
+
 data class MechanismParameters(
     val constants: MechanismConstants,
     val dt: Double
@@ -20,5 +22,13 @@ fun <MO : ModelObject> applyObjectToMechanism(
 ): () -> List<Response> {
     return fun(): List<Response> {
         return mechanism(obj)
+    }
+}
+
+fun signalDecay(signal: Double, decayConstants: DecayConstants, dt: Double) : Double {
+    return if (abs(signal) <= decayConstants.zeroingLimit) {
+        -signal
+    } else {
+        -decayConstants.decayMultiplier * signal * dt
     }
 }

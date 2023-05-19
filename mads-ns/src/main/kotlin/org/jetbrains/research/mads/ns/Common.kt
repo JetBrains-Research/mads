@@ -5,13 +5,11 @@ import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads.ns.electrode.Electrode
 import org.jetbrains.research.mads.ns.electrode.ElectrodeArray
 import org.jetbrains.research.mads.ns.pathways.connectToCell
-import org.jetbrains.research.mads.ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads.ns.physiology.neurons.Neuron
 import org.jetbrains.research.mads.ns.physiology.neurons.STDPTripletSignals
 import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseReceiver
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseReleaser
-import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
 import java.util.*
 
 fun createPopulation(capacity: Int, type: String, neuronFun: () -> Neuron): List<Neuron> {
@@ -52,11 +50,9 @@ fun connectCellsWithSynapse(
     releaser: ModelObject,
     receiver: ModelObject,
     inhibitory: Boolean,
-    currentSignals: CurrentSignals,
-    synapseSignals: SynapseSignals,
     vararg signals: Signals
 ): Synapse {
-    val synapse = Synapse(releaser, receiver, inhibitory, currentSignals, synapseSignals, *signals)
+    val synapse = Synapse(releaser, receiver, inhibitory, *signals)
     receiver.addConnection(synapse, SynapseReceiver)
     releaser.addConnection(synapse, SynapseReleaser)
 
@@ -84,10 +80,9 @@ fun connectPopulations(
                 source[i],
                 destination[j],
                 false,
-                CurrentSignals(0.0),
-                SynapseSignals(weight = weight(), delay = delay(), maxWeight = 1.0),
                 STDPTripletSignals()
             )
+            syn.type = "syn_e"
             synapses.add(syn)
         }
     }
@@ -112,10 +107,9 @@ fun connectPopulationsInhibition(
                 source[i],
                 destination[j],
                 true,
-                CurrentSignals(0.0),
-                SynapseSignals(weight = weight(), delay = delay(), maxWeight = 1.0, learningEnabled = false),
                 STDPTripletSignals()
             )
+            syn.type = "syn_i"
             synapses.add(syn)
         }
     }
@@ -136,10 +130,9 @@ fun connectPopulationsOneToOne(
             source[i],
             destination[i],
             false,
-            CurrentSignals(0.0),
-            SynapseSignals(weight = weight(), delay = delay(), maxWeight = 4.0, learningEnabled = false),
             STDPTripletSignals()
         )
+        syn.type = "syn_e"
         synapses.add(syn)
     }
 

@@ -38,6 +38,7 @@ class IzhSignals(val adaptiveThreshold: Boolean = false) : Signals() {
     var U: Double by observable(0.0)
     var theta: Double by observable(0.0)
     var aMult: Double by observable(1.0)
+    var refracTimer: Int by observable(0)
 }
 
 object IzhMechanisms {

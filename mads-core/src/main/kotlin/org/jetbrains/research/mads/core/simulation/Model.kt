@@ -109,5 +109,11 @@ class Model private constructor(
             ModelObject.configuration = configuration
             return Model(objects)
         }
+
+        fun timeStopCondition(threshold: Long): (Model) -> Boolean {
+            return fun(model: Model): Boolean {
+                return model.currentTime() > threshold
+            }
+        }
     }
 }
