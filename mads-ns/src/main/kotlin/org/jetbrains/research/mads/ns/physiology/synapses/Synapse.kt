@@ -15,8 +15,9 @@ class Synapse(
     var releaser: ModelObject,
     var receiver: ModelObject,
     isInhibitory: Boolean = false,
+    synapseSignals: SynapseSignals,
     vararg signals: Signals
-) : ModelObject(CurrentSignals(I_e = 0.0), SynapseSignals(), *signals) {
+) : ModelObject(CurrentSignals(I_e = 0.0), synapseSignals, *signals) {
 
     init {
         val sig = this.signals[SynapseSignals::class] as SynapseSignals
@@ -39,7 +40,7 @@ class SynapseSignals(
     var synapseSign: Double by observable(1.0)
     var delay: Int by observable(delay)
     var releaserSpiked: Boolean by observable(false)
-    var receiverSpiked: Boolean by observable(false)
+//    var receiverSpiked: Boolean by observable(false)
 }
 
 object SynapseMechanisms {
@@ -187,7 +188,7 @@ fun Synapse.postWeightUpdate(params: MechanismParameters): List<Response> {
 
         return listOf(
             this.createResponse {
-                synapseSignals.receiverSpiked = false
+//                synapseSignals.receiverSpiked = false
                 synapseSignals.weight += weightDelta
                 stdpSignals.stdpTracePost1 += post1Delta
                 stdpSignals.stdpTracePost2 += post2Delta

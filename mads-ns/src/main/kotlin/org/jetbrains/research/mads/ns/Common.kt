@@ -10,6 +10,7 @@ import org.jetbrains.research.mads.ns.physiology.neurons.STDPTripletSignals
 import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseReceiver
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseReleaser
+import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
 import java.util.*
 
 fun createPopulation(capacity: Int, type: String, neuronFun: () -> Neuron): List<Neuron> {
@@ -50,9 +51,10 @@ fun connectCellsWithSynapse(
     releaser: ModelObject,
     receiver: ModelObject,
     inhibitory: Boolean,
+    synapseSignals: SynapseSignals,
     vararg signals: Signals
 ): Synapse {
-    val synapse = Synapse(releaser, receiver, inhibitory, *signals)
+    val synapse = Synapse(releaser, receiver, inhibitory, synapseSignals, *signals)
     receiver.addConnection(synapse, SynapseReceiver)
     releaser.addConnection(synapse, SynapseReleaser)
 
@@ -63,7 +65,7 @@ fun connectPopulations(
     source: List<Neuron>,
     destination: List<Neuron>,
     weight: () -> Double = { 1.0 },
-    delay: () -> Int = { 1 },
+    delay: () -> Int = { 0 },
     probability: Double = 1.0,
     rnd: Random = Random(42L)
 ): List<Synapse> {
@@ -80,6 +82,7 @@ fun connectPopulations(
                 source[i],
                 destination[j],
                 false,
+                SynapseSignals(weight = weight(), delay = delay(), maxWeight = 1.0, learningEnabled = false),
                 STDPTripletSignals()
             )
             syn.type = "syn_e"
@@ -107,6 +110,7 @@ fun connectPopulationsInhibition(
                 source[i],
                 destination[j],
                 true,
+                SynapseSignals(weight = weight(), delay = delay(), maxWeight = 1.0, learningEnabled = false),
                 STDPTripletSignals()
             )
             syn.type = "syn_i"
@@ -130,6 +134,7 @@ fun connectPopulationsOneToOne(
             source[i],
             destination[i],
             false,
+            SynapseSignals(weight = weight(), delay = delay(), maxWeight = 4.0, learningEnabled = false),
             STDPTripletSignals()
         )
         syn.type = "syn_e"

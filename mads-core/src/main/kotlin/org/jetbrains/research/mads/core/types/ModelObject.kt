@@ -79,6 +79,10 @@ abstract class ModelObject(vararg signals: Signals) {
         return Response(this, applyFn)
     }
 
+    fun createEmptyResponse() : Response {
+        return Response(this) { }
+    }
+
     internal fun applyResponses(responses: List<Response>): List<ModelObject> {
         return resolveConflicts(responses).map {
             it.applyFn()

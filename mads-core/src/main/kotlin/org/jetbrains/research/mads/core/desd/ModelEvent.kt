@@ -1,14 +1,11 @@
 package org.jetbrains.research.mads.core.desd
 
+import org.jetbrains.research.mads.core.types.EmptyResponseList
 import org.jetbrains.research.mads.core.types.Response
 import java.util.*
 import kotlin.system.exitProcess
 
 typealias ProcessState = () -> List<Response>
-
-object EmptyResponse {
-    val value: List<Response> = arrayListOf()
-}
 
 class ModelEvent(
     private val mechanism: () -> List<Response>,
@@ -100,12 +97,12 @@ class ModelEvent(
     private fun processPostponedEvent(): List<Response> {
         eventTime = postponeTime
         eventState = EventState.Active
-        return EmptyResponse.value
+        return EmptyResponseList
     }
 
     private fun processWaitingInQueueEvent(): List<Response> {
         eventState = EventState.Waiting
-        return EmptyResponse.value
+        return EmptyResponseList
     }
 
     private fun withDelta(tick: Long): Long {

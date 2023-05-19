@@ -5,6 +5,7 @@ import org.jetbrains.research.mads.ns.*
 import org.jetbrains.research.mads.ns.physiology.neurons.InputNeuron2DGrid
 import org.jetbrains.research.mads.ns.physiology.neurons.Neuron
 import org.jetbrains.research.mads.ns.physiology.neurons.STDPTripletSignals
+import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
 import org.jetbrains.research.mads.providers.MnistProvider
 import java.util.*
 
@@ -76,6 +77,7 @@ class Topology {
                 inputn,
                 ne,
                 false,
+                SynapseSignals(weight = 20.0, delay = 0, maxWeight = 30.0),
                 STDPTripletSignals(),
             )
 
@@ -103,6 +105,7 @@ class Topology {
                 inputn,
                 ne,
                 false,
+                SynapseSignals(weight = 20.0, delay = 0, maxWeight = 30.0),
                 STDPTripletSignals(),
             )
 
@@ -110,6 +113,7 @@ class Topology {
                 ne,
                 ni,
                 false,
+                SynapseSignals(weight = 15.0, delay = 0, maxWeight = 1.0, learningEnabled = false),
                 STDPTripletSignals(),
             )
 
@@ -117,6 +121,7 @@ class Topology {
                 ni,
                 ne,
                 true,
+                SynapseSignals(weight = 20.0, delay = 0, maxWeight = 1.0, learningEnabled = false),
                 STDPTripletSignals(),
             )
 

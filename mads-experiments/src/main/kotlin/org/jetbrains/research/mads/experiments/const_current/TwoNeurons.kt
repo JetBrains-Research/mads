@@ -11,6 +11,7 @@ import org.jetbrains.research.mads.ns.connectCellsWithSynapse
 import org.jetbrains.research.mads.ns.electrode.Electrode
 import org.jetbrains.research.mads.ns.pathways.*
 import org.jetbrains.research.mads.ns.physiology.neurons.*
+import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
 import java.util.*
 import kotlin.io.path.Path
 
@@ -70,7 +71,7 @@ fun experimentWithTwoNeurons(current: Double, logFolder: String, neuronFun: () -
         val cellS = neuronFun()
         val electrode = Electrode(rnd, CurrentSignals(I_e = current))
         electrode.connectToCell(cellF)
-        val synapse = connectCellsWithSynapse(cellF, cellS, false)
+        val synapse = connectCellsWithSynapse(cellF, cellS, false, SynapseSignals())
         cellF.type = "first_neuron"
         cellS.type = "second_neuron"
         electrode.type = "electrode"
