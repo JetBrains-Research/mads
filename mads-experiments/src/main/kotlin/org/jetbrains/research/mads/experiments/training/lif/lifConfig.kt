@@ -219,12 +219,36 @@ fun trainPhaseLifConfig() = configure {
         }
         mechanism(mechanism = SynapseMechanisms.PreDecay) {
             duration = 20_000
+            condition = {
+                val stdpSignals = it.signals[STDPTripletSignals::class] as STDPTripletSignals
+                stdpSignals.stdpTracePre != 0.0
+            }
+            constants = DecayConstants(
+                zeroingLimit = 0.01,
+                decayMultiplier = 0.15
+            )
         }
         mechanism(mechanism = SynapseMechanisms.Post1Decay) {
             duration = 20_000
+            condition = {
+                val stdpSignals = it.signals[STDPTripletSignals::class] as STDPTripletSignals
+                stdpSignals.stdpTracePost1 != 0.0
+            }
+            constants = DecayConstants(
+                zeroingLimit = 0.01,
+                decayMultiplier = 0.15
+            )
         }
         mechanism(mechanism = SynapseMechanisms.Post2Decay) {
             duration = 40_000
+            condition = {
+                val stdpSignals = it.signals[STDPTripletSignals::class] as STDPTripletSignals
+                stdpSignals.stdpTracePost2 != 0.0
+            }
+            constants = DecayConstants(
+                zeroingLimit = 0.01,
+                decayMultiplier = 0.075
+            )
         }
         mechanism(mechanism = SynapseMechanisms.PreWeightUpdate) {
             duration = 1

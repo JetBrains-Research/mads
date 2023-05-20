@@ -138,7 +138,7 @@ fun Synapse.post1Decay(params: MechanismParameters): List<Response> {
 fun Synapse.post2Decay(params: MechanismParameters): List<Response> {
     val stdpSignals = this.signals[STDPTripletSignals::class] as STDPTripletSignals
     val decayConstants = params.constants as DecayConstants
-    val delta = signalDecay(stdpSignals.stdpTracePost1, decayConstants, params.dt)
+    val delta = signalDecay(stdpSignals.stdpTracePost2, decayConstants, params.dt)
 
     return arrayListOf(
         this.createResponse {
@@ -188,7 +188,6 @@ fun Synapse.postWeightUpdate(params: MechanismParameters): List<Response> {
 
         return listOf(
             this.createResponse {
-//                synapseSignals.receiverSpiked = false
                 synapseSignals.weight += weightDelta
                 stdpSignals.stdpTracePost1 += post1Delta
                 stdpSignals.stdpTracePost2 += post2Delta
