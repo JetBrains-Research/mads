@@ -19,6 +19,9 @@ abstract class ModelObject(vararg signals: Signals) {
         // changed objects static section
         private const val added = "added"
         private const val removed = "removed"
+
+        // access to elapsed time
+        internal var getCurrentTime: () -> Long = { 0 }
     }
 
     var type: String = ""
@@ -43,6 +46,10 @@ abstract class ModelObject(vararg signals: Signals) {
         return childObjects.asSequence()
             .selectRecursive { getChildObjects().asSequence() }
             .toList()
+    }
+
+    fun currentTime() : Long {
+        return getCurrentTime()
     }
 
     fun addObject(addedObject: ModelObject): List<ModelObject> {
