@@ -150,7 +150,7 @@ fun Neuron.weightNormalizationDivisive(params: MechanismParameters): List<Respon
         }?.map {
             val synapseSignals = (it as Synapse).signals[SynapseSignals::class] as SynapseSignals
             val newWeight = synapseSignals.weight * coefficient
-            this.createResponse { synapseSignals.weight = newWeight }
+            it.createResponse { synapseSignals.weight = newWeight }
         }?.toList() ?: EmptyResponseList
     } else
         EmptyResponseList
