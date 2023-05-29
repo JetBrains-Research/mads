@@ -40,7 +40,6 @@ class SynapseSignals(
     var synapseSign: Double by observable(1.0)
     var delay: Int by observable(delay)
     var releaserSpiked: Boolean by observable(false)
-//    var receiverSpiked: Boolean by observable(false)
 }
 
 object SynapseMechanisms {

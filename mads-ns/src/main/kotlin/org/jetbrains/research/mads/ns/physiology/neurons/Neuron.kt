@@ -108,10 +108,6 @@ fun Neuron.spikesInSynapses(): List<Response> {
     }?.toList() ?: EmptyResponseList
     val recSynapses = this.connections[SynapseReceiver]?.map {
         it.createEmptyResponse()
-//        val synapseSignals = (it as Synapse).signals[SynapseSignals::class] as SynapseSignals
-//        it.createResponse {
-//            synapseSignals.receiverSpiked = true
-//        }
     }?.toList() ?: EmptyResponseList
 
     return relSynapses + recSynapses

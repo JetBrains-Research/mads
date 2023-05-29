@@ -38,10 +38,6 @@ fun AdaptiveLIFNeuron.VDynamic(params: MechanismParameters): List<Response> {
 
     var spiked = (s.V > (AdaptiveLIFConstants.V_thresh + a.theta))
 
-    if (spiked) {
-        val x = 42
-    }
-
     if (this.hasRefracTimer) {
         spiked = spiked && (a.refracTimer > 500)
     }
@@ -84,6 +80,7 @@ fun AdaptiveLIFNeuron.VDynamic(params: MechanismParameters): List<Response> {
     }
 }
 
+@Suppress("UNUSED_PARAMETER")
 fun AdaptiveLIFNeuron.thetaSpike(params: MechanismParameters): List<Response> {
     val adapt = this.signals[AdaptiveSignals::class] as AdaptiveSignals
 
@@ -95,6 +92,7 @@ fun AdaptiveLIFNeuron.thetaSpike(params: MechanismParameters): List<Response> {
     )
 }
 
+@Suppress("UNUSED_PARAMETER")
 fun AdaptiveLIFNeuron.thetaDecay(params: MechanismParameters): List<Response> {
     val adapt = this.signals[AdaptiveSignals::class] as AdaptiveSignals
     val delta = -adapt.theta * 0.1
