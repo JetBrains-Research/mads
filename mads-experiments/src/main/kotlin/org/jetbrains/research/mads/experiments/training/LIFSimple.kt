@@ -10,7 +10,6 @@ import org.jetbrains.research.mads.core.types.second
 import org.jetbrains.research.mads.ns.connectElectrodeArray
 import org.jetbrains.research.mads.ns.connectPopulations
 import org.jetbrains.research.mads.ns.createPopulation
-import org.jetbrains.research.mads.providers.MnistProvider
 import org.jetbrains.research.mads.ns.electrode.ElectrodeArray
 import org.jetbrains.research.mads.ns.pathways.electrodeArrayPathway
 import org.jetbrains.research.mads.ns.pathways.electrodePulsePathway
@@ -21,6 +20,7 @@ import org.jetbrains.research.mads.ns.physiology.neurons.LIFNeuron
 import org.jetbrains.research.mads.ns.physiology.neurons.Neuron
 import org.jetbrains.research.mads.ns.physiology.neurons.SpikesSignals
 import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
+import org.jetbrains.research.mads.providers.MnistProvider
 import java.nio.file.Paths
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -70,6 +70,6 @@ fun learningExperiment(logFolder: String, neuronFun: () -> Neuron, config: Confi
 
     val s = Model(objects, config)
     val stopTime = (time.toBigDecimal() / config.timeResolution.toBigDecimal()).toLong()
-    s?.simulate(saver) { it.currentTime() > stopTime }
+    s?.simulate(saver) { it.nextTime() > stopTime }
     saver.closeModelWriters()
 }

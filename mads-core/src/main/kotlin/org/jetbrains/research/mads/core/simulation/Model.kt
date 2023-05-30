@@ -17,6 +17,9 @@ class Model private constructor(
 ) : ModelObject() {
 
     var tStart: Long = 0
+    var currentTime: Long = 0
+        private set
+
     private val dispatcher = EventsDispatcher()
     private val progressBar: ProgressBarRotating = ProgressBarRotating(250, "step: 0")
 
@@ -45,7 +48,7 @@ class Model private constructor(
         while (!stopCondition(this)) {
 
             // 1. process events from queue -> get grouped responses by model object
-            val currentTime = currentTime()
+            currentTime = dispatcher.peekHead()
             val responses = dispatcher.calculateNextTick()
 
             // 2. apply responses to each object independently -> S_i to S_i+1
@@ -78,17 +81,24 @@ class Model private constructor(
         progressBar.stop("done")
         val totalModelingTime = configuration.timeResolution.toBigDecimal().multiply(lastStep.toBigDecimal()).toDouble()
         println("Total of $totalModelingTime seconds were simulated")
-        configuration = Configuration()
+        finalize()
         println("Configuration was unload from model")
-        clearEvents()
+        println("Elapsed time reset to zero")
         println("Events were cleared in each object\n")
     }
 
-    fun currentTime(): Long {
+    fun nextTime() : Long {
         return dispatcher.peekHead()
     }
 
-    private fun clearEvents() {
+    internal fun getCurrentTime() : Long {
+        return currentTime
+    }
+
+    private fun finalize() {
+        configuration = Configuration()
+        getCurrentTime = { 0 }
+
         getChildObjects().forEach {
             it.events.clear()
         }
@@ -107,12 +117,15 @@ class Model private constructor(
             }
 
             ModelObject.configuration = configuration
-            return Model(objects)
+            val model = Model(objects)
+            getCurrentTime = model::getCurrentTime
+
+            return model
         }
 
         fun timeStopCondition(threshold: Long): (Model) -> Boolean {
             return fun(model: Model): Boolean {
-                return model.currentTime() > threshold
+                return model.nextTime() > threshold
             }
         }
     }

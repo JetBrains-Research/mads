@@ -97,6 +97,6 @@ fun experimentWithCurrents(current: Double, period: Int, logFolder: String, neur
 
     val s = Model(objects, config)
     val stopTime = (time.toBigDecimal() / config.timeResolution.toBigDecimal()).toLong()
-    s?.simulate(saver) { it.currentTime() > stopTime }
+    s?.simulate(saver) { it.nextTime() > stopTime }
     saver.closeModelWriters()
 }
