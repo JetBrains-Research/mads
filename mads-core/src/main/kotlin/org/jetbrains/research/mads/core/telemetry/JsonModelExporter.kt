@@ -1,33 +1,39 @@
 package org.jetbrains.research.mads.core.telemetry
 
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToStream
 import org.jetbrains.research.mads.core.simulation.Model
 import java.io.File
+import java.nio.file.Files
 import java.nio.file.Path
 
-val format = Json { prettyPrint = true }
+val format = Json {
+    prettyPrint = true
+    allowSpecialFloatingPointValues = true
+}
 
 class JsonModelExporter(out: Path) {
     private var isClosed = false
-    private val fileWriter = File(out.toUri()).writer()
+    private val outputStream = out.toFile().outputStream()
     private var counter = 0
 
     init {
-        fileWriter.write("[")
+        outputStream.write("[".encodeToByteArray())
     }
 
     fun write(model: Model) {
         if (counter != 0) {
-            fileWriter.write(",")
+            outputStream.write(",".encodeToByteArray())
         }
-        fileWriter.write(Json.encodeToString(ModelStateSerializer, model))
+        format.encodeToStream(ModelStateSerializer, model, outputStream)
         counter++
     }
 
     fun close() {
-        fileWriter.write("]")
-        fileWriter.flush()
-        fileWriter.close()
+        outputStream.write("]".encodeToByteArray())
+        outputStream.flush()
+        outputStream.close()
         isClosed = true
     }
+
 }
