@@ -1,9 +1,9 @@
-package org.jetbrains.research.mads.experiments.training.lif
+package org.jetbrains.research.mads.examples.training.lif
 
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.types.second
-import org.jetbrains.research.mads.experiments.training.Topology
-import org.jetbrains.research.mads.experiments.training.runExperiment
+import org.jetbrains.research.mads.examples.training.Topology
+import org.jetbrains.research.mads.examples.training.runExperiment
 import org.jetbrains.research.mads.ns.physiology.neurons.AdaptiveLIFNeuron
 import org.jetbrains.research.mads.ns.physiology.neurons.SpikesSignals
 import org.jetbrains.research.mads.ns.physiology.neurons.TimerInputNeuron

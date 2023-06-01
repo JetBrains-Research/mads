@@ -126,6 +126,7 @@ fun IzhNeuron.UDynamic(params: MechanismParameters): List<Response> {
 }
 
 @ExperimentalMechanism
+@Suppress("UNUSED_PARAMETER")
 fun IzhNeuron.thetaDecay(params: MechanismParameters): List<Response> {
     val izh = this.signals[IzhSignals::class] as IzhSignals
 
@@ -138,6 +139,7 @@ fun IzhNeuron.thetaDecay(params: MechanismParameters): List<Response> {
 }
 
 @ExperimentalMechanism
+@Suppress("UNUSED_PARAMETER")
 fun IzhNeuron.thetaSpike(params: MechanismParameters): List<Response> {
     val signals = this.signals[IzhSignals::class] as IzhSignals
     val delta = -signals.aMult * 0.002

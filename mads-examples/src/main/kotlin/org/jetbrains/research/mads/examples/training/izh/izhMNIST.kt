@@ -1,22 +1,19 @@
-package org.jetbrains.research.mads.experiments.training.lif
+package org.jetbrains.research.mads.examples.training.izh
 
-import org.jetbrains.research.mads.experiments.training.SynapsesParameters
-import org.jetbrains.research.mads.experiments.training.Topology
-import org.jetbrains.research.mads.experiments.training.runExperiment
-import org.jetbrains.research.mads.ns.physiology.neurons.AdaptiveLIFNeuron
-import org.jetbrains.research.mads.ns.physiology.neurons.CurrentStimuli
-import org.jetbrains.research.mads.ns.physiology.neurons.SpikesSignals
+import org.jetbrains.research.mads.examples.training.SynapsesParameters
+import org.jetbrains.research.mads.examples.training.Topology
+import org.jetbrains.research.mads.examples.training.runExperiment
+import org.jetbrains.research.mads.ns.physiology.neurons.*
 import org.jetbrains.research.mads.providers.MnistProvider
 import java.nio.file.Paths
 import java.util.*
 import kotlin.io.path.absolutePathString
 
 fun main() {
-    mnist3PhaseLif()
+    mnist3PhaseIzh()
 }
 
-
-fun mnist3PhaseLif() {
+fun mnist3PhaseIzh() {
     val startTime = System.currentTimeMillis()
     val trainClassSize = 20 // per class
     val assignClassSize = 20 // per class
@@ -30,14 +27,14 @@ fun mnist3PhaseLif() {
     val rnd = Random(42L)
     val topology = Topology.mnistTopology(
         provider,
-        { -> AdaptiveLIFNeuron(adaptiveThreshold = true, weightNormalizationEnabled = true, hasRefracTimer = true) },
-        { -> AdaptiveLIFNeuron(adaptiveThreshold = false, weightNormalizationEnabled = false, hasRefracTimer = true) },
+        { -> IzhNeuron(IzhRS, adaptiveThreshold = true, weightNormalizationEnabled = true) },
+        { -> IzhNeuron(IzhFS, adaptiveThreshold = false, weightNormalizationEnabled = false) },
         nExc,
         rnd,
         listOf(
-            SynapsesParameters(weight = { rnd.nextDouble() / 3 }, delay = { rnd.nextInt(100) * 100 }),
-            SynapsesParameters(weight = { 10.5 }, delay = { 0 }),
-            SynapsesParameters(weight = { 17.5 }, delay = { 0 })
+            SynapsesParameters(weight = { rnd.nextDouble() / 2 }, delay = { rnd.nextInt(100) * 100 }),
+            SynapsesParameters(weight = { 5.0 }, delay = { 0 }),
+            SynapsesParameters(weight = { 5.0 }, delay = { 0 })
         )
     )
 
@@ -54,7 +51,7 @@ fun mnist3PhaseLif() {
             Topology.OUTPUT_LAYER to hashSetOf(SpikesSignals::spikeCounter)
         ),
         topology,
-        trainPhaseLifConfig()
+        trainPhaseIzhConfig()
     ) { provider.imageIndex >= trainSize }
     runExperiment(
         logFolder = "assign/${startTime}",
@@ -63,15 +60,13 @@ fun mnist3PhaseLif() {
             Topology.SECOND_LAYER to hashSetOf(SpikesSignals::spikeCounter)
         ),
         topology,
-        testPhaseLifConfig()
+        testPhaseIzhConfig()
     ) { provider.imageIndex >= trainSize + assignSize }
     runExperiment(
         logFolder = "test/${startTime}",
-        mapOf(
-            Topology.INPUT_LAYER to hashSetOf(CurrentStimuli::stimuli),
-            Topology.SECOND_LAYER to hashSetOf(SpikesSignals::spikeCounter)
-        ),
+        listOf(SpikesSignals::spikeCounter, CurrentStimuli::stimuli),
+        listOf(Topology.INPUT_LAYER, Topology.SECOND_LAYER),
         topology,
-        testPhaseLifConfig()
+        testPhaseIzhConfig()
     ) { provider.imageIndex >= trainSize + assignSize + testSize }
 }

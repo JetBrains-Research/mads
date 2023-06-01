@@ -57,7 +57,7 @@ class InputNeuron2DGrid(
 class InputNeuronSpikeRateConstants(val rate: Double = 35.0) : MechanismConstants
 
 object InputNeuron2DGridMechanisms {
-    val GenerateStimuliSpikes = InputNeuron2DGrid::GenerateStimuliSpikes
+    val GenerateStimuliSpikes = InputNeuron2DGrid::generateStimuliSpikes
 }
 
 fun InputNeuron2DGrid.transformPixelToSpikes(intensity: Double): Int {
@@ -65,7 +65,7 @@ fun InputNeuron2DGrid.transformPixelToSpikes(intensity: Double): Int {
 }
 
 @ConstantType(InputNeuronSpikeRateConstants::class)
-fun InputNeuron2DGrid.GenerateStimuliSpikes(params: MechanismParameters): List<Response> {
+fun InputNeuron2DGrid.generateStimuliSpikes(params: MechanismParameters): List<Response> {
     val rate = (params.constants as InputNeuronSpikeRateConstants).rate
     val provider = this.getProvider()
     val img = provider.getNextImage()

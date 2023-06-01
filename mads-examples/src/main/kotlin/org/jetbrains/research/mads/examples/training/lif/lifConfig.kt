@@ -1,4 +1,4 @@
-package org.jetbrains.research.mads.experiments.training.lif
+package org.jetbrains.research.mads.examples.training.lif
 
 import org.jetbrains.research.mads.core.configuration.Always
 import org.jetbrains.research.mads.core.configuration.configure
@@ -6,7 +6,7 @@ import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.types.DecayConstants
 import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
-import org.jetbrains.research.mads.ns.pathways.spiked
+import org.jetbrains.research.mads.ns.spiked
 import org.jetbrains.research.mads.ns.physiology.neurons.*
 import org.jetbrains.research.mads.ns.physiology.synapses.LearningConstants
 import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
