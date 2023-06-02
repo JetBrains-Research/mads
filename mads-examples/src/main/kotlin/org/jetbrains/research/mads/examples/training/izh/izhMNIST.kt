@@ -1,8 +1,8 @@
 package org.jetbrains.research.mads.examples.training.izh
 
-import org.jetbrains.research.mads.examples.training.SynapsesParameters
-import org.jetbrains.research.mads.examples.training.Topology
-import org.jetbrains.research.mads.examples.training.runExperiment
+import org.jetbrains.research.mads.examples.SynapsesParameters
+import org.jetbrains.research.mads.examples.Topology
+import org.jetbrains.research.mads.examples.runExperiment
 import org.jetbrains.research.mads.ns.physiology.neurons.*
 import org.jetbrains.research.mads.providers.MnistProvider
 import java.nio.file.Paths

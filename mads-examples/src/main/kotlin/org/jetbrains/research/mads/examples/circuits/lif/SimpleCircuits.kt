@@ -1,36 +1,34 @@
-package org.jetbrains.research.mads.examples.training.lif
+package org.jetbrains.research.mads.examples.circuits.lif
 
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.types.second
-import org.jetbrains.research.mads.examples.training.Topology
-import org.jetbrains.research.mads.examples.training.runExperiment
-import org.jetbrains.research.mads.ns.physiology.neurons.AdaptiveLIFNeuron
-import org.jetbrains.research.mads.ns.physiology.neurons.SpikesSignals
-import org.jetbrains.research.mads.ns.physiology.neurons.TimerInputNeuron
+import org.jetbrains.research.mads.examples.Topology
+import org.jetbrains.research.mads.examples.runExperiment
+import org.jetbrains.research.mads.ns.physiology.neurons.*
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
 
 fun main() {
-    basicLifSynapse()
-//    basicLifSynapseInhib()
+    twoNeuronsCircuit()
+    threeNeuronsCircuit()
 }
 
-fun basicLifSynapse() {
+fun twoNeuronsCircuit() {
     val startTime = System.currentTimeMillis()
-    val modelingTime = 1 * second
-    val config = lifBasicInput()
+    val modelingTime = 5 * second
+    val config = simpleCircuitConfigLif
     val stopTime = (modelingTime.toBigDecimal() / config.timeResolution.toBigDecimal()).toLong()
 
     val logSignals = listOf(
-//        SpikesSignals::spiked,
+        SpikesSignals::spiked,
         SynapseSignals::weight,
-//        PotentialSignals::V,
-//        CurrentSignals::I_e,
-//        AdaptiveSignals::theta,
-//        AdaptiveSignals::icond,
-//        STDPTripletSignals::stdpTracePre,
-//        STDPTripletSignals::stdpTracePost1,
-//        STDPTripletSignals::stdpTracePost2,
-//        AdaptiveSignals::theta
+        PotentialSignals::V,
+        CurrentSignals::I_e,
+        AdaptiveSignals::theta,
+        AdaptiveSignals::icond,
+        STDPTripletSignals::stdpTracePre,
+        STDPTripletSignals::stdpTracePost1,
+        STDPTripletSignals::stdpTracePost2,
+        AdaptiveSignals::theta
     )
 
     val objects = Topology.excitatorySimple(
@@ -44,29 +42,29 @@ fun basicLifSynapse() {
         logSignals = logSignals,
         listOf(),
         objects,
-        lifBasicInput(),
+        config,
         Model.timeStopCondition(stopTime)
     )
 }
 
-fun basicLifSynapseInhib() {
+fun threeNeuronsCircuit() {
     val startTime = System.currentTimeMillis()
-    val modelingTime = 1 * second
-    val config = lifBasicInput()
+    val modelingTime = 5 * second
+    val config = simpleCircuitConfigLif
     val stopTime = (modelingTime.toBigDecimal() / config.timeResolution.toBigDecimal()).toLong()
 
     val logSignals = listOf(
         SpikesSignals::spiked,
-//        SynapseSignals::weight,
-//        SynapseSignals::releaserSpiked,
-//        PotentialSignals::V,
-//        CurrentSignals::I_e,
-//        AdaptiveSignals::theta,
-//        AdaptiveSignals::icond,
-//        STDPTripletSignals::stdpTracePre,
-//        STDPTripletSignals::stdpTracePost1,
-//        STDPTripletSignals::stdpTracePost2,
-//        AdaptiveSignals::theta
+        SynapseSignals::weight,
+        SynapseSignals::releaserSpiked,
+        PotentialSignals::V,
+        CurrentSignals::I_e,
+        AdaptiveSignals::theta,
+        AdaptiveSignals::icond,
+        STDPTripletSignals::stdpTracePre,
+        STDPTripletSignals::stdpTracePost1,
+        STDPTripletSignals::stdpTracePost2,
+        AdaptiveSignals::theta
     )
 
     val objects = Topology.inhibitorySimple(
@@ -81,7 +79,7 @@ fun basicLifSynapseInhib() {
         logSignals = logSignals,
         listOf(),
         objects,
-        lifBasicInput(),
+        config,
         Model.timeStopCondition(stopTime)
     )
 }

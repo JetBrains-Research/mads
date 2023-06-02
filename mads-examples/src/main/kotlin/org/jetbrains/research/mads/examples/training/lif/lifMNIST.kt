@@ -1,8 +1,8 @@
 package org.jetbrains.research.mads.examples.training.lif
 
-import org.jetbrains.research.mads.examples.training.SynapsesParameters
-import org.jetbrains.research.mads.examples.training.Topology
-import org.jetbrains.research.mads.examples.training.runExperiment
+import org.jetbrains.research.mads.examples.SynapsesParameters
+import org.jetbrains.research.mads.examples.Topology
+import org.jetbrains.research.mads.examples.runExperiment
 import org.jetbrains.research.mads.ns.physiology.neurons.AdaptiveLIFNeuron
 import org.jetbrains.research.mads.ns.physiology.neurons.CurrentStimuli
 import org.jetbrains.research.mads.ns.physiology.neurons.SpikesSignals

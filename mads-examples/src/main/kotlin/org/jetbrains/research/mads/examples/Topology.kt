@@ -1,4 +1,4 @@
-package org.jetbrains.research.mads.examples.training
+package org.jetbrains.research.mads.examples
 
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.ns.*
