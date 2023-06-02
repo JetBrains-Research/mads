@@ -2,6 +2,9 @@ package org.jetbrains.research.mads.examples
 
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.ns.*
+import org.jetbrains.research.mads.ns.electrode.Electrode
+import org.jetbrains.research.mads.ns.electrode.connectToCell
+import org.jetbrains.research.mads.ns.physiology.neurons.CurrentSignals
 import org.jetbrains.research.mads.ns.physiology.neurons.InputNeuron2DGrid
 import org.jetbrains.research.mads.ns.physiology.neurons.Neuron
 import org.jetbrains.research.mads.ns.physiology.neurons.STDPTripletSignals
@@ -140,6 +143,30 @@ class Topology {
                 synei,
                 synie
             )
+        }
+
+        fun constCurrent(
+            neuronFun: () -> Neuron,
+            current: Double
+        ): List<ModelObject> {
+            val neuron = neuronFun()
+            neuron.type = "neuron"
+            (neuron.signals[CurrentSignals::class] as CurrentSignals).I_e = current
+
+            return listOf(neuron)
+        }
+
+        fun electrodeNeuron(
+            electrodeFun: () -> Electrode,
+            neuronFun: () -> Neuron,
+        ): List<ModelObject> {
+            val neuron = neuronFun()
+            val electrode = electrodeFun()
+            neuron.type = "neuron"
+            electrode.type = "electrode"
+            electrode.connectToCell(neuron)
+
+            return listOf(neuron, electrode)
         }
     }
 }

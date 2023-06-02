@@ -5,7 +5,7 @@ val groupName = "org.jetbrains.research.mads"
 val javaVersion = JavaVersion.VERSION_17 // Adjust this to the desired Java version
 val javaLanguageVersion = JavaLanguageVersion.of(javaVersion.toString())
 val kotlinVersion = "1.8.0" // Adjust this to the desired Kotlin version
-val excludedModules = setOf(":mads-examples") // Examples won't be compiled and distributed
+val excludedModules = setOf(":mads-examples") // Examples won't be published, but still compiled
 
 plugins {
     java
@@ -39,14 +39,19 @@ subprojects {
         dependsOn(subprojects.map { it.tasks.named("publish") })
     }
 
+    // Only disable 'publish' task for excludedModules
+    tasks.withType<PublishToMavenRepository> {
+        onlyIf { !excludedModules.contains(project.path) }
+    }
+
     tasks {
-        matching { task ->
-            excludedModules.any { modulePath ->
-                task.project == project(modulePath)
-            }
-        }.configureEach {
-            onlyIf { false } // Skip tasks for the modules
-        }
+//        matching { task ->
+//            excludedModules.any { modulePath ->
+//                task.project == project(modulePath)
+//            }
+//        }.configureEach {
+//            onlyIf { false } // Skip tasks for the modules
+//        }
 
         withType<KotlinCompile> {
             kotlinOptions {
