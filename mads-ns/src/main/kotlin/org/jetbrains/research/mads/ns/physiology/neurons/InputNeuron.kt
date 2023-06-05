@@ -9,11 +9,12 @@ import java.util.*
 class InputNeuron(val rnd: Random, vararg signals: Signals) : Neuron(0.0, ProbabilisticSpikingSignals(), *signals)
 
 object InputNeuronMechanisms {
-    val ProbabilisticSpike = InputNeuron::ProbabilisticSpike
-    val Silent = InputNeuron::Silent
+    val ProbabilisticSpike = InputNeuron::probabilisticSpike
+    val Silent = InputNeuron::silent
 }
 
-fun InputNeuron.ProbabilisticSpike(params: MechanismParameters): List<Response> {
+@Suppress("UNUSED_PARAMETER")
+fun InputNeuron.probabilisticSpike(params: MechanismParameters): List<Response> {
     val probabilisticSpikingSignals = this.signals[ProbabilisticSpikingSignals::class] as ProbabilisticSpikingSignals
     val spikeProbability = probabilisticSpikingSignals.spikeProbability
 
@@ -33,7 +34,8 @@ fun InputNeuron.ProbabilisticSpike(params: MechanismParameters): List<Response> 
     return EmptyResponseList
 }
 
-fun InputNeuron.Silent(params: MechanismParameters): List<Response> {
+@Suppress("UNUSED_PARAMETER")
+fun InputNeuron.silent(params: MechanismParameters): List<Response> {
     val probabilisticSpikingSignals = this.signals[ProbabilisticSpikingSignals::class] as ProbabilisticSpikingSignals
     return listOf(
         this.createResponse {

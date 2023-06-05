@@ -4,14 +4,36 @@ import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads.ns.electrode.Electrode
 import org.jetbrains.research.mads.ns.electrode.ElectrodeArray
-import org.jetbrains.research.mads.ns.pathways.connectToCell
+import org.jetbrains.research.mads.ns.electrode.connectToCell
 import org.jetbrains.research.mads.ns.physiology.neurons.Neuron
+import org.jetbrains.research.mads.ns.physiology.neurons.PotentialSignals
 import org.jetbrains.research.mads.ns.physiology.neurons.STDPTripletSignals
+import org.jetbrains.research.mads.ns.physiology.neurons.SpikesSignals
 import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseReceiver
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseReleaser
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
 import java.util.*
+
+fun overThresholdAndNotSpiked(neuron: Neuron) : Boolean {
+    val spikesSignals = neuron.signals[SpikesSignals::class] as SpikesSignals
+    val potentialSignals = neuron.signals[PotentialSignals::class] as PotentialSignals
+
+    return potentialSignals.V > spikesSignals.spikeThreshold && !spikesSignals.spiked
+}
+
+fun underThresholdAndSpiked(neuron: Neuron) : Boolean {
+    val spikesSignals = neuron.signals[SpikesSignals::class] as SpikesSignals
+    val potentialSignals = neuron.signals[PotentialSignals::class] as PotentialSignals
+
+    return potentialSignals.V < spikesSignals.spikeThreshold && spikesSignals.spiked
+}
+
+fun spiked(neuron: Neuron) : Boolean {
+    val spikesSignals = neuron.signals[SpikesSignals::class] as SpikesSignals
+
+    return spikesSignals.spiked
+}
 
 fun createPopulation(capacity: Int, type: String, neuronFun: () -> Neuron): List<Neuron> {
     val population: ArrayList<Neuron> = arrayListOf()

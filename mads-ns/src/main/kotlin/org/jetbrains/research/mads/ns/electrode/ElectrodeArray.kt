@@ -9,8 +9,9 @@ import org.jetbrains.research.mads.ns.physiology.neurons.ProbabilisticSpikingSig
 import java.util.*
 
 
-class ElectrodeArray(private val provider: ImageProvider,
-                     val pixelMultiplier: Double = 5.0
+class ElectrodeArray(
+    private val provider: ImageProvider,
+    val pixelMultiplier: Double = 5.0
 ) : ModelObject() {
     private var electrodesGrid = ArrayList<Electrode>()
     private val width = provider.width
@@ -25,7 +26,7 @@ class ElectrodeArray(private val provider: ImageProvider,
         }
     }
 
-    fun capacity() : Int {
+    fun capacity(): Int {
         return electrodesGrid.size
     }
 
@@ -53,15 +54,15 @@ class ElectrodeArray(private val provider: ImageProvider,
 }
 
 object ElectrodeArrayMechanisms {
-    val StimuliDynamic = ElectrodeArray::StimuliDynamic
+    val StimuliDynamic = ElectrodeArray::stimuliDynamic
 }
 
-fun ElectrodeArray.transformPixelToSpikes(intensity: Double): Int
-{
-    return (intensity*this.pixelMultiplier).toInt()
+fun ElectrodeArray.transformPixelToSpikes(intensity: Double): Int {
+    return (intensity * this.pixelMultiplier).toInt()
 }
 
-fun ElectrodeArray.StimuliDynamic(params: MechanismParameters): List<Response> {
+@Suppress("UNUSED_PARAMETER")
+fun ElectrodeArray.stimuliDynamic(params: MechanismParameters): List<Response> {
     val provider = this.getProvider()
     val img = provider.getNextImage()
     val responses: ArrayList<Response> = arrayListOf()

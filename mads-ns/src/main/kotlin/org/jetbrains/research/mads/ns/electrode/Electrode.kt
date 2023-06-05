@@ -23,12 +23,13 @@ class Electrode(val rnd: Random, vararg signals: Signals) : ModelObject(Probabil
 class PulseConstants(val pulseValue: Double = 5.0) : MechanismConstants
 
 object ElectrodeMechanisms {
-    val PeriodicPulseDynamic = Electrode::PeriodicPulseDynamic
-    val PulseDynamic = Electrode::PulseDynamic
-    val NoiseDynamic = Electrode::NoiseDynamic
+    val PeriodicPulseDynamic = Electrode::periodicPulseDynamic
+    val PulseDynamic = Electrode::pulseDynamic
+    val NoiseDynamic = Electrode::noiseDynamic
 }
 
-fun Electrode.PeriodicPulseDynamic(params: MechanismParameters): List<Response> {
+@Suppress("UNUSED_PARAMETER")
+fun Electrode.periodicPulseDynamic(params: MechanismParameters): List<Response> {
     val s = this.signals[CurrentSignals::class] as CurrentSignals
     val pps = this.signals[PeriodicPulsationSignals::class] as PeriodicPulsationSignals
     val iteration = pps.iteration
@@ -51,7 +52,7 @@ fun Electrode.PeriodicPulseDynamic(params: MechanismParameters): List<Response> 
     return result
 }
 
-fun Electrode.PulseDynamic(params: MechanismParameters): List<Response> {
+fun Electrode.pulseDynamic(params: MechanismParameters): List<Response> {
     val currentSignals = this.signals[CurrentSignals::class] as CurrentSignals
     val spikeProbability = (this.signals[ProbabilisticSpikingSignals::class] as ProbabilisticSpikingSignals).spikeProbability
 
@@ -64,7 +65,8 @@ fun Electrode.PulseDynamic(params: MechanismParameters): List<Response> {
     return updateCurrentInReceiver(electrode = this, delta)
 }
 
-fun Electrode.NoiseDynamic(params: MechanismParameters): List<Response> {
+@Suppress("UNUSED_PARAMETER")
+fun Electrode.noiseDynamic(params: MechanismParameters): List<Response> {
     val currentSignals = this.signals[CurrentSignals::class] as CurrentSignals
     val noiseSignals = this.signals[NoiseSignals::class] as NoiseSignals
 
@@ -92,4 +94,9 @@ fun updateCurrentInReceiver(electrode: Electrode, delta: Double): ArrayList<Resp
     )
 
     return result
+}
+
+fun Electrode.connectToCell(cell: ModelObject) {
+    this.connections[ElectrodeConnection] = hashSetOf(cell)
+    cell.connections[ElectrodeConnection] = hashSetOf(this)
 }
