@@ -38,7 +38,7 @@ class ModelObjectSerializer: KSerializer<ModelObject> {
                 , ListSerializer(String.serializer()) //TODO: change to map
                 , value.connections.flatMap {
                     connOfType -> connOfType.value.map {
-                        connOfType.key::class.simpleName+"→"+it.id.toString()
+                        connOfType.key::class.simpleName+":"+it.id.toString()
                     }
                 }
             )

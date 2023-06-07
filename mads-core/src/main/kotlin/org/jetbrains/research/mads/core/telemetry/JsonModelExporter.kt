@@ -1,10 +1,9 @@
 package org.jetbrains.research.mads.core.telemetry
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
 import org.jetbrains.research.mads.core.simulation.Model
-import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
 
 val format = Json {
@@ -21,6 +20,7 @@ class JsonModelExporter(out: Path) {
         outputStream.write("[".encodeToByteArray())
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     fun write(model: Model) {
         if (counter != 0) {
             outputStream.write(",".encodeToByteArray())
