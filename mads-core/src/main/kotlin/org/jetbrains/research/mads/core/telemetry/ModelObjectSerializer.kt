@@ -11,7 +11,6 @@ import kotlinx.serialization.descriptors.element
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.encoding.encodeStructure
-import kotlinx.serialization.json.*
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.Signals
 
@@ -32,14 +31,14 @@ class ModelObjectSerializer: KSerializer<ModelObject> {
     override fun serialize(encoder: Encoder, value: ModelObject) {
         encoder.encodeStructure(descriptor) {
             encodeStringElement(descriptor,0, value.type)
-            encodeStringElement(descriptor,1, value.hashCode().toString())
-            encodeStringElement(descriptor,2, value.parent.hashCode().toString())
+            encodeStringElement(descriptor,1, value.id.toString())
+            encodeStringElement(descriptor,2, value.parent.id.toString())
             encodeSerializableElement(descriptor
                 ,3
                 , ListSerializer(String.serializer()) //TODO: change to map
                 , value.connections.flatMap {
                     connOfType -> connOfType.value.map {
-                        connOfType.key::class.simpleName+"→"+it.hashCode().toString()
+                        connOfType.key::class.simpleName+"→"+it.id.toString()
                     }
                 }
             )

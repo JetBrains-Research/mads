@@ -22,8 +22,17 @@ abstract class ModelObject(vararg signals: Signals) {
 
         // access to elapsed time
         internal var getCurrentTime: () -> Long = { 0 }
+
+        // sequential ID
+        private var syncId : Long = 0L
+
+        @Synchronized
+        private fun getNewID() : Long {
+            return syncId++
+        }
     }
 
+    val id: Long = getNewID()
     var type: String = ""
     var parent: ModelObject = EmptyModelObject
     val events: ArrayList<ModelEvent> = ArrayList()
@@ -105,9 +114,9 @@ abstract class ModelObject(vararg signals: Signals) {
         }.toMap()
     }
 
-    internal fun getChangedObjects() : Map<String, List<String>> {
+    internal fun getChangedObjects() : Map<Long, List<String>> {
         val result = operatedChildren.map { (key, value) ->
-            key.hashCode().toString() to listOf(key.type, value) }
+            key.id to listOf(key.type, value) }
             .toMap()
         operatedChildren.clear()
 

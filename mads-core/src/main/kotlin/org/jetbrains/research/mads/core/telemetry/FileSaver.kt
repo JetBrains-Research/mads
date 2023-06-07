@@ -53,7 +53,7 @@ class FileSaver(dir: Path, bufferSize: Int = 64 * 1024) : Saver {
 
         val signals = obj.getChangedSignals()
         val objects = obj.getChangedObjects()
-        val id = obj.hashCode().toString()
+        val id = obj.id.toString()
         val type = obj.type
         logSignals(tick, id, type, signals)
         logObjects(tick, id, objects)
@@ -94,13 +94,13 @@ class FileSaver(dir: Path, bufferSize: Int = 64 * 1024) : Saver {
         }
     }
 
-    private fun logObjects(tick: Long, id: String, objects: Map<String, List<String>>) {
+    private fun logObjects(tick: Long, id: String, objects: Map<Long, List<String>>) {
         objects.forEach {
             modelObjectsWriter.addStringToQueue(
                 (arrayOf(
                     tick.toString(),
                     id,
-                    it.key,
+                    it.key.toString(),
                     it.value[0],
                     it.value[1]
                 )).joinToString(",") + "\n"

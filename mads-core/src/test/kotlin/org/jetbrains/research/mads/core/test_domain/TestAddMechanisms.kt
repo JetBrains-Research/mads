@@ -15,7 +15,7 @@ package org.jetbrains.research.mads.core.test_domain
 //    return if (this.rnd.nextDouble() < params.probability) {
 //        val addedObject = SimpleObject()
 //        arrayListOf(
-//            this.createResponse("added",addedObject.hashCode().toString()) {
+//            this.createResponse("added",addedObject.id.toString()) {
 //                this.parent.addObject(addedObject)
 //            }
 //        )
