@@ -7,10 +7,12 @@ import org.jetbrains.research.mads.core.desd.ModelEvent
 import org.jetbrains.research.mads.core.telemetry.ModelObjectSerializer
 import kotlin.reflect.KClass
 
-object EmptyModelObject : ModelObject()
+object EmptyModelObject : ModelObject(-1)
 
 @Serializable(with = ModelObjectSerializer::class)
-abstract class ModelObject(vararg signals: Signals) {
+abstract class ModelObject internal constructor(val id: Long, vararg signals: Signals) {
+
+    constructor(vararg signals: Signals) : this(getNewID(), *signals)
 
     internal companion object {
         // access to modeling configuration as per class singleton
@@ -32,7 +34,6 @@ abstract class ModelObject(vararg signals: Signals) {
         }
     }
 
-    val id: Long = getNewID()
     var type: String = ""
     var parent: ModelObject = EmptyModelObject
     val events: ArrayList<ModelEvent> = ArrayList()
