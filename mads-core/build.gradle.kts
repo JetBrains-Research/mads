@@ -21,4 +21,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.21")
+
+    implementation("com.google.guava:guava:31.1-jre")
+    implementation("net.sf.trove4j:trove4j:3.0.3")
 }

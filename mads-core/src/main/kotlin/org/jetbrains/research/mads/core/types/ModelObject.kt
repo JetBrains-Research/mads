@@ -7,6 +7,11 @@ import org.jetbrains.research.mads.core.desd.ModelEvent
 import org.jetbrains.research.mads.core.telemetry.ModelObjectSerializer
 import kotlin.reflect.KClass
 
+class SpatialSignals : Signals() {
+    var coordinate: Int by observable(-1)
+    var volume: Double by observable(0.0)
+}
+
 object EmptyModelObject : ModelObject(-1)
 
 @Serializable(with = ModelObjectSerializer::class)
@@ -44,7 +49,28 @@ abstract class ModelObject internal constructor(val id: Long, vararg signals: Si
 
     private val operatedChildren: MutableMap<ModelObject, String> = mutableMapOf()
 
+    var coordinate: Int
+        get() {
+            val spatialSignals = signals[SpatialSignals::class] as SpatialSignals
+            return spatialSignals.coordinate
+        }
+        set(value) {
+            val spatialSignals = signals[SpatialSignals::class] as SpatialSignals
+             spatialSignals.coordinate = value
+        }
+
+    var volume: Double
+        get() {
+            val spatialSignals = signals[SpatialSignals::class] as SpatialSignals
+            return spatialSignals.volume
+        }
+        set(value) {
+            val spatialSignals = signals[SpatialSignals::class] as SpatialSignals
+            spatialSignals.volume = value
+        }
+
     init {
+        this.signals[SpatialSignals::class] = SpatialSignals()
         signals.forEach { this.signals[it::class] = it }
     }
 
