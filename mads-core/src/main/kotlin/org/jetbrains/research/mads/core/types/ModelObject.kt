@@ -31,10 +31,10 @@ abstract class ModelObject internal constructor(val id: Long, vararg signals: Si
         internal var getCurrentTime: () -> Long = { 0 }
 
         // sequential ID
-        private var syncId : Long = 0L
+        private var syncId: Long = 0L
 
         @Synchronized
-        private fun getNewID() : Long {
+        private fun getNewID(): Long {
             return syncId++
         }
     }
@@ -56,7 +56,7 @@ abstract class ModelObject internal constructor(val id: Long, vararg signals: Si
         }
         set(value) {
             val spatialSignals = signals[SpatialSignals::class] as SpatialSignals
-             spatialSignals.coordinate = value
+            spatialSignals.coordinate = value
         }
 
     var volume: Double
@@ -84,7 +84,7 @@ abstract class ModelObject internal constructor(val id: Long, vararg signals: Si
             .toList()
     }
 
-    fun currentTime() : Long {
+    fun currentTime(): Long {
         return getCurrentTime()
     }
 
@@ -118,12 +118,12 @@ abstract class ModelObject internal constructor(val id: Long, vararg signals: Si
         return arrayListOf(this)
     }
 
-    fun createResponse(applyFn: () -> Unit) : Response {
-        return Response(this, applyFn)
+    fun createResponse(responseFn: (List<Response>) -> List<Response> = this::bypassConflicts, applyFn: () -> Unit): Response {
+        return Response(this, responseFn, applyFn)
     }
 
-    fun createEmptyResponse() : Response {
-        return Response(this) { }
+    fun createEmptyResponse(): Response {
+        return Response(this, this::bypassConflicts) { }
     }
 
     internal fun applyResponses(responses: List<Response>): List<ModelObject> {
@@ -141,10 +141,10 @@ abstract class ModelObject internal constructor(val id: Long, vararg signals: Si
         }.toMap()
     }
 
-    internal fun getChangedObjects() : Map<Long, List<String>> {
+    internal fun getChangedObjects(): Map<Long, List<String>> {
         val result = operatedChildren.map { (key, value) ->
-            key.id to listOf(key.type, value) }
-            .toMap()
+            key.id to listOf(key.type, value)
+        }.toMap()
         operatedChildren.clear()
 
         return result
@@ -154,12 +154,23 @@ abstract class ModelObject internal constructor(val id: Long, vararg signals: Si
         events.forEach { if (it.checkCondition()) it.prepareEvent() else it.disruptEvent() }
     }
 
-    protected open fun resolveConflicts(responses: List<Response>): List<Response> {
-        return responses
-    }
-
     protected fun createEvents(pathways: List<Pathway<out ModelObject>>) {
         pathways.forEach { createEvents(it) }
+    }
+
+    private fun resolveConflicts(responses: List<Response>): List<Response> {
+        return responses.groupBy { it.resolveFn }
+            .entries.flatMap { entry ->
+                if (entry.value.isNotEmpty()) {
+                    entry.key.invoke(entry.value)
+                } else {
+                    emptyList()
+                }
+            }
+    }
+
+    private fun bypassConflicts(responses: List<Response>): List<Response> {
+        return responses
     }
 
     @Suppress("UNCHECKED_CAST")
