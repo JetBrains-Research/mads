@@ -45,7 +45,6 @@ class PotentialSignals : Signals() {
 object NeuronMechanisms {
     val SpikeOn = Neuron::spikeOn
     val SpikeOff = Neuron::spikeOff
-    val SpikeTransfer = Neuron::spikeTransfer
     val WeightNormalization = Neuron::weightNormalizationDivisive
     val UpdateSpikeCounter = Neuron::updateSpikeCounter
 }
@@ -70,33 +69,6 @@ fun Neuron.spikeOff(params: MechanismParameters): List<Response> {
             spikesSignals.spiked = false
         }
     )
-}
-
-@ConstantType(type = SpikeTransferConstants::class)
-fun Neuron.spikeTransfer(params: MechanismParameters): List<Response> {
-    val result = arrayListOf<Response>()
-    val iTransfer = (params.constants as SpikeTransferConstants).I_transfer
-
-    this.connections[SynapseReleaser]?.forEach {
-        if (it is Synapse) {
-            val synapseSignals = it.signals[SynapseSignals::class] as SynapseSignals
-            val currentSignals = it.signals[CurrentSignals::class] as CurrentSignals
-            val receiverCurrentSignals = it.receiver.signals[CurrentSignals::class] as CurrentSignals
-            val delta = synapseSignals.weight * synapseSignals.synapseSign * iTransfer
-            result.add(
-                it.createResponse {
-                    currentSignals.I_e += delta
-                }
-            )
-            result.add(
-                it.receiver.createResponse {
-                    receiverCurrentSignals.I_e += delta
-                }
-            )
-        }
-    }
-
-    return result
 }
 
 fun Neuron.spikesInSynapses(): List<Response> {
