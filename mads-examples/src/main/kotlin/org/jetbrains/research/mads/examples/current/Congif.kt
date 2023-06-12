@@ -24,11 +24,6 @@ val currentLifConfig = configure {
             duration = 100
             condition = { underThresholdAndSpiked(it) }
         }
-        mechanism(mechanism = NeuronMechanisms.SpikeTransfer) {
-            duration = 100
-            condition = { overThresholdAndNotSpiked(it) }
-            constants = SpikeTransferConstants()
-        }
     })
 }
 
@@ -43,11 +38,6 @@ val currentIzhConfig = configure {
         mechanism(mechanism = NeuronMechanisms.SpikeOff) {
             duration = 1
             condition = { underThresholdAndSpiked(it) }
-        }
-        mechanism(mechanism = NeuronMechanisms.SpikeTransfer) {
-            duration = 1
-            condition = { overThresholdAndNotSpiked(it) }
-            constants = SpikeTransferConstants(I_transfer = 1.0)
         }
     })
 }
@@ -79,11 +69,6 @@ val currentHHConfig = configure {
         mechanism(mechanism = NeuronMechanisms.SpikeOff) {
             duration = 25
             condition = { underThresholdAndSpiked(it) }
-        }
-        mechanism(mechanism = NeuronMechanisms.SpikeTransfer) {
-            duration = 25
-            condition = { overThresholdAndNotSpiked(it) }
-            constants = SpikeTransferConstants()
         }
     })
 }

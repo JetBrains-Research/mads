@@ -8,11 +8,11 @@ import org.jetbrains.research.mads.core.types.microsecond
 import org.jetbrains.research.mads.core.types.millisecond
 import org.jetbrains.research.mads.ns.electrode.Electrode
 import org.jetbrains.research.mads.ns.electrode.ElectrodeMechanisms
-import org.jetbrains.research.mads.ns.overThresholdAndNotSpiked
-import org.jetbrains.research.mads.ns.spiked
 import org.jetbrains.research.mads.ns.physiology.neurons.*
 import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
 import org.jetbrains.research.mads.ns.physiology.synapses.SynapseMechanisms
+import org.jetbrains.research.mads.ns.physiology.synapses.SynapseSignals
+import org.jetbrains.research.mads.ns.spiked
 
 val config = configure {
     timeResolution = microsecond
@@ -25,11 +25,6 @@ val config = configure {
         mechanism(mechanism = NeuronMechanisms.SpikeOff) {
             duration = 1
             condition = { spiked(it) }
-        }
-        mechanism(mechanism = NeuronMechanisms.SpikeTransfer) {
-            duration = 1
-            condition = { overThresholdAndNotSpiked(it) }
-            constants = SpikeTransferConstants(I_transfer = 1.0)
         }
     })
     addPathway(pathway<Electrode> {
@@ -48,6 +43,12 @@ val config = configure {
                 currentSignals.I_e != 0.0
             }
             constants = DecayConstants()
+        }
+        mechanism(mechanism = SynapseMechanisms.SpikeTransfer) {
+            duration = 1
+            condition = { (it.signals[SynapseSignals::class] as SynapseSignals).releaserSpiked }
+            delay = { (it.signals[SynapseSignals::class] as SynapseSignals).delay }
+            constants = SpikeTransferConstants(I_transfer = 1.0)
         }
     })
 }
