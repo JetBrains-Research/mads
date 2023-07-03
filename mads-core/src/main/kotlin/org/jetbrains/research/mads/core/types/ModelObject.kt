@@ -4,6 +4,8 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.research.mads.core.configuration.Configuration
 import org.jetbrains.research.mads.core.configuration.Pathway
 import org.jetbrains.research.mads.core.desd.ModelEvent
+import org.jetbrains.research.mads.core.lattice.Lattice
+import org.jetbrains.research.mads.core.lattice.emptyLattice
 import org.jetbrains.research.mads.core.telemetry.ModelObjectSerializer
 import kotlin.reflect.KClass
 
@@ -40,6 +42,7 @@ abstract class ModelObject internal constructor(val id: Long, vararg signals: Si
     }
 
     var type: String = ""
+    var lattice: Lattice = emptyLattice
     var parent: ModelObject = EmptyModelObject
     val events: ArrayList<ModelEvent> = ArrayList()
 
@@ -118,12 +121,12 @@ abstract class ModelObject internal constructor(val id: Long, vararg signals: Si
         return arrayListOf(this)
     }
 
-    fun createResponse(responseFn: (List<Response>) -> List<Response> = this::bypassConflicts, applyFn: () -> Unit): Response {
-        return Response(this, responseFn, applyFn)
+    fun createResponse(conflict: Conflict = noConflict, applyFn: () -> Unit): Response {
+        return Response(this, conflict, applyFn)
     }
 
     fun createEmptyResponse(): Response {
-        return Response(this, this::bypassConflicts) { }
+        return Response(this, noConflict) { }
     }
 
     internal fun applyResponses(responses: List<Response>): List<ModelObject> {
@@ -159,7 +162,7 @@ abstract class ModelObject internal constructor(val id: Long, vararg signals: Si
     }
 
     private fun resolveConflicts(responses: List<Response>): List<Response> {
-        return responses.groupBy { it.resolveFn }
+        return responses.groupBy { it.conflict.resolve }
             .entries.flatMap { entry ->
                 if (entry.value.isNotEmpty()) {
                     entry.key.invoke(entry.value)
@@ -193,3 +196,16 @@ fun <T> Sequence<T>.selectRecursive(recursiveSelector: T.() -> Sequence<T>): Seq
         yieldAll(it.recursiveSelector().selectRecursive(recursiveSelector))
     }
 }
+
+enum class MovementType {
+    Shift, Switch
+}
+
+class MoveConstants(val movementType: MovementType) : MechanismConstants
+
+//fun ModelObject.move(parameters: MechanismParameters) : List<Response> {
+//    val movementType = (parameters.constants as MoveConstants).movementType
+//    when(movementType) {
+//        MovementType.Shift -> this.lattice
+//    }
+//}

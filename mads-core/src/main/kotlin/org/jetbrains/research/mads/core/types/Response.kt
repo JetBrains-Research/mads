@@ -2,7 +2,7 @@ package org.jetbrains.research.mads.core.types
 
 data class Response(
     val sourceObject: ModelObject,
-    val resolveFn: (List<Response>) -> List<Response>,
+    val conflict: Conflict,
     val applyFn: () -> Unit,
 )
 
