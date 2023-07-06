@@ -15,7 +15,6 @@ import org.jetbrains.research.mads.ns.electrode.ElectrodeMechanisms
 import org.jetbrains.research.mads.ns.electrode.NoiseSignals
 import org.jetbrains.research.mads.ns.physiology.neurons.*
 import java.util.*
-import kotlin.reflect.KProperty
 
 fun main() {
     val experimentName = "noise_current"
@@ -25,7 +24,7 @@ fun main() {
     val startTime = System.currentTimeMillis()
     val modelingTime = 500 * millisecond
     val randomSeed = 12345L
-    val logSignals = arrayListOf<KProperty<*>>(
+    val logSignals = listOf(
         SpikesSignals::spiked,
         PotentialSignals::V,
         CurrentSignals::I_e

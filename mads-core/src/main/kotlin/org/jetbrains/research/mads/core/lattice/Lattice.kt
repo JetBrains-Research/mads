@@ -4,18 +4,21 @@ import com.google.common.util.concurrent.AtomicDoubleArray
 import gnu.trove.map.hash.TIntObjectHashMap
 import gnu.trove.set.hash.TIntHashSet
 import org.jetbrains.research.mads.core.types.ModelObject
+import org.jetbrains.research.mads.core.types.Signals
 import org.jetbrains.research.mads.core.types.VolumetricState
 import java.util.stream.Collectors
 import java.util.stream.IntStream
 import java.util.stream.Stream
-import kotlin.reflect.KClass
 
-class Lattice(private val size: Int, signalCount: Int, private val stepShiftRestriction: Int = 5) {
+class Lattice(private val size: Int, signals: Set<Signals>, private val stepShiftRestriction: Int = 5) {
     private val sizeSquare = size * size
     private val sizeCube = size * size * size
     private val cube: Array<Cell> = Array(sizeCube) { Cell() }
-    private val leaked: DoubleArray
-    private val concentrations: List<AtomicDoubleArray> = List(signalCount) { AtomicDoubleArray(sizeCube) }
+    private val concentrations: Map<String, AtomicDoubleArray> = signals.flatMap { sig ->
+        sig.getProperties()
+            .filter { it.value is Double }
+            .keys.map { it to AtomicDoubleArray(sizeCube + 1) }
+    }.toMap()
 
     // Map for border cells restrictions
     private val borders: TIntObjectHashMap<TIntHashSet> = TIntObjectHashMap()
@@ -90,8 +93,6 @@ class Lattice(private val size: Int, signalCount: Int, private val stepShiftRest
             intArrayOf(1, 1, 1)
         )
 
-        leaked = DoubleArray(signalCount)
-
         for (i in nbhD.indices) nbh[i] = getFlatCoordinate(nbhD[i][0], nbhD[i][1], nbhD[i][2])
 
         for (i in fnbhD.indices) fnbh[i] = getFlatCoordinate(fnbhD[i][0], fnbhD[i][1], fnbhD[i][2])
@@ -153,6 +154,18 @@ class Lattice(private val size: Int, signalCount: Int, private val stepShiftRest
         }
     }
 
+    fun applyTrack(track: Track): List<ModelObject> {
+        val result: ArrayList<ModelObject> = ArrayList()
+        for (i in 0 until track.coordinates.size - 1) {
+            for (obj in track.objects[i]) {
+                moveObject(obj, track.coordinates[i + 1])
+                obj.coordinate = track.coordinates[i + 1]
+                result.add(obj)
+            }
+        }
+        return result
+    }
+
     private fun moveObject(obj: ModelObject, dstCoordinate: Int): ModelObject? {
         return if (checkIndex(obj.coordinate) && checkIndex(dstCoordinate)) {
             val srcCell: Cell = cube[obj.coordinate]
@@ -164,6 +177,10 @@ class Lattice(private val size: Int, signalCount: Int, private val stepShiftRest
         } else {
             null
         }
+    }
+
+    private fun checkIndex(coordinate: Int): Boolean {
+        return coordinate >= 0 && coordinate < cube.size
     }
 
     // region Functions for object moving
@@ -183,14 +200,14 @@ class Lattice(private val size: Int, signalCount: Int, private val stepShiftRest
         return rollCandidate(candidateIndices, roll)
     }
 
-    fun getGradientCandidate(entryCoordinate: Int, state: VolumetricState, signal: Int, roll: (Int) -> Int): Int {
+    fun getGradientCandidate(entryCoordinate: Int, state: VolumetricState, signal: String, roll: (Int) -> Int): Int {
         val restricted = borders[entryCoordinate]
         val candidateIndices = IntArray(28)
         var maxDiff = Double.MIN_VALUE
         for (j in fnbh) {
             val checkCoordinate = entryCoordinate + j
             if (isOutsideBorder(restricted, j) || checkVolumetricState(checkCoordinate, state)) continue
-            val diff = concentrations[signal][checkCoordinate] - concentrations[signal][entryCoordinate]
+            val diff = concentrations[signal]!![checkCoordinate] - concentrations[signal]!![entryCoordinate]
             if (maxDiff <= diff) {
                 maxDiff = diff
                 candidateIndices[++candidateIndices[0]] = j
@@ -199,14 +216,14 @@ class Lattice(private val size: Int, signalCount: Int, private val stepShiftRest
         return rollCandidate(candidateIndices, roll)
     }
 
-    fun getAntigradientCandidate(entryCoordinate: Int, state: VolumetricState, signal: Int, roll: (Int) -> Int): Int {
+    fun getAntigradientCandidate(entryCoordinate: Int, state: VolumetricState, signal: String, roll: (Int) -> Int): Int {
         val restricted = borders[entryCoordinate]
         val candidateIndices = IntArray(28)
         var minDiff = Double.MAX_VALUE
         for (j in fnbh) {
             val checkCoordinate = entryCoordinate + j
             if (isOutsideBorder(restricted, j) || checkVolumetricState(checkCoordinate, state)) continue
-            val diff = concentrations[signal][checkCoordinate] - concentrations[signal][entryCoordinate]
+            val diff = concentrations[signal]!![checkCoordinate] - concentrations[signal]!![entryCoordinate]
             if (minDiff >= diff) {
                 minDiff = diff
                 candidateIndices[++candidateIndices[0]] = j
@@ -215,12 +232,12 @@ class Lattice(private val size: Int, signalCount: Int, private val stepShiftRest
         return rollCandidate(candidateIndices, roll)
     }
 
-    fun getInsolubleCandidate(entryCoordinate: Int, state: VolumetricState, type: KClass<out ModelObject>, roll: (Int) -> Int): Int {
+    fun getInsolubleCandidate(entryCoordinate: Int, state: VolumetricState, type: String, roll: (Int) -> Int): Int {
         val neighbours: List<List<ModelObject>> = getNeighbours(entryCoordinate, state)
         val candidateIndices = IntArray(28)
         for (i in neighbours.indices) {
             for (j in neighbours[i].indices) {
-                if (neighbours[i][j]::class == type) {
+                if (neighbours[i][j].type == type) {
                     candidateIndices[++candidateIndices[0]] = fnbh[i]
                     break
                 }
@@ -271,52 +288,64 @@ class Lattice(private val size: Int, signalCount: Int, private val stepShiftRest
         return track
     }
 
-    fun applyTrack(track: Track): List<ModelObject> {
-        val result: ArrayList<ModelObject> = ArrayList()
-        for (i in 0 until track.coordinates.size - 1) {
-            for (obj in track.objects[i]) {
-                moveObject(obj, track.coordinates[i + 1])
-                obj.coordinate = track.coordinates[i + 1]
-                result.add(obj)
+    private fun checkVolumetricState(coordinate: Int, state: VolumetricState): Boolean {
+        return state == VolumetricState.Free && cube[coordinate].occupiedVolume.get() > 0.0 || state == VolumetricState.Any
+    }
+
+    private fun getNeighbours(entryCoordinate: Int, state: VolumetricState): List<List<ModelObject>> {
+        val restricted = borders[entryCoordinate]
+        val neighbours = List<ArrayList<ModelObject>>(27) { ArrayList() }
+        for (i in fnbh.indices) {
+            val checkCoordinate = entryCoordinate + fnbh[i]
+            if (!(isOutsideBorder(restricted, fnbh[i]) || checkVolumetricState(checkCoordinate, state))) {
+                neighbours[i].addAll(cube[checkCoordinate].getObjects())
             }
         }
-        return result
+        return neighbours
+    }
+
+    private fun isOutsideBorder(restricted: TIntHashSet?, vector: Int): Boolean {
+        return restricted != null && restricted.contains(vector)
+    }
+
+    private fun rollCandidate(candidateIndices: IntArray, roll: (Int) -> Int): Int {
+        return if (candidateIndices[0] != 0) candidateIndices[roll(candidateIndices[0]) + 1] else 0
     }
 
     // endregion
 
     // region Diffusion and concentrations
 
-    fun getLeaked(signal: Int): Double {
-        return leaked[signal]
+    fun getLeaked(signal: String): Double {
+        return concentrations[signal]!![sizeCube]
     }
 
-    fun getConcentration(signal: Int, coordinate: Int): Double {
-        return concentrations[signal][coordinate]
+    fun getConcentration(signal: String, coordinate: Int): Double {
+        return concentrations[signal]!![coordinate]
     }
 
-    fun updateConcentration(coordinate: Int, signal: Int, value: Double) {
+    fun updateConcentration(signal: String, coordinate: Int, value: Double) {
         // here we update concentrations after spread/gather of signal
-        concentrations[signal].addAndGet(coordinate, value)
+        concentrations[signal]!!.addAndGet(coordinate, value)
     }
 
-    fun updateDiffusion(signal: Int, diff: AtomicDoubleArray): List<ModelObject> {
-        leaked[signal] += diff[sizeCube]
+    fun updateDiffusion(signal: String, diff: AtomicDoubleArray): List<ModelObject> {
+        concentrations[signal]?.addAndGet(sizeCube, diff[sizeCube])
         return IntStream.range(0, sizeCube)
             .parallel()
             .filter { i: Int -> diff[i] != 0.0 }
-            .peek { i: Int -> concentrations[signal].addAndGet(i, diff[i]) }
+            .peek { i: Int -> concentrations[signal]!!.addAndGet(i, diff[i]) }
             .mapToObj { i: Int -> cube[i].getObjects().stream() }
             .flatMap { i: Stream<ModelObject> -> i.map { obj: ModelObject -> obj } }
             .collect(Collectors.toList())
     }
 
-    fun calcDiffusion(signal: Int, diffusionRate: Double): AtomicDoubleArray {
+    fun calcDiffusion(signal: String, diffusionRate: Double): AtomicDoubleArray {
         val diffResult = AtomicDoubleArray(sizeCube + 1)
         IntStream.range(0, sizeCube)
             .parallel()
             .forEach { i: Int ->
-                val diffusedAmount = concentrations[signal][i] * diffusionRate // total diffused amount
+                val diffusedAmount = concentrations[signal]!![i] * diffusionRate // total diffused amount
                 if (diffusedAmount == 0.0) return@forEach   // if nothing to diffuse - skip
                 val dr = diffusedAmount / 26 // diffusion per cell pair
                 diffResult.addAndGet(i, -diffusedAmount) // update current cell
@@ -346,34 +375,6 @@ class Lattice(private val size: Int, signalCount: Int, private val stepShiftRest
         restored[0] = flatCoordinate / sizeSquare
         return restored
     }
-
-    private fun checkIndex(coordinate: Int): Boolean {
-        return coordinate >= 0 && coordinate < cube.size
-    }
-
-    private fun getNeighbours(entryCoordinate: Int, state: VolumetricState): List<List<ModelObject>> {
-        val restricted = borders[entryCoordinate]
-        val neighbours = List<ArrayList<ModelObject>>(27) { ArrayList() }
-        for (i in fnbh.indices) {
-            val checkCoordinate = entryCoordinate + fnbh[i]
-            if (!(isOutsideBorder(restricted, fnbh[i]) || checkVolumetricState(checkCoordinate, state))) {
-                neighbours[i].addAll(cube[checkCoordinate].getObjects())
-            }
-        }
-        return neighbours
-    }
-
-    private fun isOutsideBorder(restricted: TIntHashSet?, vector: Int): Boolean {
-        return restricted != null && restricted.contains(vector)
-    }
-
-    private fun checkVolumetricState(coordinate: Int, state: VolumetricState): Boolean {
-        return state == VolumetricState.Free && cube[coordinate].occupiedVolume.get() > 0.0 || state == VolumetricState.Any
-    }
-
-    private fun rollCandidate(candidateIndices: IntArray, roll: (Int) -> Int): Int {
-        return if (candidateIndices[0] != 0) candidateIndices[roll(candidateIndices[0]) + 1] else 0
-    }
 }
 
-val emptyLattice = Lattice(0, 0, 0)
+val emptyLattice = Lattice(0, setOf())

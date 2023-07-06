@@ -5,8 +5,12 @@ import org.jetbrains.research.mads.core.telemetry.SignalsSerializer
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.starProjectedType
+import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.javaField
 
 abstract class ObservableProperty<T>(initialValue: T) : ReadWriteProperty<Any?, T> {
     private var value: T = initialValue
@@ -25,6 +29,25 @@ abstract class ObservableProperty<T>(initialValue: T) : ReadWriteProperty<Any?, 
 
 @Serializable(with = SignalsSerializer::class)
 open class Signals {
+
+    companion object {
+        fun getName(prop: KProperty1<*, *>): String {
+            prop.isAccessible = true
+
+            val declaringClass = prop.javaField?.declaringClass?.kotlin
+
+            if (declaringClass != null) {
+                val isSubclassOfSignals = declaringClass.isSubclassOf(Signals::class)
+                val containsProperty = declaringClass.declaredMemberProperties.contains(prop)
+
+                if (isSubclassOfSignals && containsProperty) {
+                    return "${declaringClass.simpleName}.${prop.name}"
+                }
+            }
+            return "invalid"
+        }
+    }
+
     private val updatedProperties = mutableSetOf<KProperty<*>>()
 
     fun <T> observable(initialValue: T): ObservableProperty<T> {

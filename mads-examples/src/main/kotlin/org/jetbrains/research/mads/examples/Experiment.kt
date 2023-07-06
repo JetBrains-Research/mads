@@ -5,11 +5,11 @@ import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
 import kotlin.io.path.Path
-import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty1
 
 fun runExperiment(
     logFolder: String,
-    logSignals: List<KProperty<*>>,
+    logSignals: List<KProperty1<*, *>>,
     logTypes: List<String>,
     topology: List<ModelObject>,
     config: Configuration,
@@ -43,7 +43,7 @@ fun runExperiment(
 
 fun runExperiment(
     logFolder: String,
-    logFilter: Map<String, Set<KProperty<*>>>,
+    logFilter: Map<String, Set<KProperty1<*, *>>>,
     topology: List<ModelObject>,
     config: Configuration,
     stopCondition: (Model) -> Boolean

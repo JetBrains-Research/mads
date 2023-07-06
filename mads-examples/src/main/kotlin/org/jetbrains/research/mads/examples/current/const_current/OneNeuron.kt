@@ -8,14 +8,13 @@ import org.jetbrains.research.mads.examples.current.currentIzhConfig
 import org.jetbrains.research.mads.examples.current.currentLifConfig
 import org.jetbrains.research.mads.examples.runExperiment
 import org.jetbrains.research.mads.ns.physiology.neurons.*
-import kotlin.reflect.KProperty
 
 fun main() {
     val experimentName = "const_current"
     val currents = arrayOf(5.0, 10.0, 20.0, 30.0, 50.0)
     val startTime = System.currentTimeMillis()
     val modelingTime = 500 * millisecond
-    val logSignals = arrayListOf<KProperty<*>>(
+    val logSignals = listOf(
         SpikesSignals::spiked,
         PotentialSignals::V,
         CurrentSignals::I_e

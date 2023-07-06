@@ -15,7 +15,6 @@ import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.math.pow
-import kotlin.reflect.KProperty
 
 enum class Connectedness {
     NONE,
@@ -55,7 +54,7 @@ fun runSimulation(
 ) {
     val startTime = System.currentTimeMillis()
     val randomSeed = 12345L
-    val logSignals = arrayListOf<KProperty<*>>(
+    val logSignals = listOf(
         SpikesSignals::spiked,
     )
     println("Experiment start time $startTime")

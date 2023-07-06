@@ -7,6 +7,7 @@ import org.jetbrains.research.mads.core.desd.ModelEvent
 import org.jetbrains.research.mads.core.lattice.Lattice
 import org.jetbrains.research.mads.core.lattice.emptyLattice
 import org.jetbrains.research.mads.core.telemetry.ModelObjectSerializer
+import kotlin.random.Random
 import kotlin.reflect.KClass
 
 class SpatialSignals : Signals() {
@@ -172,10 +173,6 @@ abstract class ModelObject internal constructor(val id: Long, vararg signals: Si
             }
     }
 
-    private fun bypassConflicts(responses: List<Response>): List<Response> {
-        return responses
-    }
-
     @Suppress("UNCHECKED_CAST")
     private fun <MO : ModelObject> createEvents(pathway: Pathway<MO>) {
         this as MO
@@ -197,15 +194,33 @@ fun <T> Sequence<T>.selectRecursive(recursiveSelector: T.() -> Sequence<T>): Seq
     }
 }
 
-enum class MovementType {
-    Shift, Switch
+class MoveConstants(
+    val movementType: MovementType,
+    val directionSelection: DirectionSelection,
+    val signal: String,
+    val volumetricState: VolumetricState
+) : MechanismConstants
+
+fun ModelObject.move(parameters: MechanismParameters) : List<Response> {
+    val moveConstants = parameters.constants as MoveConstants
+    val candidate: Int = when(moveConstants.directionSelection) {
+        DirectionSelection.Random ->
+            this.parent.lattice.getRandomCandidate(coordinate, moveConstants.volumetricState, Random::nextInt)
+        DirectionSelection.Gradient ->
+            this.parent.lattice.getGradientCandidate(coordinate, moveConstants.volumetricState, moveConstants.signal, Random::nextInt)
+        DirectionSelection.Antigradient ->
+            this.parent.lattice.getAntigradientCandidate(coordinate, moveConstants.volumetricState, moveConstants.signal, Random::nextInt)
+        DirectionSelection.Insoluble ->
+            this.parent.lattice.getInsolubleCandidate(coordinate, moveConstants.volumetricState, moveConstants.signal, Random::nextInt)
+    }
+    val track = when(moveConstants.movementType) {
+        MovementType.Shift -> this.parent.lattice.getShiftTrackCandidate(coordinate, candidate, volume, Random::nextDouble)
+        MovementType.Switch -> this.parent.lattice.getSwitchTrackCandidate(coordinate, candidate, this, Random::nextDouble)
+    }
+
+    return listOf(
+        this.parent.createResponse(conflict = track.createSpatialConflict()) {
+            this.parent.lattice.applyTrack(track)
+        }
+    )
 }
-
-class MoveConstants(val movementType: MovementType) : MechanismConstants
-
-//fun ModelObject.move(parameters: MechanismParameters) : List<Response> {
-//    val movementType = (parameters.constants as MoveConstants).movementType
-//    when(movementType) {
-//        MovementType.Shift -> this.lattice
-//    }
-//}

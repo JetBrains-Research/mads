@@ -2,9 +2,11 @@ package org.jetbrains.research.mads.core.telemetry
 
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.types.ModelObject
+import org.jetbrains.research.mads.core.types.Signals
 import java.io.File
 import java.nio.file.Path
 import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty1
 import kotlin.reflect.jvm.javaField
 
 class FileSaver(dir: Path, bufferSize: Int = 64 * 1024) : Saver {
@@ -43,9 +45,9 @@ class FileSaver(dir: Path, bufferSize: Int = 64 * 1024) : Saver {
         typeSet.add(type)
     }
 
-    fun addObjTypeSignalFilter(objType: String, signal: KProperty<*>) {
+    fun addObjTypeSignalFilter(objType: String, signal: KProperty1<*, *>) {
         filters.putIfAbsent(objType, hashSetOf())
-        filters[objType]!!.add("${signal.javaField?.declaringClass?.simpleName}.${signal.name}")
+        filters[objType]!!.add(Signals.getName(signal))
     }
 
     override fun logChangedState(tick: Long, obj: ModelObject) {
