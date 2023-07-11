@@ -1,6 +1,7 @@
 package org.jetbrains.research.mads.examples.current.noise_current
 
 import org.jetbrains.research.mads.core.configuration.Always
+import org.jetbrains.research.mads.core.configuration.Structure
 import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.types.microsecond
@@ -42,10 +43,10 @@ fun main() {
                 logFolder = "$experimentName/${mean}+${std}_microA/lif/${startTime}",
                 logSignals = logSignals,
                 logTypes = listOf(),
-                topology = Topology.electrodeNeuron(
+                topology = Structure(Topology.electrodeNeuron(
                     { -> Electrode(Random(randomSeed), CurrentSignals(I_e = initialCurrent), NoiseSignals(mean, std)) },
                     { -> LIFNeuron(LIFConstants.V_thresh) }
-                ),
+                )),
                 config = currentLifConfig,
                 stopCondition = Model.timeStopCondition((modelingTime.toBigDecimal() / currentLifConfig.timeResolution.toBigDecimal()).toLong())
             )
@@ -53,10 +54,10 @@ fun main() {
                 logFolder = "$experimentName/${mean}+${std}_microA/izh/${startTime}",
                 logSignals = logSignals,
                 logTypes = listOf(),
-                topology = Topology.electrodeNeuron(
+                topology = Structure(Topology.electrodeNeuron(
                     { -> Electrode(Random(randomSeed), CurrentSignals(I_e = initialCurrent), NoiseSignals(mean, std)) },
                     { -> IzhNeuron() }
-                ),
+                )),
                 config = currentIzhConfig,
                 stopCondition = Model.timeStopCondition((modelingTime.toBigDecimal() / currentIzhConfig.timeResolution.toBigDecimal()).toLong())
             )
@@ -64,10 +65,10 @@ fun main() {
                 logFolder = "$experimentName/${mean}+${std}_microA/hh/${startTime}",
                 logSignals = logSignals,
                 logTypes = listOf(),
-                topology = Topology.electrodeNeuron(
+                topology = Structure(Topology.electrodeNeuron(
                     { -> Electrode(Random(randomSeed), CurrentSignals(I_e = initialCurrent), NoiseSignals(mean, std)) },
                     { -> HHNeuron(HHConstants.V_thresh, HHSignals()) }
-                ),
+                )),
                 config = currentHHConfig,
                 stopCondition = Model.timeStopCondition((modelingTime.toBigDecimal() / currentHHConfig.timeResolution.toBigDecimal()).toLong())
             )

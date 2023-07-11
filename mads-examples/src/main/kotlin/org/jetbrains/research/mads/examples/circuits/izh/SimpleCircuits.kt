@@ -1,5 +1,6 @@
 package org.jetbrains.research.mads.examples.circuits.izh
 
+import org.jetbrains.research.mads.core.configuration.Structure
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.types.second
 import org.jetbrains.research.mads.examples.Topology
@@ -41,7 +42,7 @@ fun twoNeuronsCircuit() {
         "izh/basic_syn/$startTime",
         logSignals = logSignals,
         listOf(),
-        objects,
+        Structure(objects),
         config,
         Model.timeStopCondition(stopTime)
     )
@@ -78,7 +79,7 @@ fun threeNeuronsCircuit() {
         "izh/basic_inh/$startTime",
         logSignals = logSignals,
         listOf(),
-        objects,
+        Structure(objects),
         config,
         Model.timeStopCondition(stopTime)
     )

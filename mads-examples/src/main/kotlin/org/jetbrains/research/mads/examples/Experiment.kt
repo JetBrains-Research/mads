@@ -1,9 +1,9 @@
 package org.jetbrains.research.mads.examples
 
 import org.jetbrains.research.mads.core.configuration.Configuration
+import org.jetbrains.research.mads.core.configuration.Structure
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.telemetry.FileSaver
-import org.jetbrains.research.mads.core.types.ModelObject
 import kotlin.io.path.Path
 import kotlin.reflect.KProperty1
 
@@ -11,7 +11,7 @@ fun runExperiment(
     logFolder: String,
     logSignals: List<KProperty1<*, *>>,
     logTypes: List<String>,
-    topology: List<ModelObject>,
+    topology: Structure,
     config: Configuration,
     stopCondition: (Model) -> Boolean
 ) {
@@ -20,7 +20,7 @@ fun runExperiment(
     logSignals.forEach { saver.addSignalsNames(it) }
     logTypes.forEach { saver.addObjectTypes(it) }
 
-    val allTypes = logTypes.ifEmpty { topology.distinctBy { it.type }.map { it.type } }
+    val allTypes = logTypes.ifEmpty { topology.getAllObjects().distinctBy { it.second.type }.map { it.second.type } }
 
     allTypes.forEach { type ->
         logSignals.forEach { signal ->
@@ -44,7 +44,7 @@ fun runExperiment(
 fun runExperiment(
     logFolder: String,
     logFilter: Map<String, Set<KProperty1<*, *>>>,
-    topology: List<ModelObject>,
+    topology: Structure,
     config: Configuration,
     stopCondition: (Model) -> Boolean
 ) {

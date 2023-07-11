@@ -15,7 +15,7 @@ class Lattice(private val size: Int, signals: Set<Signals>, private val stepShif
     private val sizeCube = size * size * size
     private val cube: Array<Cell> = Array(sizeCube) { Cell() }
     private val concentrations: Map<String, AtomicDoubleArray> = signals.flatMap { sig ->
-        sig.getProperties()
+        sig.getFullProperties()
             .filter { it.value is Double }
             .keys.map { it to AtomicDoubleArray(sizeCube + 1) }
     }.toMap()
@@ -246,10 +246,10 @@ class Lattice(private val size: Int, signals: Set<Signals>, private val stepShif
         return rollCandidate(candidateIndices, roll)
     }
 
-    fun getShiftTrackCandidate(entryCoordinate: Int, vector: Int, volume: Double, roll: () -> Double): Track {
+    fun getShiftTrackCandidate(obj: ModelObject, vector: Int, roll: () -> Double): Track {
         val track = ShiftTrack(roll())
-        var currentVolume = volume
-        var currentTrackPosition = entryCoordinate
+        var currentVolume = obj.volume
+        var currentTrackPosition = obj.coordinate
 
         for (i in 0..stepShiftRestriction) {
             val restricted = borders[currentTrackPosition]
@@ -270,20 +270,20 @@ class Lattice(private val size: Int, signals: Set<Signals>, private val stepShif
         return track
     }
 
-    fun getSwitchTrackCandidate(entryCoordinate: Int, vector: Int, obj: ModelObject, roll: () -> Double): Track {
-        val restricted = borders[entryCoordinate]
+    fun getSwitchTrackCandidate(obj: ModelObject, vector: Int, roll: () -> Double): Track {
+        val restricted = borders[obj.coordinate]
         if (restricted != null && restricted.contains(vector))
             return EmptyTrack
 
         val track = SwitchTrack(roll())
-        val switchCoordinate = entryCoordinate + vector
+        val switchCoordinate = obj.coordinate + vector
 
         val switchCell: Cell = cube[switchCoordinate]
         val objToMove: List<ModelObject> = switchCell.getMovingCandidates(obj.volume)
 
-        track.add(entryCoordinate, listOf(obj))
+        track.add(obj.coordinate, listOf(obj))
         track.add(switchCoordinate, objToMove)
-        track.add(entryCoordinate, listOf())
+        track.add(obj.coordinate, listOf())
 
         return track
     }

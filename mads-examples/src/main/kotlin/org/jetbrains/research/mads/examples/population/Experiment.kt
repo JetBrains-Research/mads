@@ -1,6 +1,7 @@
 package org.jetbrains.research.mads.examples.population
 
 import org.jetbrains.research.mads.core.configuration.Configuration
+import org.jetbrains.research.mads.core.configuration.Structure
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
@@ -126,7 +127,7 @@ fun runSimulation(
         }
     }
 
-    val s = Model(objects, config)
+    val s = Model(Structure(objects), config)
     val stopTime = (time.toBigDecimal() / config.timeResolution.toBigDecimal()).toLong()
     s?.simulate(saver) { it.nextTime() > stopTime }
     saver.closeModelWriters()

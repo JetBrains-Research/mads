@@ -1,5 +1,6 @@
 package org.jetbrains.research.mads.examples.training.izh
 
+import org.jetbrains.research.mads.core.configuration.Structure
 import org.jetbrains.research.mads.examples.SynapsesParameters
 import org.jetbrains.research.mads.examples.Topology
 import org.jetbrains.research.mads.examples.runExperiment
@@ -50,7 +51,7 @@ fun mnist3PhaseIzh() {
             Topology.SECOND_LAYER to hashSetOf(SpikesSignals::spikeCounter),
             Topology.OUTPUT_LAYER to hashSetOf(SpikesSignals::spikeCounter)
         ),
-        topology,
+        Structure(topology),
         trainPhaseIzhConfig()
     ) { provider.imageIndex >= trainSize }
     runExperiment(
@@ -59,14 +60,14 @@ fun mnist3PhaseIzh() {
             Topology.INPUT_LAYER to hashSetOf(CurrentStimuli::stimuli),
             Topology.SECOND_LAYER to hashSetOf(SpikesSignals::spikeCounter)
         ),
-        topology,
+        Structure(topology),
         testPhaseIzhConfig()
     ) { provider.imageIndex >= trainSize + assignSize }
     runExperiment(
         logFolder = "test/${startTime}",
         listOf(SpikesSignals::spikeCounter, CurrentStimuli::stimuli),
         listOf(Topology.INPUT_LAYER, Topology.SECOND_LAYER),
-        topology,
+        Structure(topology),
         testPhaseIzhConfig()
     ) { provider.imageIndex >= trainSize + assignSize + testSize }
 }

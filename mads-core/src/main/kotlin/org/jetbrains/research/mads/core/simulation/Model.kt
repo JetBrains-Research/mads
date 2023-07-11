@@ -2,6 +2,8 @@ package org.jetbrains.research.mads.core.simulation
 
 import kotlinx.serialization.Serializable
 import org.jetbrains.research.mads.core.configuration.Configuration
+import org.jetbrains.research.mads.core.configuration.RootObject
+import org.jetbrains.research.mads.core.configuration.Structure
 import org.jetbrains.research.mads.core.desd.EventsDispatcher
 import org.jetbrains.research.mads.core.telemetry.EmptySaver
 import org.jetbrains.research.mads.core.telemetry.ModelStateSerializer
@@ -9,11 +11,9 @@ import org.jetbrains.research.mads.core.telemetry.Saver
 import org.jetbrains.research.mads.core.types.ModelObject
 import java.util.stream.Collectors
 
-object RootObject : ModelObject()
-
 @Serializable(with = ModelStateSerializer::class)
 class Model private constructor(
-    objects: List<ModelObject>
+    structure: Structure
 ) : ModelObject() {
 
     var tStart: Long = 0
@@ -29,14 +29,14 @@ class Model private constructor(
         createEvents(configuration.getPathways(this::class))
         checkConditions()
         print("Adding objects and checking conditions... ")
-        objects.forEach {
-            addObject(it)
-            it.checkConditions()
-        }
-        println("done")
+        val groupedObjects = structure.getAllObjects().groupBy { it.first == RootObject }
+        groupedObjects[true]?.forEach { this.addObject(it.second) }
+        groupedObjects[false]?.forEach { it.first.addObject(it.second) }
 
-        val allEvents = objects.map { it.events }.flatten()
+        recursivelyGetChildObjects().forEach { it.checkConditions() }
+        val allEvents = recursivelyGetChildObjects().map { it.events }.flatten()
         dispatcher.addEvents(allEvents)
+        println("done")
     }
 
     fun simulate(saver: Saver = EmptySaver, stopCondition: (Model) -> Boolean) {
@@ -105,19 +105,19 @@ class Model private constructor(
     }
 
     companion object {
-        operator fun invoke(objects: List<ModelObject>, configuration: Configuration): Model? {
+        operator fun invoke(structure: Structure, configuration: Configuration): Model? {
             if (configuration.hasErrors()) {
                 configuration.errors().forEach { println(it) }
                 return null
             }
 
-            if (objects.isEmpty()) {
+            if (structure.isEmpty()) {
                 println("Nothing to simulate. Initial model state does not contain any objects.")
                 return null
             }
 
             ModelObject.configuration = configuration
-            val model = Model(objects)
+            val model = Model(structure)
             getCurrentTime = model::getCurrentTime
 
             return model

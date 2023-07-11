@@ -7,12 +7,11 @@ import org.jetbrains.research.mads.core.desd.ModelEvent
 import org.jetbrains.research.mads.core.lattice.Lattice
 import org.jetbrains.research.mads.core.lattice.emptyLattice
 import org.jetbrains.research.mads.core.telemetry.ModelObjectSerializer
-import kotlin.random.Random
 import kotlin.reflect.KClass
 
-class SpatialSignals : Signals() {
-    var coordinate: Int by observable(-1)
-    var volume: Double by observable(0.0)
+class SpatialSignals(coordinate: Int = -1, volume: Double = 0.0) : Signals() {
+    var coordinate: Int by observable(coordinate)
+    var volume: Double by observable(volume)
 }
 
 object EmptyModelObject : ModelObject(-1)
@@ -97,6 +96,7 @@ abstract class ModelObject internal constructor(val id: Long, vararg signals: Si
         addedObject.createEvents(configuration.getPathways(addedObject::class))
         childObjects.add(addedObject)
         operatedChildren[addedObject] = added
+        lattice.addObject(addedObject)
         return arrayListOf(this, addedObject)
     }
 
@@ -105,6 +105,7 @@ abstract class ModelObject internal constructor(val id: Long, vararg signals: Si
         removedObject.events.clear()
         childObjects.remove(removedObject)
         operatedChildren[removedObject] = removed
+        lattice.removeObject(removedObject)
         return arrayListOf(this)
     }
 
@@ -192,35 +193,4 @@ fun <T> Sequence<T>.selectRecursive(recursiveSelector: T.() -> Sequence<T>): Seq
         yield(it)
         yieldAll(it.recursiveSelector().selectRecursive(recursiveSelector))
     }
-}
-
-class MoveConstants(
-    val movementType: MovementType,
-    val directionSelection: DirectionSelection,
-    val signal: String,
-    val volumetricState: VolumetricState
-) : MechanismConstants
-
-fun ModelObject.move(parameters: MechanismParameters) : List<Response> {
-    val moveConstants = parameters.constants as MoveConstants
-    val candidate: Int = when(moveConstants.directionSelection) {
-        DirectionSelection.Random ->
-            this.parent.lattice.getRandomCandidate(coordinate, moveConstants.volumetricState, Random::nextInt)
-        DirectionSelection.Gradient ->
-            this.parent.lattice.getGradientCandidate(coordinate, moveConstants.volumetricState, moveConstants.signal, Random::nextInt)
-        DirectionSelection.Antigradient ->
-            this.parent.lattice.getAntigradientCandidate(coordinate, moveConstants.volumetricState, moveConstants.signal, Random::nextInt)
-        DirectionSelection.Insoluble ->
-            this.parent.lattice.getInsolubleCandidate(coordinate, moveConstants.volumetricState, moveConstants.signal, Random::nextInt)
-    }
-    val track = when(moveConstants.movementType) {
-        MovementType.Shift -> this.parent.lattice.getShiftTrackCandidate(coordinate, candidate, volume, Random::nextDouble)
-        MovementType.Switch -> this.parent.lattice.getSwitchTrackCandidate(coordinate, candidate, this, Random::nextDouble)
-    }
-
-    return listOf(
-        this.parent.createResponse(conflict = track.createSpatialConflict()) {
-            this.parent.lattice.applyTrack(track)
-        }
-    )
 }
