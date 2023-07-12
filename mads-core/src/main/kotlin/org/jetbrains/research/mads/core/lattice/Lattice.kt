@@ -247,6 +247,9 @@ class Lattice(private val size: Int, signals: Set<Signals>, private val stepShif
     }
 
     fun getShiftTrackCandidate(obj: ModelObject, vector: Int, roll: () -> Double): Track {
+        if (vector == 0)
+            return EmptyTrack
+
         val track = ShiftTrack(roll())
         var currentVolume = obj.volume
         var currentTrackPosition = obj.coordinate
@@ -272,7 +275,7 @@ class Lattice(private val size: Int, signals: Set<Signals>, private val stepShif
 
     fun getSwitchTrackCandidate(obj: ModelObject, vector: Int, roll: () -> Double): Track {
         val restricted = borders[obj.coordinate]
-        if (restricted != null && restricted.contains(vector))
+        if (vector == 0 || (restricted != null && restricted.contains(vector)))
             return EmptyTrack
 
         val track = SwitchTrack(roll())
@@ -288,6 +291,21 @@ class Lattice(private val size: Int, signals: Set<Signals>, private val stepShif
         return track
     }
 
+    fun getDirectTrackCandidate(obj: ModelObject, vector: Int, roll: () -> Double): Track {
+        val restricted = borders[obj.coordinate]
+        if (vector == 0 || (restricted != null && restricted.contains(vector)))
+            return EmptyTrack
+
+        val track = DirectTrack(roll())
+        val directCoordinate = obj.coordinate + vector
+
+        track.add(obj.coordinate, listOf(obj))
+        track.add(directCoordinate, listOf())
+
+        return track
+    }
+
+    // TODO: we can check here if potential cell actually have enough of free space between 0.0 and 1.0
     private fun checkVolumetricState(coordinate: Int, state: VolumetricState): Boolean {
         return state == VolumetricState.Free && cube[coordinate].occupiedVolume.get() > 0.0 || state == VolumetricState.Any
     }

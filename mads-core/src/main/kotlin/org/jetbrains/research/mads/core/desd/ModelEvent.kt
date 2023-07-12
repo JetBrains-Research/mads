@@ -24,6 +24,7 @@ class ModelEvent(
 
     private val exceptionHandler = Thread.UncaughtExceptionHandler { _, throwable ->
         println("\nException: ${throwable.message}")
+        throwable.printStackTrace()
         exitProcess(1)
     }
 

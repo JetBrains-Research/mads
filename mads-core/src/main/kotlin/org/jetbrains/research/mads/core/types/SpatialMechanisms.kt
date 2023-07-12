@@ -11,10 +11,9 @@ open class SpatialConstants(val signal: KProperty1<out Signals, Double>): Mechan
 }
 
 class MoveConstants(
-    signal: KProperty1<out Signals, Double>,
+    signal: KProperty1<out Signals, Double>, //TODO: this one won't work in that way for insoluble types, but we can??? switch implementation of type as a Signals
     val movementType: MovementType,
     val directionSelection: DirectionSelection,
-    val volumetricState: VolumetricState
 ) : SpatialConstants(signal)
 
 class DiffuseConstants(
@@ -62,18 +61,19 @@ fun ModelObject.updateParentalSignalValue(spatialConstants: SpatialConstants, de
 @ConstantType(type = MoveConstants::class)
 fun ModelObject.move(parameters: MechanismParameters) : List<Response> {
     val moveConstants = parameters.constants as MoveConstants
+    val volumetricState = if (this.volume > 0.0) VolumetricState.Free else VolumetricState.Any
     val candidate: Int = when(moveConstants.directionSelection) {
         DirectionSelection.Random ->
-            this.parent.lattice.getRandomCandidate(coordinate, moveConstants.volumetricState, Random::nextInt)
+            this.parent.lattice.getRandomCandidate(coordinate, volumetricState, Random::nextInt)
         DirectionSelection.Gradient ->
-            this.parent.lattice.getGradientCandidate(coordinate, moveConstants.volumetricState, moveConstants.signalString, Random::nextInt)
+            this.parent.lattice.getGradientCandidate(coordinate, volumetricState, moveConstants.signalString, Random::nextInt)
         DirectionSelection.Antigradient ->
-            this.parent.lattice.getAntigradientCandidate(coordinate, moveConstants.volumetricState, moveConstants.signalString, Random::nextInt)
+            this.parent.lattice.getAntigradientCandidate(coordinate, volumetricState, moveConstants.signalString, Random::nextInt)
         DirectionSelection.Insoluble ->
-            this.parent.lattice.getInsolubleCandidate(coordinate, moveConstants.volumetricState, moveConstants.signalString, Random::nextInt)
+            this.parent.lattice.getInsolubleCandidate(coordinate, volumetricState, moveConstants.signalString, Random::nextInt)
     }
     val track = when(moveConstants.movementType) {
-        MovementType.Shift -> this.parent.lattice.getShiftTrackCandidate(this, candidate, Random::nextDouble)
+        MovementType.Direct -> this.parent.lattice.getDirectTrackCandidate(this, candidate, Random::nextDouble)
         MovementType.Switch -> this.parent.lattice.getSwitchTrackCandidate(this, candidate, Random::nextDouble)
     }
 

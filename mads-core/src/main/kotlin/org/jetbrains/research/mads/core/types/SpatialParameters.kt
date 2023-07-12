@@ -5,7 +5,7 @@ enum class VolumetricState {
 }
 
 enum class MovementType {
-    Shift, Switch
+    Direct, Switch
 }
 
 enum class DirectionSelection {

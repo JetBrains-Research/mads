@@ -1,4 +1,4 @@
-package org.jetbrains.research.mads.examples.spatial
+package org.jetbrains.research.mads.examples.spatial.diffuse
 
 import org.jetbrains.research.mads.core.configuration.configure
 import org.jetbrains.research.mads.core.configuration.pathway

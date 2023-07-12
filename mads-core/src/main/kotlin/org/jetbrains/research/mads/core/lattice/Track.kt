@@ -15,7 +15,7 @@ sealed class Track(val rolledRnd: Double) : ConflictSubject {
 
     companion object {
         private fun resolveSpatialConflicts(responses: List<Response>): List<Response> {
-            val tracks = responses.map { it.conflict.conflictSubject as Track }
+            val tracks = responses.map { it.conflict.conflictSubject as Track }.filter { it != EmptyTrack }
             val resolvedTracks = Track.resolveCollisions(tracks).toSet()
             return responses.filter { resolvedTracks.contains(it.conflict.conflictSubject) }
         }
@@ -27,7 +27,7 @@ sealed class Track(val rolledRnd: Double) : ConflictSubject {
             val wVector = IntArray(tracksCount) // weighted vector of collision count
             // for each [track * length] of track
 
-            val intTracks = ArrayList<IntArray>(tracksCount)
+            val intTracks = Array(tracksCount) { IntArray(0) }
             val rnd = DoubleArray(tracksCount)
             IntStream.range(0, tracks.size)
                 .parallel()
@@ -98,5 +98,7 @@ sealed class Track(val rolledRnd: Double) : ConflictSubject {
 class ShiftTrack(rolledRnd: Double) : Track(rolledRnd)
 
 class SwitchTrack(rolledRnd: Double) : Track(rolledRnd)
+
+class DirectTrack(rolledRnd: Double) : Track(rolledRnd)
 
 object EmptyTrack : Track(0.0)
