@@ -21,7 +21,8 @@ fun move() {
         mapOf(
 //            "spread" to hashSetOf(DiffusibleSignals::A),
 //            "gather" to hashSetOf(DiffusibleSignals::A, SpatialSignals::coordinate)
-            "gather" to hashSetOf(SpatialSignals::coordinate)
+            "gather" to hashSetOf(SpatialSignals::coordinate),
+//            "space" to hashSetOf(DiffuseSignals::log)
         ),
         moveStructure,
         moveConfig,

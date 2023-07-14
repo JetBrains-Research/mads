@@ -5,7 +5,8 @@ import gnu.trove.map.hash.TIntObjectHashMap
 import gnu.trove.set.hash.TIntHashSet
 import org.jetbrains.research.mads.core.types.ModelObject
 import org.jetbrains.research.mads.core.types.Signals
-import org.jetbrains.research.mads.core.types.VolumetricState
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.util.stream.Collectors
 import java.util.stream.IntStream
 import java.util.stream.Stream
@@ -30,6 +31,8 @@ class Lattice(private val size: Int, signals: Set<Signals>, private val stepShif
     private val fnbh = IntArray(27)
 
     private val emptyModelObjectList = listOf<ModelObject>()
+
+    var maxCellVolume: Double = 1.0
 
     init {
         // Vectors of neighborhood per each cell
@@ -189,51 +192,55 @@ class Lattice(private val size: Int, signals: Set<Signals>, private val stepShif
     // Retrieving tracks for two types of movement: switch and shift
     // Applying track on the lattice
 
-    fun getRandomCandidate(entryCoordinate: Int, state: VolumetricState, roll: (Int) -> Int): Int {
-        val restricted = borders[entryCoordinate]
+    private fun isInvalidCandidate(entryCoordinate: Int, volume: Double, vector: Int): Boolean {
+        return isOutsideBorder(borders[entryCoordinate], vector)
+                || checkFreeVolume(entryCoordinate + vector, volume)
+    }
+
+    private fun getCandidate(
+        entryCoordinate: Int,
+        volume: Double,
+        signal: String,
+        precision: Int,
+        roll: (Int) -> Int,
+        initialDiff: Double,
+        compare: (Double, Double) -> Boolean
+    ): Int {
+        val candidateIndices = IntArray(28)
+        var currentDiff = initialDiff
+        for (j in fnbh) {
+            if (isInvalidCandidate(entryCoordinate, volume, j)) continue
+            val diff = round(concentrations[signal]!![entryCoordinate + j] - concentrations[signal]!![entryCoordinate], precision)
+            if (compare(currentDiff, diff)) {
+                currentDiff = diff
+                candidateIndices[0] = 1 // Reset the count to 1
+                candidateIndices[1] = j // Add this candidate to the first slot
+            } else if (currentDiff == diff) {
+                candidateIndices[++candidateIndices[0]] = j // Add this candidate to the next slot
+            }
+        }
+        return rollCandidate(candidateIndices, roll)
+    }
+
+    fun getRandomCandidate(entryCoordinate: Int, volume: Double, roll: (Int) -> Int): Int {
         val candidateIndices = IntArray(28)
         for (j in fnbh) {
-            val checkCoordinate = entryCoordinate + j
-            if (isOutsideBorder(restricted, j) || checkVolumetricState(checkCoordinate, state)) continue
+            if (isInvalidCandidate(entryCoordinate, volume, j)) continue
             candidateIndices[++candidateIndices[0]] = j
         }
         return rollCandidate(candidateIndices, roll)
     }
 
-    fun getGradientCandidate(entryCoordinate: Int, state: VolumetricState, signal: String, roll: (Int) -> Int): Int {
-        val restricted = borders[entryCoordinate]
-        val candidateIndices = IntArray(28)
-        var maxDiff = Double.MIN_VALUE
-        for (j in fnbh) {
-            val checkCoordinate = entryCoordinate + j
-            if (isOutsideBorder(restricted, j) || checkVolumetricState(checkCoordinate, state)) continue
-            val diff = concentrations[signal]!![checkCoordinate] - concentrations[signal]!![entryCoordinate]
-            if (maxDiff <= diff) {
-                maxDiff = diff
-                candidateIndices[++candidateIndices[0]] = j
-            }
-        }
-        return rollCandidate(candidateIndices, roll)
+    fun getGradientCandidate(entryCoordinate: Int, volume: Double, signal: String, precision: Int, roll: (Int) -> Int): Int {
+        return getCandidate(entryCoordinate, volume, signal, precision, roll, Double.MIN_VALUE) { current, new -> current < new }
     }
 
-    fun getAntigradientCandidate(entryCoordinate: Int, state: VolumetricState, signal: String, roll: (Int) -> Int): Int {
-        val restricted = borders[entryCoordinate]
-        val candidateIndices = IntArray(28)
-        var minDiff = Double.MAX_VALUE
-        for (j in fnbh) {
-            val checkCoordinate = entryCoordinate + j
-            if (isOutsideBorder(restricted, j) || checkVolumetricState(checkCoordinate, state)) continue
-            val diff = concentrations[signal]!![checkCoordinate] - concentrations[signal]!![entryCoordinate]
-            if (minDiff >= diff) {
-                minDiff = diff
-                candidateIndices[++candidateIndices[0]] = j
-            }
-        }
-        return rollCandidate(candidateIndices, roll)
+    fun getAntigradientCandidate(entryCoordinate: Int, volume: Double, signal: String, precision: Int, roll: (Int) -> Int): Int {
+        return getCandidate(entryCoordinate, volume, signal, precision, roll, Double.MAX_VALUE) { current, new -> current > new }
     }
 
-    fun getInsolubleCandidate(entryCoordinate: Int, state: VolumetricState, type: String, roll: (Int) -> Int): Int {
-        val neighbours: List<List<ModelObject>> = getNeighbours(entryCoordinate, state)
+    fun getInsolubleCandidate(entryCoordinate: Int, volume: Double, type: String, roll: (Int) -> Int): Int {
+        val neighbours: List<List<ModelObject>> = getNeighbours(entryCoordinate, volume)
         val candidateIndices = IntArray(28)
         for (i in neighbours.indices) {
             for (j in neighbours[i].indices) {
@@ -305,17 +312,16 @@ class Lattice(private val size: Int, signals: Set<Signals>, private val stepShif
         return track
     }
 
-    // TODO: we can check here if potential cell actually have enough of free space between 0.0 and 1.0
-    private fun checkVolumetricState(coordinate: Int, state: VolumetricState): Boolean {
-        return state == VolumetricState.Free && cube[coordinate].occupiedVolume.get() > 0.0 || state == VolumetricState.Any
+    private fun checkFreeVolume(coordinate: Int, checkVolume: Double): Boolean {
+        return maxCellVolume - cube[coordinate].occupiedVolume.get() < checkVolume
     }
 
-    private fun getNeighbours(entryCoordinate: Int, state: VolumetricState): List<List<ModelObject>> {
+    private fun getNeighbours(entryCoordinate: Int, volume: Double): List<List<ModelObject>> {
         val restricted = borders[entryCoordinate]
         val neighbours = List<ArrayList<ModelObject>>(27) { ArrayList() }
         for (i in fnbh.indices) {
             val checkCoordinate = entryCoordinate + fnbh[i]
-            if (!(isOutsideBorder(restricted, fnbh[i]) || checkVolumetricState(checkCoordinate, state))) {
+            if (!(isOutsideBorder(restricted, fnbh[i]) || checkFreeVolume(checkCoordinate, volume))) {
                 neighbours[i].addAll(cube[checkCoordinate].getObjects())
             }
         }
@@ -358,14 +364,18 @@ class Lattice(private val size: Int, signals: Set<Signals>, private val stepShif
             .collect(Collectors.toList())
     }
 
-    fun calcDiffusion(signal: String, diffusionRate: Double): AtomicDoubleArray {
+    private fun round(value: Double, precision: Int): Double {
+        return BigDecimal(value).setScale(precision, RoundingMode.HALF_UP).toDouble()
+    }
+
+    fun calcDiffusion(signal: String, diffusionRate: Double, precision: Int): AtomicDoubleArray {
         val diffResult = AtomicDoubleArray(sizeCube + 1)
         IntStream.range(0, sizeCube)
             .parallel()
             .forEach { i: Int ->
-                val diffusedAmount = concentrations[signal]!![i] * diffusionRate // total diffused amount
+                val diffusedAmount = round(concentrations[signal]!![i] * diffusionRate, precision) // total diffused amount
                 if (diffusedAmount == 0.0) return@forEach   // if nothing to diffuse - skip
-                val dr = diffusedAmount / 26 // diffusion per cell pair
+                val dr = round(diffusedAmount / 26, precision) // diffusion per cell pair
                 diffResult.addAndGet(i, -diffusedAmount) // update current cell
                 val restricted = borders[i]
                 for (dims in nbh) {

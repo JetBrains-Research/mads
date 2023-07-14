@@ -5,6 +5,7 @@ import org.jetbrains.research.mads.core.configuration.pathway
 import org.jetbrains.research.mads.core.configuration.structure
 import org.jetbrains.research.mads.core.lattice.Lattice
 import org.jetbrains.research.mads.core.types.*
+import kotlin.random.Random
 
 class Space(lattice: Lattice, vararg signals: Signals) : ModelObject(*signals) {
     init {
@@ -76,6 +77,6 @@ val moveStructure = structure {
     node(Space(Lattice(10, setOf(DiffusibleSignals())), DiffusibleSignals())) {
         node(Cell(222, "spread", DiffusibleSignals(100.0)))
         node(Cell(888, "spread", DiffusibleSignals(200.0)))
-        node(Cell(444, "gather", DiffusibleSignals(0.0)))
+        node(Cell(444, "gather", DiffusibleSignals(0.0), MovingSignals(Random(42L))))
     }
 }

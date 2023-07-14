@@ -14,17 +14,21 @@ class MoveConstants(
     signal: KProperty1<out Signals, Double>, //TODO: this one won't work in that way for insoluble types, but we can??? switch implementation of type as a Signals
     val movementType: MovementType,
     val directionSelection: DirectionSelection,
+    val precision: Int = 12
 ) : SpatialConstants(signal)
 
 class DiffuseConstants(
     signal: KProperty1<out Signals, Double>,
-    val rate: Double
+    val rate: Double,
+    val precision: Int = 12
 ) : SpatialConstants(signal)
 
 class TransferSignalConstants(
     signal: KProperty1<out Signals, Double>,
     val fractionFn: (Double) -> Double
 ) : SpatialConstants(signal)
+
+class MovingSignals(val random: Random) : Signals()
 
 fun ModelObject.getParentalSignalValue(spatialConstants: SpatialConstants): Double {
     return if (this.parent.lattice != emptyLattice) {
@@ -61,20 +65,20 @@ fun ModelObject.updateParentalSignalValue(spatialConstants: SpatialConstants, de
 @ConstantType(type = MoveConstants::class)
 fun ModelObject.move(parameters: MechanismParameters) : List<Response> {
     val moveConstants = parameters.constants as MoveConstants
-    val volumetricState = if (this.volume > 0.0) VolumetricState.Free else VolumetricState.Any
+    val selector = (this.signals[MovingSignals::class] as MovingSignals).random
     val candidate: Int = when(moveConstants.directionSelection) {
         DirectionSelection.Random ->
-            this.parent.lattice.getRandomCandidate(coordinate, volumetricState, Random::nextInt)
+            this.parent.lattice.getRandomCandidate(coordinate, volume, Random::nextInt)
         DirectionSelection.Gradient ->
-            this.parent.lattice.getGradientCandidate(coordinate, volumetricState, moveConstants.signalString, Random::nextInt)
+            this.parent.lattice.getGradientCandidate(coordinate, volume, moveConstants.signalString, moveConstants.precision, selector::nextInt)
         DirectionSelection.Antigradient ->
-            this.parent.lattice.getAntigradientCandidate(coordinate, volumetricState, moveConstants.signalString, Random::nextInt)
+            this.parent.lattice.getAntigradientCandidate(coordinate, volume, moveConstants.signalString, moveConstants.precision, selector::nextInt)
         DirectionSelection.Insoluble ->
-            this.parent.lattice.getInsolubleCandidate(coordinate, volumetricState, moveConstants.signalString, Random::nextInt)
+            this.parent.lattice.getInsolubleCandidate(coordinate, volume, moveConstants.signalString, selector::nextInt)
     }
     val track = when(moveConstants.movementType) {
-        MovementType.Direct -> this.parent.lattice.getDirectTrackCandidate(this, candidate, Random::nextDouble)
-        MovementType.Switch -> this.parent.lattice.getSwitchTrackCandidate(this, candidate, Random::nextDouble)
+        MovementType.Direct -> this.parent.lattice.getDirectTrackCandidate(this, candidate, selector::nextDouble)
+        MovementType.Switch -> this.parent.lattice.getSwitchTrackCandidate(this, candidate, selector::nextDouble)
     }
 
     return listOf(
@@ -88,10 +92,12 @@ fun ModelObject.move(parameters: MechanismParameters) : List<Response> {
 @ConstantType(type = DiffuseConstants::class)
 fun ModelObject.diffuse(parameters: MechanismParameters) : List<Response> {
     val diffuseConstants = parameters.constants as DiffuseConstants
-    val diff = lattice.calcDiffusion(diffuseConstants.signalString, diffuseConstants.rate)
+    val diff = lattice.calcDiffusion(diffuseConstants.signalString, diffuseConstants.rate, diffuseConstants.precision)
 
     return listOf(
-        this.createResponse { lattice.updateDiffusion(diffuseConstants.signalString, diff) }
+        this.createResponse {
+            lattice.updateDiffusion(diffuseConstants.signalString, diff)
+        }
     )
 }
 
