@@ -1,5 +1,6 @@
 package org.jetbrains.research.mads.examples.current.const_current
 
+import org.jetbrains.research.mads.core.configuration.Structure
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.types.millisecond
 import org.jetbrains.research.mads.examples.Topology.Companion.constCurrent
@@ -8,14 +9,13 @@ import org.jetbrains.research.mads.examples.current.currentIzhConfig
 import org.jetbrains.research.mads.examples.current.currentLifConfig
 import org.jetbrains.research.mads.examples.runExperiment
 import org.jetbrains.research.mads.ns.physiology.neurons.*
-import kotlin.reflect.KProperty
 
 fun main() {
     val experimentName = "const_current"
     val currents = arrayOf(5.0, 10.0, 20.0, 30.0, 50.0)
     val startTime = System.currentTimeMillis()
     val modelingTime = 500 * millisecond
-    val logSignals = arrayListOf<KProperty<*>>(
+    val logSignals = listOf(
         SpikesSignals::spiked,
         PotentialSignals::V,
         CurrentSignals::I_e
@@ -28,10 +28,10 @@ fun main() {
             logFolder = "$experimentName/${current}_microA/lif/${startTime}",
             logSignals = logSignals,
             logTypes = listOf(),
-            topology = constCurrent(
+            topology = Structure(constCurrent(
                 { -> LIFNeuron(LIFConstants.V_thresh) },
                 current
-            ),
+            )),
             config = currentLifConfig,
             stopCondition = Model.timeStopCondition((modelingTime.toBigDecimal() / currentLifConfig.timeResolution.toBigDecimal()).toLong())
         )
@@ -39,10 +39,10 @@ fun main() {
             logFolder = "$experimentName/${current}_microA/izh/${startTime}",
             logSignals = logSignals,
             logTypes = listOf(),
-            topology = constCurrent(
+            topology = Structure(constCurrent(
                 { -> IzhNeuron() },
                 current
-            ),
+            )),
             config = currentIzhConfig,
             stopCondition = Model.timeStopCondition((modelingTime.toBigDecimal() / currentIzhConfig.timeResolution.toBigDecimal()).toLong())
         )
@@ -50,10 +50,10 @@ fun main() {
             logFolder = "$experimentName/${current}_microA/hh/${startTime}",
             logSignals = logSignals,
             logTypes = listOf(),
-            topology = constCurrent(
+            topology = Structure(constCurrent(
                 { -> HHNeuron(HHConstants.V_thresh, HHSignals()) },
                 current
-            ),
+            )),
             config = currentHHConfig,
             stopCondition = Model.timeStopCondition((modelingTime.toBigDecimal() / currentHHConfig.timeResolution.toBigDecimal()).toLong())
         )

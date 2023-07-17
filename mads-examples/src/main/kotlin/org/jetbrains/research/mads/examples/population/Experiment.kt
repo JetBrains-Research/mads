@@ -1,6 +1,7 @@
 package org.jetbrains.research.mads.examples.population
 
 import org.jetbrains.research.mads.core.configuration.Configuration
+import org.jetbrains.research.mads.core.configuration.Structure
 import org.jetbrains.research.mads.core.simulation.Model
 import org.jetbrains.research.mads.core.telemetry.FileSaver
 import org.jetbrains.research.mads.core.types.ModelObject
@@ -15,7 +16,6 @@ import org.jetbrains.research.mads.ns.physiology.synapses.Synapse
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.math.pow
-import kotlin.reflect.KProperty
 
 enum class Connectedness {
     NONE,
@@ -55,7 +55,7 @@ fun runSimulation(
 ) {
     val startTime = System.currentTimeMillis()
     val randomSeed = 12345L
-    val logSignals = arrayListOf<KProperty<*>>(
+    val logSignals = listOf(
         SpikesSignals::spiked,
     )
     println("Experiment start time $startTime")
@@ -127,7 +127,7 @@ fun runSimulation(
         }
     }
 
-    val s = Model(objects, config)
+    val s = Model(Structure(objects), config)
     val stopTime = (time.toBigDecimal() / config.timeResolution.toBigDecimal()).toLong()
     s?.simulate(saver) { it.nextTime() > stopTime }
     saver.closeModelWriters()

@@ -1,5 +1,6 @@
 package org.jetbrains.research.mads.examples.training.lif
 
+import org.jetbrains.research.mads.core.configuration.Structure
 import org.jetbrains.research.mads.examples.SynapsesParameters
 import org.jetbrains.research.mads.examples.Topology
 import org.jetbrains.research.mads.examples.runExperiment
@@ -53,7 +54,7 @@ fun mnist3PhaseLif() {
             Topology.SECOND_LAYER to hashSetOf(SpikesSignals::spikeCounter),
             Topology.OUTPUT_LAYER to hashSetOf(SpikesSignals::spikeCounter)
         ),
-        topology,
+        Structure(topology),
         trainPhaseLifConfig()
     ) { provider.imageIndex >= trainSize }
     runExperiment(
@@ -62,7 +63,7 @@ fun mnist3PhaseLif() {
             Topology.INPUT_LAYER to hashSetOf(CurrentStimuli::stimuli),
             Topology.SECOND_LAYER to hashSetOf(SpikesSignals::spikeCounter)
         ),
-        topology,
+        Structure(topology),
         testPhaseLifConfig()
     ) { provider.imageIndex >= trainSize + assignSize }
     runExperiment(
@@ -71,7 +72,7 @@ fun mnist3PhaseLif() {
             Topology.INPUT_LAYER to hashSetOf(CurrentStimuli::stimuli),
             Topology.SECOND_LAYER to hashSetOf(SpikesSignals::spikeCounter)
         ),
-        topology,
+        Structure(topology),
         testPhaseLifConfig()
     ) { provider.imageIndex >= trainSize + assignSize + testSize }
 }
