@@ -55,9 +55,9 @@ val moveConfig = configure {
                 it.type == "gather"
             }
             constants = MoveConstants(
-                signal = DiffusibleSignals::A,
-                MovementType.Direct,
-                DirectionSelection.Gradient
+                signalString = Signals.getName(DiffusibleSignals::A),
+                movementType = MovementType.Direct,
+                directionSelection = DirectionSelection.Gradient
             )
         }
     })

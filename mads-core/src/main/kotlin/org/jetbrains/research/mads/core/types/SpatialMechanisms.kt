@@ -11,11 +11,11 @@ open class SpatialConstants(val signal: KProperty1<out Signals, Double>): Mechan
 }
 
 class MoveConstants(
-    signal: KProperty1<out Signals, Double>, //TODO: this one won't work in that way for insoluble types, but we can??? switch implementation of type as a Signals
+    val signalString: String,
     val movementType: MovementType,
     val directionSelection: DirectionSelection,
     val precision: Int = 12
-) : SpatialConstants(signal)
+) : MechanismConstants
 
 class DiffuseConstants(
     signal: KProperty1<out Signals, Double>,
