@@ -4,13 +4,13 @@ val tagName = System.getenv("GIT_TAG") ?: "unspecified"
 val groupName = "org.jetbrains.research.mads"
 val javaVersion = JavaVersion.VERSION_17 // Adjust this to the desired Java version
 val javaLanguageVersion = JavaLanguageVersion.of(javaVersion.toString())
-val kotlinVersion = "1.8.0" // Adjust this to the desired Kotlin version
+val kotlinVersion = "1.9.0" // Adjust this to the desired Kotlin version
 val excludedModules = setOf(":mads-examples") // Examples won't be published, but still compiled
 
 plugins {
     java
     id("maven-publish")
-    kotlin("jvm") version "1.8.0"
+    kotlin("jvm") version "1.9.0"
 }
 
 java {
@@ -45,14 +45,6 @@ subprojects {
     }
 
     tasks {
-//        matching { task ->
-//            excludedModules.any { modulePath ->
-//                task.project == project(modulePath)
-//            }
-//        }.configureEach {
-//            onlyIf { false } // Skip tasks for the modules
-//        }
-
         withType<KotlinCompile> {
             kotlinOptions {
                 jvmTarget = javaVersion.toString()
