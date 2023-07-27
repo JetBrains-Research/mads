@@ -98,7 +98,7 @@ fun Neuron.updateSpikeCounter(params: MechanismParameters): List<Response> {
             }
         )
     } else
-        EmptyResponseList
+        standardResponseList
 }
 
 @ExperimentalMechanism
@@ -119,7 +119,7 @@ fun Neuron.weightNormalizationDivisive(params: MechanismParameters): List<Respon
             val synapseSignals = (it as Synapse).signals[SynapseSignals::class] as SynapseSignals
             val newWeight = synapseSignals.weight * coefficient
             it.createResponse { synapseSignals.weight = newWeight }
-        }?.toList() ?: EmptyResponseList
+        }?.toList() ?: standardResponseList
     } else
-        EmptyResponseList
+        standardResponseList
 }

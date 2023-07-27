@@ -51,6 +51,7 @@ abstract class ModelObject internal constructor(val id: Long, vararg signals: Si
     val signals: MutableMap<KClass<out Signals>, Signals> = mutableMapOf()
 
     private val operatedChildren: MutableMap<ModelObject, String> = mutableMapOf()
+    val standardResponseList = listOf(createEmptyResponse())
 
     var coordinate: Int
         get() {

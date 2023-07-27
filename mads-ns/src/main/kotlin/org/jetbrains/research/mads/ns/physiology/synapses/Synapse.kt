@@ -167,7 +167,7 @@ fun Synapse.preWeightUpdate(params: MechanismParameters): List<Response> {
             }
         )
     } else
-        EmptyResponseList
+        standardResponseList
 }
 
 // postsynaptic
@@ -193,5 +193,5 @@ fun Synapse.postWeightUpdate(params: MechanismParameters): List<Response> {
             }
         )
     } else
-        EmptyResponseList
+        standardResponseList
 }

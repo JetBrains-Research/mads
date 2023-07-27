@@ -1,6 +1,5 @@
 package org.jetbrains.research.mads.ns.physiology.neurons
 
-import org.jetbrains.research.mads.core.types.EmptyResponseList
 import org.jetbrains.research.mads.core.types.MechanismParameters
 import org.jetbrains.research.mads.core.types.Response
 import org.jetbrains.research.mads.core.types.Signals
@@ -31,7 +30,7 @@ fun InputNeuron.probabilisticSpike(params: MechanismParameters): List<Response> 
         )
     }
 
-    return EmptyResponseList
+    return standardResponseList
 }
 
 @Suppress("UNUSED_PARAMETER")

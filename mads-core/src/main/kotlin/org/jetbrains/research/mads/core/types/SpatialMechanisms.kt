@@ -123,7 +123,7 @@ fun ModelObject.signalIn(parameters: MechanismParameters) : List<Response> {
             },
         )
     } else
-        EmptyResponseList
+        standardResponseList
 }
 
 @ExperimentalMechanism
@@ -148,5 +148,5 @@ fun ModelObject.signalOut(parameters: MechanismParameters) : List<Response> {
             }
         )
     } else
-        EmptyResponseList
+        standardResponseList
 }
